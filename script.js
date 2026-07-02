@@ -68,6 +68,12 @@ const setupBrandFilters = () => {
       setActiveBrand(filter.dataset.brandFilter);
     });
   });
+
+  const requestedBrand = new URLSearchParams(window.location.search).get("brand");
+  if (requestedBrand && Array.from(filters).some((filter) => filter.dataset.brandFilter === requestedBrand)) {
+    setActiveBrand(requestedBrand);
+    document.querySelector("[data-brand-panel]:not([hidden])")?.scrollIntoView({ block: "start" });
+  }
 };
 
 const setupResultsFilters = () => {
@@ -319,6 +325,14 @@ document.querySelectorAll("[data-cart-add]").forEach((button) => {
       button.textContent = "Add to cart";
     }, 1100);
   });
+});
+
+document.querySelector("[data-newsletter-form]")?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const email = new FormData(event.currentTarget).get("email")?.toString().trim();
+  if (email) {
+    window.location.href = `mailto:luzellec4@gmail.com?subject=${encodeURIComponent("Lullubelle Skin Notes signup")}&body=${encodeURIComponent(`Please add ${email} to the Lullubelle Skin Notes list.`)}`;
+  }
 });
 
 consultationCartForm?.addEventListener("submit", (event) => {
