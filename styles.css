@@ -826,7 +826,7 @@ h3 {
 }
 
 .supplier-section {
-  padding: 32px var(--section-inline) 24px;
+  padding: 24px var(--section-inline) 16px;
 }
 
 .supplier-section .section-heading {
@@ -912,8 +912,12 @@ h3 {
 }
 
 .product-price-section {
-  padding: 24px var(--section-inline) 32px;
+  padding: 28px var(--section-inline) 48px;
   background: #fff;
+}
+
+.shop-page .product-price-section .section-heading {
+  margin-bottom: 24px;
 }
 
 .payments-section {
@@ -2237,7 +2241,72 @@ input,textarea,select,button {
 
   .shop-hero {
     min-height: auto;
-    padding: 104px var(--section-inline) 24px;
+    padding: 78px var(--section-inline) 12px;
+  }
+
+  .shop-hero .eyebrow {
+    margin-bottom: 6px;
+  }
+
+  .shop-hero h1 {
+    font-size: clamp(2rem, 8.5vw, 2.65rem);
+  }
+
+  .shop-hero .section-heading p:not(.eyebrow) {
+    display: -webkit-box;
+    margin-top: 10px;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    line-height: 1.45;
+  }
+
+  .shop-page .supplier-section {
+    padding-top: 16px;
+    padding-bottom: 8px;
+  }
+
+  .shop-page .supplier-section .section-heading {
+    margin-bottom: 14px;
+  }
+
+  .shop-page .supplier-section .eyebrow,
+  .shop-page .supplier-section .section-heading p:not(.eyebrow) {
+    display: none;
+  }
+
+  .shop-page .supplier-section h2 {
+    font-size: clamp(1.45rem, 6.5vw, 1.8rem);
+  }
+
+  .shop-page .supplier-tabs {
+    gap: 8px;
+  }
+
+  .shop-page .supplier-tab {
+    flex: 1 1 calc(33.333% - 8px);
+    width: auto;
+    min-height: 44px;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  .shop-page .product-price-section {
+    padding-top: 28px;
+    padding-bottom: 48px;
+  }
+
+  .shop-page .product-price-section .section-heading {
+    margin-bottom: 20px;
+  }
+
+  .shop-page .product-price-section .section-heading p:not(.eyebrow) {
+    margin-top: 10px;
+  }
+
+  .shop-page .conversion-dock {
+    bottom: max(10px, env(safe-area-inset-bottom));
   }
 
   .booking-form input,.booking-form textarea,.checkout-details input {
