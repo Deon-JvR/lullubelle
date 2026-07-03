@@ -1,0 +1,15 @@
+Use this extraction package to build a verified VitaDerm catalogue from the official VitaDerm website.
+
+Steps:
+1. Run: npm install
+2. Run: npm run extract
+3. Review output in ./vitaderm-output/
+4. Confirm every product row has product_name, category, price, description, local_image_path and source_url.
+5. Manually review rows with manual_review_notes.
+6. Import vitaderm_complete_catalogue_for_codex.csv or .json into the Lullubelle shop.
+7. Store images locally. Do not hotlink official VitaDerm images.
+8. Preserve official spelling: VitaDerm.
+9. Add filters by brand, category, skin type and skin concern where available.
+10. Ensure product cards and product pages match the premium Lullubelle design.
+
+Important: Use official VitaDerm images and copy only if Lullubelle is authorised/allowed to use them as a stockist/reseller.

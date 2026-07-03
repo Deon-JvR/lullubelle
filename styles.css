@@ -3571,6 +3571,182 @@ input,textarea,select,button {
   }
 }
 
+/* Epilfree before-and-after feature and lightbox */
+.epilfree-result-card {
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+  grid-template-rows: 1fr;
+}
+
+.epilfree-comparison {
+  align-self: stretch;
+}
+
+.epilfree-comparison figure {
+  overflow: hidden;
+}
+
+.result-lightbox-trigger {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  cursor: zoom-in;
+  background: var(--paper);
+}
+
+.epilfree-crop {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1080 / 527;
+  overflow: hidden;
+}
+
+.epilfree-crop img {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: auto;
+  max-width: none;
+  aspect-ratio: auto;
+  object-fit: initial;
+  transition: transform 260ms ease;
+}
+
+.epilfree-before img {
+  top: 0;
+}
+
+.epilfree-after img {
+  bottom: 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .result-lightbox-trigger:hover img {
+    transform: scale(1.035);
+  }
+}
+
+.result-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.result-tags li {
+  padding: 5px 9px;
+  border: 1px solid rgba(49, 91, 60, 0.16);
+  border-radius: 999px;
+  color: var(--muted);
+  background: var(--mist);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.result-lightbox {
+  width: min(94vw, 1080px);
+  max-height: 92vh;
+  padding: 14px;
+  border: 0;
+  border-radius: var(--radius-card);
+  background: #fff;
+  box-shadow: 0 28px 80px rgba(17, 21, 18, 0.3);
+}
+
+.result-lightbox::backdrop {
+  background: rgba(10, 20, 13, 0.78);
+  backdrop-filter: blur(4px);
+}
+
+.result-lightbox img {
+  width: 100%;
+  max-height: calc(92vh - 76px);
+  object-fit: contain;
+}
+
+.result-lightbox p {
+  margin: 10px 42px 0 4px;
+  color: var(--leaf-dark);
+  font-weight: 800;
+}
+
+.result-lightbox-close {
+  position: absolute;
+  z-index: 2;
+  top: 20px;
+  right: 20px;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(23, 53, 31, 0.92);
+  cursor: pointer;
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+@media (max-width: 860px) {
+  .epilfree-result-card {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .epilfree-comparison {
+    grid-template-columns: 1fr;
+  }
+
+  .result-lightbox {
+    width: calc(100vw - 20px);
+    padding: 8px;
+  }
+
+  .result-lightbox-close {
+    top: 14px;
+    right: 14px;
+  }
+}
+
+/* Single-action floating booking dock */
+.conversion-dock {
+  justify-content: center;
+  width: min(420px, calc(100% - 32px));
+}
+
+.conversion-dock .button {
+  flex: 0 1 320px;
+  width: min(100%, 320px);
+  min-height: 48px;
+}
+
+@media (max-width: 520px) {
+  body {
+    padding-bottom: calc(76px + env(safe-area-inset-bottom));
+  }
+
+  .conversion-dock {
+    width: 100%;
+    padding: 6px 14px calc(6px + env(safe-area-inset-bottom));
+  }
+
+  .conversion-dock .button {
+    flex-basis: 360px;
+    width: min(100%, 360px);
+    min-height: 48px;
+    padding-block: 10px;
+  }
+}
+
 /* Brand consistency and premium component system */
 :root {
   --space-xs: 8px;

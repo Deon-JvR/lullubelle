@@ -115,8 +115,82 @@ const setupResultsFilters = () => {
   });
 };
 
+const setupVitaDermCatalogue = async () => {
+  const grid = document.querySelector("[data-vitaderm-products]");
+  if (!grid) return;
+
+  try {
+    const response = await fetch("products/vitaderm/catalogue.json");
+    if (!response.ok) throw new Error("Catalogue unavailable");
+    const products = await response.json();
+
+    grid.innerHTML = products.map((product) => {
+      const slug = product.source_url.split("/").filter(Boolean).pop();
+      const image = `products/vitaderm/${slug}.webp`;
+      const description = product.description.replace(/^Description\s*/i, "");
+      const summary = description.length > 180 ? `${description.slice(0, 177).trim()}…` : description;
+      return `
+        <article class="kalahari-item">
+          <div class="product-image-wrap"><img src="${escapeHtml(image)}" alt="VitaDerm ${escapeHtml(product.name)}" width="900" height="900" decoding="async" loading="lazy"></div>
+          <h3>${escapeHtml(product.name)}</h3>
+          <strong>${formatCurrency(Number(product.price))}</strong>
+          ${product.size ? `<small>${escapeHtml(product.size)}</small>` : ""}
+          <p>${escapeHtml(summary)}</p>
+          <button class="button secondary" type="button" data-vitaderm-cart-add data-product-id="vitaderm-${escapeHtml(slug)}" data-product-name="VitaDerm ${escapeHtml(product.name)}" data-product-price="${Number(product.price)}" data-product-image="${escapeHtml(image)}">Add to cart</button>
+        </article>`;
+    }).join("");
+
+    grid.querySelectorAll("[data-vitaderm-cart-add]").forEach((button) => {
+      button.addEventListener("click", () => {
+        addToCart({
+          id: button.dataset.productId,
+          name: button.dataset.productName,
+          price: Number(button.dataset.productPrice) || 0,
+          image: button.dataset.productImage,
+        });
+        button.textContent = "Added";
+        window.setTimeout(() => { button.textContent = "Add to cart"; }, 1100);
+      });
+    });
+  } catch {
+    grid.innerHTML = "<p>VitaDerm products could not be loaded. Please contact Lullubelle for current availability.</p>";
+  }
+};
+
+const setupResultLightbox = () => {
+  const lightbox = document.querySelector("[data-result-lightbox]");
+  const image = lightbox?.querySelector("[data-lightbox-full-image]");
+  const closeButton = lightbox?.querySelector("[data-lightbox-close]");
+  const triggers = document.querySelectorAll("[data-lightbox-image]");
+
+  if (!lightbox || !image || !triggers.length) {
+    return;
+  }
+
+  triggers.forEach((trigger) => {
+    trigger.addEventListener("click", () => {
+      image.src = trigger.dataset.lightboxImage;
+      image.alt = trigger.dataset.lightboxAlt || "";
+      if (typeof lightbox.showModal === "function") {
+        lightbox.showModal();
+      } else {
+        lightbox.setAttribute("open", "");
+      }
+    });
+  });
+
+  closeButton?.addEventListener("click", () => lightbox.close());
+  lightbox.addEventListener("click", (event) => {
+    if (event.target === lightbox) {
+      lightbox.close();
+    }
+  });
+};
+
 setupBrandFilters();
+setupVitaDermCatalogue();
 setupResultsFilters();
+setupResultLightbox();
 
 const CART_KEY = "lullubelleCart";
 const currencyFormatter = new Intl.NumberFormat("en-ZA", {
