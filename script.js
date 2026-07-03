@@ -216,7 +216,8 @@ const setupFeaturedProducts = async () => {
     grid.innerHTML = featured.map((product, index) => `
       <article class="featured-product-card">
         <a class="featured-product-image" href="${escapeHtml(product.shopUrl || "shop.html")}" aria-label="View ${escapeHtml(product.brand)} ${escapeHtml(product.name)}">
-          <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" width="650" height="650" decoding="async" loading="${index === 0 ? "eager" : "lazy"}"${index === 0 ? ' fetchpriority="high"' : ""}>
+          ${product.badge ? `<span class="product-status-badge">${escapeHtml(product.badge)}</span>` : ""}
+          <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" width="650" height="650" decoding="async" loading="lazy">
         </a>
         <div>
           <span class="product-brand-badge" data-brand="${escapeHtml(product.brand.toLowerCase())}">${escapeHtml(product.brand)}</span>
@@ -236,6 +237,26 @@ const setupFeaturedProducts = async () => {
         window.setTimeout(() => { button.textContent = "Add to Cart"; }, 1100);
       });
     });
+
+    const previousButton = document.querySelector("[data-featured-carousel-prev]");
+    const nextButton = document.querySelector("[data-featured-carousel-next]");
+    const updateControls = () => {
+      const atStart = grid.scrollLeft <= 2;
+      const atEnd = grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 2;
+      if (previousButton) previousButton.disabled = atStart;
+      if (nextButton) nextButton.disabled = atEnd;
+    };
+    const moveCarousel = (direction) => {
+      const card = grid.querySelector(".featured-product-card");
+      if (!card) return;
+      const gap = Number.parseFloat(getComputedStyle(grid).columnGap) || 0;
+      grid.scrollBy({ left: direction * (card.getBoundingClientRect().width + gap), behavior: "smooth" });
+    };
+    previousButton?.addEventListener("click", () => moveCarousel(-1));
+    nextButton?.addEventListener("click", () => moveCarousel(1));
+    grid.addEventListener("scroll", updateControls, { passive: true });
+    window.addEventListener("resize", updateControls);
+    updateControls();
   } catch {
     grid.innerHTML = '<p>Featured products are temporarily unavailable. <a class="text-link" href="shop.html">Browse the full shop</a>.</p>';
   }
