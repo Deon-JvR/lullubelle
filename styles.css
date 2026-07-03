@@ -2526,7 +2526,78 @@ input,textarea,select,button {
 }
 
 .storefront-hero .hero-actions {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 10px;
   margin-top: 24px;
+}
+
+.storefront-hero .hero-actions .button {
+  min-height: 48px;
+  padding: 12px 18px;
+  white-space: nowrap;
+}
+
+.hero-book-button {
+  color: #fff;
+  border: 1px solid var(--leaf-dark);
+  background: var(--leaf-dark);
+  box-shadow: 0 14px 30px rgba(23, 53, 31, 0.2);
+}
+
+.hero-services-button {
+  color: var(--leaf-dark);
+  border: 1px solid var(--leaf);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 10px 24px rgba(23, 53, 31, 0.1);
+}
+
+.hero-book-button:hover,
+.hero-services-button:hover {
+  box-shadow: 0 16px 30px rgba(23, 53, 31, 0.2);
+}
+
+.treatment-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+}
+
+.duration-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 5px 10px;
+  border: 1px solid rgba(196, 164, 91, 0.42);
+  border-radius: 999px;
+  color: var(--leaf);
+  background: rgba(196, 164, 91, 0.12);
+  font-family: Arial, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.treatment-list .treatment-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 0;
+}
+
+.treatment-list .duration-badge {
+  display: inline-flex;
+  min-height: 26px;
+  margin-top: 0;
+  color: var(--leaf);
+  font-size: 0.7rem;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .storefront-heading {
@@ -2990,14 +3061,18 @@ input,textarea,select,button {
     grid-column: 1 / -1;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    gap: 10px;
   }
 
   .storefront-hero .hero-actions .button {
     width: auto;
-    min-height: 44px;
+    min-height: 48px;
     padding: 10px 12px;
     font-size: 0.88rem;
+  }
+
+  .storefront-hero .hero-actions .hero-services-button {
+    grid-column: 1 / -1;
   }
 
   .featured-products {
@@ -3077,5 +3152,15 @@ input,textarea,select,button {
 
   .footer-bottom > div {
     flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 340px) {
+  .storefront-hero .hero-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .storefront-hero .hero-actions .hero-services-button {
+    grid-column: auto;
   }
 }
