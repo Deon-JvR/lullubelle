@@ -160,6 +160,7 @@ const setupVitaDermCatalogue = async () => {
 const setupResultLightbox = () => {
   const lightbox = document.querySelector("[data-result-lightbox]");
   const image = lightbox?.querySelector("[data-lightbox-full-image]");
+  const title = lightbox?.querySelector("[data-lightbox-title]");
   const closeButton = lightbox?.querySelector("[data-lightbox-close]");
   const triggers = document.querySelectorAll("[data-lightbox-image]");
 
@@ -171,6 +172,7 @@ const setupResultLightbox = () => {
     trigger.addEventListener("click", () => {
       image.src = trigger.dataset.lightboxImage;
       image.alt = trigger.dataset.lightboxAlt || "";
+      if (title) title.textContent = trigger.dataset.lightboxTitle || trigger.dataset.lightboxAlt || "Treatment result";
       if (typeof lightbox.showModal === "function") {
         lightbox.showModal();
       } else {

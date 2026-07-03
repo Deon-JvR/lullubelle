@@ -3578,6 +3578,40 @@ input,textarea,select,button {
   grid-template-rows: 1fr;
 }
 
+.microneedling-result-card,
+.advanced-facial-result-card {
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+  grid-template-rows: 1fr;
+}
+
+.result-feature-media {
+  min-width: 0;
+  padding: 18px;
+  background: var(--paper);
+}
+
+.result-treatment-name {
+  margin: 0 0 12px;
+  color: var(--leaf-dark);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.result-feature-media .result-lightbox-trigger {
+  height: auto;
+  border-radius: calc(var(--radius-card) - 6px);
+}
+
+.result-feature-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: transform 260ms ease;
+}
+
 .epilfree-comparison {
   align-self: stretch;
 }
@@ -3696,7 +3730,9 @@ input,textarea,select,button {
 }
 
 @media (max-width: 860px) {
-  .epilfree-result-card {
+  .epilfree-result-card,
+  .microneedling-result-card,
+  .advanced-facial-result-card {
     grid-template-columns: 1fr;
   }
 }
