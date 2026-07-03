@@ -3164,3 +3164,203 @@ input,textarea,select,button {
     grid-column: auto;
   }
 }
+
+/* Final conversion and mobile polish */
+.storefront-hero {
+  min-height: min(420px, 52svh);
+  gap: clamp(22px, 4vw, 54px);
+  padding-top: 88px;
+  padding-bottom: 28px;
+}
+
+.storefront-hero .hero-media {
+  width: clamp(170px, 19vw, 230px);
+  height: clamp(170px, 19vw, 230px);
+}
+
+.storefront-hero .lead {
+  margin-top: 12px;
+}
+
+.storefront-hero .hero-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.storefront-hero .hero-actions .button {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  color: #fff;
+  border: 0;
+  background: var(--leaf);
+  box-shadow: 0 14px 30px rgba(49, 91, 60, 0.24);
+  white-space: nowrap;
+}
+
+.storefront-hero .hero-actions .button:hover {
+  color: #fff;
+  background: var(--leaf-dark);
+  box-shadow: 0 18px 32px rgba(23, 53, 31, 0.26);
+}
+
+.treatment-feature-card .treatment-book-button {
+  align-self: end;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.local-seo-section {
+  max-width: 920px;
+  margin: 42px auto 0;
+  padding: clamp(24px, 4vw, 38px);
+  text-align: center;
+  border: 1px solid rgba(49, 91, 60, 0.14);
+  border-radius: var(--radius-card);
+  background: #f7f3eb;
+}
+
+.local-seo-section h3 {
+  margin-top: 8px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.7rem, 3vw, 2.35rem);
+}
+
+.local-seo-section p:last-child {
+  max-width: 760px;
+  margin: 14px auto 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.shop-hero {
+  padding-top: 92px;
+  padding-bottom: 18px;
+}
+
+.supplier-section {
+  padding-top: 18px;
+  padding-bottom: 8px;
+}
+
+.supplier-section .section-heading {
+  margin-bottom: 18px;
+}
+
+.product-price-section {
+  padding-top: 28px;
+}
+
+@media (max-width: 768px) {
+  .storefront-hero {
+    min-height: auto;
+    gap: 12px;
+    padding-top: 72px;
+    padding-bottom: 20px;
+  }
+
+  .storefront-hero .hero-media {
+    width: 92px;
+    height: 92px;
+  }
+
+  .storefront-hero .hero-actions {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .storefront-hero .hero-actions .button {
+    min-height: 48px;
+    padding: 10px 8px;
+    font-size: 0.82rem;
+    white-space: normal;
+  }
+
+  .shop-hero {
+    padding-top: 72px;
+    padding-bottom: 8px;
+  }
+
+  .supplier-section {
+    padding-top: 12px;
+  }
+
+  .product-price-section {
+    padding-top: 22px;
+  }
+}
+
+@media (max-width: 520px) {
+  .home-storefront .section {
+    padding-block: 32px;
+  }
+
+  .storefront-hero {
+    grid-template-columns: minmax(0, 1fr) 68px;
+    gap: 8px;
+    padding-top: 68px;
+    padding-bottom: 18px;
+  }
+
+  .storefront-hero h1 {
+    font-size: clamp(1.95rem, 9.5vw, 2.35rem);
+  }
+
+  .storefront-hero .hero-media {
+    width: 68px;
+    height: 68px;
+  }
+
+  .storefront-hero .lead {
+    margin-top: 8px;
+    font-size: 0.94rem;
+  }
+
+  .storefront-hero .hero-actions {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .storefront-hero .hero-actions .button:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .featured-products {
+    padding-top: 26px !important;
+  }
+
+  .local-seo-section {
+    margin-top: 32px;
+    text-align: left;
+  }
+
+  .shop-hero {
+    padding-top: 68px;
+    padding-bottom: 6px;
+  }
+
+  .supplier-section .section-heading p:not(.eyebrow) {
+    display: none;
+  }
+
+  .supplier-section .section-heading {
+    margin-bottom: 14px;
+  }
+
+  .product-price-section {
+    padding-top: 18px;
+  }
+}
+
+@media (max-width: 340px) {
+  .storefront-hero .hero-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .storefront-hero .hero-actions .button:last-child {
+    grid-column: auto;
+  }
+}
