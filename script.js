@@ -189,8 +189,61 @@ const setupResultLightbox = () => {
   });
 };
 
+const setupFeaturedProducts = async () => {
+  const grid = document.querySelector("[data-featured-products]");
+  if (!grid) return;
+
+  try {
+    const response = await fetch("products/featured-products.json");
+    if (!response.ok) throw new Error("Featured product configuration unavailable");
+    const configData = await response.json();
+    const perBrand = Number(configData.productsPerBrand) || 2;
+    const brandOrder = Array.isArray(configData.brandOrder) ? configData.brandOrder : [];
+    const products = Array.isArray(configData.products) ? configData.products : [];
+    const selectedByBrand = new Map(brandOrder.map((brand) => [brand, products
+      .filter((product) => product.brand === brand && product.available !== false)
+      .sort((a, b) => (Number(a.priority) || 99) - (Number(b.priority) || 99))
+      .slice(0, perBrand)]));
+    const featured = [];
+    for (let index = 0; index < perBrand; index += 1) {
+      brandOrder.forEach((brand) => {
+        const product = selectedByBrand.get(brand)?.[index];
+        if (product) featured.push(product);
+      });
+    }
+    if (!featured.length) throw new Error("No featured products available");
+
+    grid.innerHTML = featured.map((product, index) => `
+      <article class="featured-product-card">
+        <a class="featured-product-image" href="${escapeHtml(product.shopUrl || "shop.html")}" aria-label="View ${escapeHtml(product.brand)} ${escapeHtml(product.name)}">
+          <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" width="650" height="650" decoding="async" loading="${index === 0 ? "eager" : "lazy"}"${index === 0 ? ' fetchpriority="high"' : ""}>
+        </a>
+        <div>
+          <span class="product-brand-badge" data-brand="${escapeHtml(product.brand.toLowerCase())}">${escapeHtml(product.brand)}</span>
+          <h3>${escapeHtml(product.name)}</h3>
+          <strong>${formatCurrency(Number(product.price))}</strong>
+          <div class="featured-product-actions">
+            <button class="button secondary" type="button" data-featured-cart-add data-product-id="${escapeHtml(product.id)}" data-product-name="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" data-product-price="${Number(product.price)}" data-product-image="${escapeHtml(product.image)}">Add to Cart</button>
+            <a class="text-link" href="${escapeHtml(product.shopUrl || "shop.html")}">View Product</a>
+          </div>
+        </div>
+      </article>`).join("");
+
+    grid.querySelectorAll("[data-featured-cart-add]").forEach((button) => {
+      button.addEventListener("click", () => {
+        addToCart({ id: button.dataset.productId, name: button.dataset.productName, price: Number(button.dataset.productPrice) || 0, image: button.dataset.productImage });
+        button.textContent = "Added";
+        window.setTimeout(() => { button.textContent = "Add to Cart"; }, 1100);
+      });
+    });
+  } catch {
+    grid.innerHTML = '<p>Featured products are temporarily unavailable. <a class="text-link" href="shop.html">Browse the full shop</a>.</p>';
+  }
+};
+
 setupBrandFilters();
 setupVitaDermCatalogue();
+setupFeaturedProducts();
 setupResultsFilters();
 setupResultLightbox();
 

@@ -1,0 +1,15 @@
+{
+  "productsPerBrand": 2,
+  "brandOrder": ["Kalahari", "VitaDerm", "Mesoestetic"],
+  "products": [
+    {"id":"kalahari-facial-cleanser","brand":"Kalahari","name":"Facial Cleanser","price":278,"image":"products/kalahari-facial-cleanser.webp","shopUrl":"shop.html?brand=Kalahari","available":true,"priority":1},
+    {"id":"kalahari-essential-daily-moisturiser","brand":"Kalahari","name":"Essential Daily Moisturiser","price":405,"image":"products/kalahari-essential-daily-moisturiser.webp","shopUrl":"shop.html?brand=Kalahari","available":true,"priority":2},
+    {"id":"kalahari-spf-40-sun-protection","brand":"Kalahari","name":"SPF 40 Sun Protection","price":457,"image":"products/kalahari-spf-40-sun-protection.webp","shopUrl":"shop.html?brand=Kalahari","available":true,"priority":3},
+    {"id":"vitaderm-gentle-cream-cleanser","brand":"VitaDerm","name":"Gentle Cream Cleanser","price":410,"image":"products/vitaderm/gentle-cream-cleanser.webp","shopUrl":"shop.html?brand=VitaDerm","available":true,"priority":1},
+    {"id":"vitaderm-intensive-hydrating-serum","brand":"VitaDerm","name":"Intensive Hydrating Serum","price":730,"image":"products/vitaderm/intensive-hydrating-serum.webp","shopUrl":"shop.html?brand=VitaDerm","available":true,"priority":2},
+    {"id":"vitaderm-invisible-photo-defence-spf50","brand":"VitaDerm","name":"Invisible Photo Defence SPF50","price":578,"image":"products/vitaderm/invisible-photo-defence-spf50.webp","shopUrl":"shop.html?brand=VitaDerm","available":true,"priority":3},
+    {"id":"mesoestetic-hydra-vital-light","brand":"Mesoestetic","name":"Hydra-Vital Light","price":2135,"image":"products/mesoestetic/hydra-vital-light.webp","shopUrl":"shop.html?brand=Mesoestetic","available":true,"priority":1},
+    {"id":"mesoestetic-fast-skin-repair","brand":"Mesoestetic","name":"Fast Skin Repair","price":1889,"image":"products/mesoestetic/fast-skin-repair.webp","shopUrl":"shop.html?brand=Mesoestetic","available":true,"priority":2},
+    {"id":"mesoestetic-skin-balance","brand":"Mesoestetic","name":"Skin Balance","price":2759,"image":"products/mesoestetic/skin-balance.webp","shopUrl":"shop.html?brand=Mesoestetic","available":true,"priority":3}
+  ]
+}
