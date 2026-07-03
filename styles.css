@@ -116,19 +116,6 @@ body {
   background: var(--paper);
 }
 
-.result-comparison figcaption {
-  position: absolute;
-  right: 8px;
-  bottom: 8px;
-  padding: 5px 8px;
-  color: #fff;
-  background: rgba(23, 53, 31, 0.9);
-  border-radius: 4px;
-  font-size: 0.72rem;
-  font-weight: 800;
-  text-transform: uppercase;
-}
-
 .result-card-content {
   display: grid;
   grid-template-rows: auto 1fr auto auto;
@@ -3307,6 +3294,23 @@ input,textarea,select,button {
   }
 }
 
+/* Balanced mobile hero actions */
+.storefront-hero .hero-actions .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.hero-button-icon {
+  flex: 0 0 auto;
+  font-size: 0.86em;
+  line-height: 1;
+  opacity: 0.76;
+}
+
 /* Appointment request page */
 .appointment-page {
   display: grid;
@@ -3721,7 +3725,8 @@ input,textarea,select,button {
 }
 
 .microneedling-result-card,
-.advanced-facial-result-card {
+.advanced-facial-result-card,
+.cosmelan-result-card {
   grid-column: 1 / -1;
   grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
   grid-template-rows: 1fr;
@@ -3874,7 +3879,8 @@ input,textarea,select,button {
 @media (max-width: 860px) {
   .epilfree-result-card,
   .microneedling-result-card,
-  .advanced-facial-result-card {
+  .advanced-facial-result-card,
+  .cosmelan-result-card {
     grid-template-columns: 1fr;
   }
 }
@@ -4112,5 +4118,38 @@ input,textarea,select,button {
 
   .storefront-hero .hero-actions .button:last-child {
     grid-column: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .storefront-hero .hero-actions {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .storefront-hero .hero-actions .button,
+  .storefront-hero .hero-actions .button.primary {
+    display: inline-flex;
+    width: 100%;
+    min-height: 48px;
+    padding: 10px 16px;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .storefront-hero .hero-actions .button:last-child {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 399px) {
+  .hero-button-icon {
+    display: none;
   }
 }
