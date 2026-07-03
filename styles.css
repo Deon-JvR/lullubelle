@@ -2906,11 +2906,13 @@ input,textarea,select,button {
 }
 
 .home-result-card {
+  grid-template-rows: auto 1fr;
   color: inherit;
 }
 
 .home-result-image {
-  aspect-ratio: 1 / 1;
+  width: 100%;
+  aspect-ratio: 4 / 5;
   overflow: hidden;
   background: var(--paper);
 }
@@ -2920,6 +2922,7 @@ input,textarea,select,button {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   transition: transform 240ms ease;
 }
 
@@ -2929,6 +2932,7 @@ input,textarea,select,button {
 
 .home-result-card .result-card-content {
   grid-template-rows: auto auto auto 1fr;
+  align-content: start;
 }
 
 .trust-section {
