@@ -3,11 +3,97 @@
   to = "/book-appointment.html"
   status = 200
 
+[[redirects]]
+  from = "/shop"
+  to = "/shop.html"
+  status = 200
+
+[[redirects]]
+  from = "/pricelist"
+  to = "/pricelist.html"
+  status = 200
+
+[[redirects]]
+  from = "/gift-vouchers"
+  to = "/gift-vouchers.html"
+  status = 200
+
+[[redirects]]
+  from = "/beauty-salon-centurion"
+  to = "/beauty-salon-centurion.html"
+  status = 200
+
+[[redirects]]
+  from = "/advanced-facials-centurion"
+  to = "/facials-centurion.html"
+  status = 200
+
+[[redirects]]
+  from = "/microneedling-centurion"
+  to = "/microneedling-centurion.html"
+  status = 200
+
+[[redirects]]
+  from = "/cosmelan-centurion"
+  to = "/cosmelan-centurion.html"
+  status = 200
+
+[[redirects]]
+  from = "/epilfree-centurion"
+  to = "/epilfree-hair-removal-centurion.html"
+  status = 200
+
+[[redirects]]
+  from = "/skin-consultations"
+  to = "/online-consultations.html"
+  status = 200
+
+[[redirects]]
+  from = "/massage-centurion"
+  to = "/massage-centurion.html"
+  status = 200
+
+[[redirects]]
+  from = "/waxing-centurion"
+  to = "/waxing-centurion.html"
+  status = 200
+
+[[redirects]]
+  from = "/cart"
+  to = "/cart.html"
+  status = 200
+
+[[redirects]]
+  from = "/skin-care-essentials"
+  to = "/skin-care-essentials.html"
+  status = 200
+
+[[redirects]]
+  from = "/nail-care-kit"
+  to = "/nail-care-kit.html"
+  status = 200
+
+[[redirects]]
+  from = "/lash-brow-care"
+  to = "/lash-brow-care.html"
+  status = 200
+
+[[redirects]]
+  from = "/body-care-gift-set"
+  to = "/body-care-gift-set.html"
+  status = 200
+
+[[redirects]]
+  from = "/payment-success"
+  to = "/payment-success.html"
+  status = 200
+
 [[headers]]
   for = "/*"
   [headers.values]
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    Cache-Control = "public, max-age=0, must-revalidate"
 
 [[headers]]
   for = "/*.html"

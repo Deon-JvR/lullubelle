@@ -131,12 +131,85 @@ const setupResultsFilters = () => {
   });
 };
 
+const appendStructuredData = (key, data) => {
+  if (document.querySelector(`script[data-generated-schema="${key}"]`)) return;
+  const node = document.createElement("script");
+  node.type = "application/ld+json";
+  node.dataset.generatedSchema = key;
+  node.textContent = JSON.stringify(data);
+  document.head.appendChild(node);
+};
+
+const syncProductSchemas = (scope = document) => {
+  const buttons = Array.from(scope.querySelectorAll("[data-cart-add], [data-featured-cart-add], [data-vitaderm-cart-add]"));
+  const hasStaticProductSchema = Array.from(document.querySelectorAll('script[type="application/ld+json"]'))
+    .some((node) => !node.dataset.productSchema && node.textContent.includes('"@type": "Product"'));
+  if (hasStaticProductSchema && buttons.length === 1) return;
+
+  buttons.forEach((button) => {
+    const id = button.dataset.productId;
+    if (!id || document.querySelector(`script[data-product-schema="${id}"]`)) return;
+    const card = button.closest("article") || button.parentElement;
+    const image = button.dataset.productImage || card?.querySelector("img")?.getAttribute("src") || "lullubelle-logo.jpg";
+    const description = card?.querySelector("p")?.textContent?.trim() || `${button.dataset.productName} available from Lullubelle Beauty Specialist.`;
+    const brand = (button.dataset.productName || "").split(" ")[0] || "Lullubelle";
+    const node = document.createElement("script");
+    node.type = "application/ld+json";
+    node.dataset.productSchema = id;
+    node.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: button.dataset.productName,
+      description,
+      image: new URL(image, window.location.href).href,
+      sku: id,
+      brand: { "@type": "Brand", name: brand },
+      offers: {
+        "@type": "Offer",
+        url: `${window.location.origin}/shop?product=${encodeURIComponent(id)}`,
+        priceCurrency: "ZAR",
+        price: Number(button.dataset.productPrice) || 0,
+        availability: "https://schema.org/InStock",
+        itemCondition: "https://schema.org/NewCondition",
+      },
+    });
+    document.head.appendChild(node);
+  });
+};
+
+const setupPageStructuredData = () => {
+  const path = window.location.pathname;
+  if (path !== "/" && path !== "/index.html") {
+    const heading = document.querySelector("h1")?.textContent?.trim() || document.title.split("|")[0].trim();
+    appendStructuredData("breadcrumb", {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: `${window.location.origin}/` },
+        { "@type": "ListItem", position: 2, name: heading, item: window.location.href.split("#")[0].split("?")[0] },
+      ],
+    });
+  }
+
+  const hasFaqSchema = Array.from(document.querySelectorAll('script[type="application/ld+json"]')).some((node) => node.textContent.includes('"FAQPage"'));
+  if (!hasFaqSchema) {
+    const questions = Array.from(document.querySelectorAll(".faq-list details")).map((detail) => ({
+      "@type": "Question",
+      name: detail.querySelector("summary")?.textContent?.trim(),
+      acceptedAnswer: { "@type": "Answer", text: detail.querySelector("p")?.textContent?.trim() },
+    })).filter((item) => item.name && item.acceptedAnswer.text);
+    if (questions.length) appendStructuredData("faq", { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: questions });
+  }
+
+  syncProductSchemas();
+};
+
 const setupVitaDermCatalogue = async () => {
   const grid = document.querySelector("[data-vitaderm-products]");
   if (!grid) return;
 
   try {
-    const response = await fetch("products/vitaderm/catalogue.json");
+    const response = await fetch("products/vitaderm/catalogue.json?v=20260703y");
     if (!response.ok) throw new Error("Catalogue unavailable");
     const products = await response.json();
 
@@ -168,6 +241,7 @@ const setupVitaDermCatalogue = async () => {
         window.setTimeout(() => { button.textContent = "Add to cart"; }, 1100);
       });
     });
+    syncProductSchemas(grid);
   } catch {
     grid.innerHTML = "<p>VitaDerm products could not be loaded. Please contact Lullubelle for current availability.</p>";
   }
@@ -210,7 +284,7 @@ const setupFeaturedProducts = async () => {
   if (!grid) return;
 
   try {
-    const response = await fetch("products/featured-products.json");
+    const response = await fetch("products/featured-products.json?v=20260703y");
     if (!response.ok) throw new Error("Featured product configuration unavailable");
     const configData = await response.json();
     const perBrand = Number(configData.productsPerBrand) || 2;
@@ -253,6 +327,7 @@ const setupFeaturedProducts = async () => {
         window.setTimeout(() => { button.textContent = "Add to Cart"; }, 1100);
       });
     });
+    syncProductSchemas(grid);
 
     const previousButton = document.querySelector("[data-featured-carousel-prev]");
     const nextButton = document.querySelector("[data-featured-carousel-next]");
@@ -283,6 +358,7 @@ setupVitaDermCatalogue();
 setupFeaturedProducts();
 setupResultsFilters();
 setupResultLightbox();
+setupPageStructuredData();
 
 const CART_KEY = "lullubelleCart";
 const currencyFormatter = new Intl.NumberFormat("en-ZA", {

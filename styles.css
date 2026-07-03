@@ -2618,6 +2618,11 @@ input,textarea,select,button {
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
   overscroll-behavior-inline: contain;
+  min-height: 430px;
+}
+
+[data-vitaderm-products] {
+  min-height: 420px;
 }
 
 .featured-product-grid::-webkit-scrollbar {
@@ -2877,6 +2882,10 @@ input,textarea,select,button {
 .treatment-feature-card h3,
 .treatment-feature-card p {
   margin: 0;
+}
+
+.treatment-feature-card h3 a {
+  color: inherit;
 }
 
 .treatment-feature-card p {
@@ -4083,6 +4092,89 @@ input,textarea,select,button {
 .voucher-card p,
 .review-grid blockquote p {
   line-height: 1.6;
+}
+
+.faq-section {
+  background: linear-gradient(145deg, #f8f5ef, #fff);
+}
+
+.faq-list {
+  display: grid;
+  max-width: 920px;
+  margin: 0 auto;
+  gap: 12px;
+}
+
+.faq-list details {
+  padding: 0 22px;
+  border: 1px solid rgba(49, 91, 60, 0.14);
+  border-radius: var(--radius-card);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 10px 28px rgba(17, 21, 18, 0.05);
+}
+
+.faq-list summary {
+  padding: 20px 34px 20px 0;
+  color: var(--leaf-dark);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.faq-list details p {
+  margin: -4px 0 20px;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.treatment-info-grid,
+.treatment-result-preview {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: center;
+  gap: clamp(28px, 6vw, 72px);
+}
+
+.treatment-info-grid > div {
+  height: 100%;
+  padding: clamp(22px, 4vw, 34px);
+  border: 1px solid rgba(49, 91, 60, 0.14);
+  border-radius: var(--radius-card);
+  background: #fff;
+  box-shadow: var(--shadow-card);
+}
+
+.treatment-points {
+  display: grid;
+  gap: 10px;
+  margin: 20px 0 0;
+  padding-left: 20px;
+  color: var(--muted);
+}
+
+.treatment-result-preview {
+  background: var(--mist);
+}
+
+.treatment-result-preview > a {
+  display: block;
+  overflow: hidden;
+  border-radius: var(--radius-card);
+  background: #fff;
+  box-shadow: var(--shadow-card);
+}
+
+.treatment-result-preview img {
+  display: block;
+  width: 100%;
+  max-height: 560px;
+  object-fit: contain;
+}
+
+@media (max-width: 760px) {
+  .treatment-info-grid,
+  .treatment-result-preview {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 520px) {

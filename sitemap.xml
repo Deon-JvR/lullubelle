@@ -7,7 +7,7 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://www.lullubelle.co.za/shop.html</loc>
+    <loc>https://www.lullubelle.co.za/shop</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
@@ -19,79 +19,85 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.lullubelle.co.za/pricelist.html</loc>
+    <loc>https://www.lullubelle.co.za/pricelist</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.lullubelle.co.za/online-consultations.html</loc>
+    <loc>https://www.lullubelle.co.za/skin-consultations</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.lullubelle.co.za/beauty-salon-centurion.html</loc>
+    <loc>https://www.lullubelle.co.za/beauty-salon-centurion</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.lullubelle.co.za/facials-centurion.html</loc>
+    <loc>https://www.lullubelle.co.za/advanced-facials-centurion</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.lullubelle.co.za/microneedling-centurion.html</loc>
+    <loc>https://www.lullubelle.co.za/microneedling-centurion</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.lullubelle.co.za/waxing-centurion.html</loc>
+    <loc>https://www.lullubelle.co.za/cosmelan-centurion</loc>
+    <lastmod>2026-07-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.lullubelle.co.za/waxing-centurion</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.lullubelle.co.za/massage-centurion.html</loc>
+    <loc>https://www.lullubelle.co.za/massage-centurion</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.lullubelle.co.za/epilfree-hair-removal-centurion.html</loc>
+    <loc>https://www.lullubelle.co.za/epilfree-centurion</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.lullubelle.co.za/skin-care-essentials.html</loc>
+    <loc>https://www.lullubelle.co.za/skin-care-essentials</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.lullubelle.co.za/nail-care-kit.html</loc>
+    <loc>https://www.lullubelle.co.za/nail-care-kit</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.lullubelle.co.za/lash-brow-care.html</loc>
+    <loc>https://www.lullubelle.co.za/lash-brow-care</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.lullubelle.co.za/body-care-gift-set.html</loc>
+    <loc>https://www.lullubelle.co.za/body-care-gift-set</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.lullubelle.co.za/gift-vouchers.html</loc>
+    <loc>https://www.lullubelle.co.za/gift-vouchers</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
