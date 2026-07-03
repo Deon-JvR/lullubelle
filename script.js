@@ -1,6 +1,7 @@
 const navToggle = document.querySelector("[data-nav-toggle]");
 const nav = document.querySelector("[data-nav]");
 const bookingForm = document.querySelector("[data-booking-form]");
+const appointmentBookingForm = document.querySelector("[data-appointment-booking-form]");
 const consultationCartForm = document.querySelector("[data-consultation-cart-form]");
 const config = window.LULLUBELLE_CONFIG || {};
 const analyticsId = config.googleAnalyticsId || "G-7PG6BZR9QV";
@@ -551,3 +552,102 @@ bookingForm?.addEventListener("submit", (event) => {
   }
   window.location.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
 });
+
+appointmentBookingForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  const status = appointmentBookingForm.querySelector("[data-appointment-status]");
+  const fields = {
+    name: appointmentBookingForm.elements.name,
+    mobile: appointmentBookingForm.elements.mobile,
+    email: appointmentBookingForm.elements.email,
+    service: appointmentBookingForm.elements.service,
+    date: appointmentBookingForm.elements.date,
+    time: appointmentBookingForm.elements.time,
+    notes: appointmentBookingForm.elements.notes,
+  };
+  const messages = {
+    name: "Please enter your full name.",
+    mobile: "Please enter a valid mobile number.",
+    email: "Please enter a valid email address.",
+    service: "Please choose a service or treatment.",
+    date: "Please choose your preferred date.",
+    time: "Please choose your preferred time.",
+    notes: "Please add your notes or enter “None”.",
+  };
+
+  let firstInvalid = null;
+  Object.entries(fields).forEach(([name, field]) => {
+    const error = appointmentBookingForm.querySelector(`[data-error-for="${name}"]`);
+    const valid = field.checkValidity();
+    field.setAttribute("aria-invalid", String(!valid));
+    if (error) {
+      error.textContent = valid ? "" : messages[name];
+    }
+    if (!valid && !firstInvalid) {
+      firstInvalid = field;
+    }
+  });
+
+  if (firstInvalid) {
+    if (status) {
+      status.classList.remove("is-success");
+      status.textContent = "Please correct the highlighted fields before continuing.";
+    }
+    firstInvalid.focus();
+    return;
+  }
+
+  const formData = new FormData(appointmentBookingForm);
+  const whatsappNumber = config.whatsappNumber || "27825764219";
+  const whatsappMessage = [
+    "Hi Lullubelle, I would like to book an appointment.",
+    "",
+    `Name: ${formData.get("name")}`,
+    `Mobile: ${formData.get("mobile")}`,
+    `Email: ${formData.get("email")}`,
+    `Service: ${formData.get("service")}`,
+    `Preferred date: ${formData.get("date")}`,
+    `Preferred time: ${formData.get("time")}`,
+    `First-time client: ${formData.get("firstTime") || "Not specified"}`,
+    `Preferred contact method: ${formData.get("contactMethod") || "Not specified"}`,
+    `Notes: ${formData.get("notes")}`,
+    "",
+    "Please confirm availability.",
+  ].join("\n");
+
+  trackEvent("appointment_whatsapp_prepare", {
+    treatment: formData.get("service"),
+    preferred_date: formData.get("date"),
+    preferred_time: formData.get("time"),
+  });
+
+  if (status) {
+    status.classList.add("is-success");
+    status.textContent = "Your booking request has been prepared in WhatsApp. Please press send to complete your request.";
+  }
+  window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`, "_blank", "noopener");
+});
+
+if (appointmentBookingForm) {
+  const dateField = appointmentBookingForm.elements.date;
+  if (dateField) {
+    const today = new Date();
+    const localDate = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().split("T")[0];
+    dateField.min = localDate;
+  }
+
+  appointmentBookingForm.addEventListener("input", (event) => {
+    const field = event.target;
+    if (!(field instanceof HTMLInputElement || field instanceof HTMLSelectElement || field instanceof HTMLTextAreaElement) || !field.name) {
+      return;
+    }
+    const error = appointmentBookingForm.querySelector(`[data-error-for="${field.name}"]`);
+    if (field.checkValidity()) {
+      field.removeAttribute("aria-invalid");
+      if (error) {
+        error.textContent = "";
+      }
+    }
+  });
+}

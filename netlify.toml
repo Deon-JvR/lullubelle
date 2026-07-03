@@ -1,3 +1,8 @@
+[[redirects]]
+  from = "/book-appointment"
+  to = "/book-appointment.html"
+  status = 200
+
 [[headers]]
   for = "/*"
   [headers.values]
