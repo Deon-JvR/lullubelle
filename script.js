@@ -71,8 +71,11 @@ const setupBrandFilters = () => {
   });
 
   const requestedBrand = new URLSearchParams(window.location.search).get("brand");
-  if (requestedBrand && Array.from(filters).some((filter) => filter.dataset.brandFilter === requestedBrand)) {
-    setActiveBrand(requestedBrand);
+  const requestedFilter = requestedBrand
+    ? Array.from(filters).find((filter) => filter.dataset.brandFilter.toLowerCase() === requestedBrand.toLowerCase())
+    : null;
+  if (requestedFilter) {
+    setActiveBrand(requestedFilter.dataset.brandFilter);
     document.querySelector("[data-brand-panel]:not([hidden])")?.scrollIntoView({ block: "start" });
   }
 };
@@ -492,7 +495,7 @@ document.addEventListener("click", (event) => {
       enquiryText = href;
     }
 
-    if (/product|stock|kalahari|vitaderm|mesoestetic|nail|lash|body care/i.test(enquiryText)) {
+    if (/product|stock|Kalahari|VitaDerm|Mesoestetic|nail|lash|body care/i.test(enquiryText)) {
       trackEvent("product_enquiry", {
         ...parameters,
         enquiry_text: enquiryText.slice(0, 120),
