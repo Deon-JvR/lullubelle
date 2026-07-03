@@ -82,12 +82,28 @@ const setupBrandFilters = () => {
 
 const setupResultsFilters = () => {
   const filters = document.querySelectorAll("[data-results-filter]");
-  const cards = document.querySelectorAll("[data-results-card]");
+  const cards = Array.from(document.querySelectorAll("[data-results-card]")).filter((card) => {
+    const images = Array.from(card.querySelectorAll("img"));
+    const hasGenuineImages = images.length > 0 && images.every((image) => {
+      const source = image.getAttribute("src")?.trim();
+      const alt = image.getAttribute("alt")?.trim() || "";
+      return Boolean(source) && !/^placeholder\b/i.test(alt);
+    });
+    if (!hasGenuineImages) card.remove();
+    return hasGenuineImages;
+  });
   const status = document.querySelector("[data-results-status]");
 
   if (!filters.length || !cards.length) {
     return;
   }
+
+  filters.forEach((filter) => {
+    const category = filter.dataset.resultsFilter;
+    filter.hidden = category !== "all" && !cards.some((card) => (card.dataset.resultsCategories || "").split(" ").includes(category));
+  });
+
+  if (status) status.textContent = `Showing ${cards.length} all results`;
 
   filters.forEach((filter) => {
     filter.addEventListener("click", () => {
