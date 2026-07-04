@@ -209,7 +209,7 @@ const setupVitaDermCatalogue = async () => {
   if (!grid) return;
 
   try {
-    const response = await fetch("products/vitaderm/catalogue.json?v=20260703y");
+    const response = await fetch("products/vitaderm/catalogue.json?v=20260704a");
     if (!response.ok) throw new Error("Catalogue unavailable");
     const products = await response.json();
 
@@ -217,7 +217,8 @@ const setupVitaDermCatalogue = async () => {
       const slug = product.source_url.split("/").filter(Boolean).pop();
       const image = `products/vitaderm/${slug}.webp`;
       const description = product.description.replace(/^Description\s*/i, "");
-      const summary = description.length > 180 ? `${description.slice(0, 177).trim()}…` : description;
+      const benefit = (product.benefits || description).replace(/^Benefits?\s*/i, "");
+      const summary = benefit.length > 105 ? `${benefit.slice(0, 102).trim().replace(/\s+\S*$/, "")}…` : benefit;
       return `
         <article class="kalahari-item">
           <div class="product-image-wrap"><img src="${escapeHtml(image)}" alt="VitaDerm ${escapeHtml(product.name)}" width="900" height="900" decoding="async" loading="lazy"></div>
@@ -225,7 +226,8 @@ const setupVitaDermCatalogue = async () => {
           <strong>${formatCurrency(Number(product.price))}</strong>
           ${product.size ? `<small>${escapeHtml(product.size)}</small>` : ""}
           <p>${escapeHtml(summary)}</p>
-          <button class="button secondary" type="button" data-vitaderm-cart-add data-product-id="vitaderm-${escapeHtml(slug)}" data-product-name="VitaDerm ${escapeHtml(product.name)}" data-product-price="${Number(product.price)}" data-product-image="${escapeHtml(image)}">Add to cart</button>
+          <span class="product-stock"><span aria-hidden="true"></span> In stock</span>
+          <div class="product-card-actions"><button class="button secondary" type="button" data-vitaderm-cart-add data-product-id="vitaderm-${escapeHtml(slug)}" data-product-name="VitaDerm ${escapeHtml(product.name)}" data-product-price="${Number(product.price)}" data-product-image="${escapeHtml(image)}">Add to cart</button><a class="text-link" href="${escapeHtml(product.source_url)}" target="_blank" rel="noopener">View Product</a></div>
         </article>`;
     }).join("");
 
@@ -245,6 +247,31 @@ const setupVitaDermCatalogue = async () => {
   } catch {
     grid.innerHTML = "<p>VitaDerm products could not be loaded. Please contact Lullubelle for current availability.</p>";
   }
+};
+
+const enhanceStaticShopCards = () => {
+  document.querySelectorAll(".shop-page .kalahari-item").forEach((card, index) => {
+    if (!card.id) card.id = card.querySelector("[data-product-id]")?.dataset.productId || `shop-product-${index + 1}`;
+    if (!card.querySelector(".product-stock")) {
+      const stock = document.createElement("span");
+      stock.className = "product-stock";
+      stock.innerHTML = '<span aria-hidden="true"></span> In stock';
+      card.querySelector(".button")?.before(stock);
+    }
+    const button = card.querySelector(":scope > .button");
+    if (button) {
+      const actions = document.createElement("div");
+      actions.className = "product-card-actions";
+      button.before(actions);
+      actions.append(button);
+      const link = document.createElement("a");
+      link.className = "text-link";
+      link.href = `#${card.id}`;
+      link.textContent = "View Product";
+      link.setAttribute("aria-label", `View ${card.querySelector("h3")?.textContent || "product"}`);
+      actions.append(link);
+    }
+  });
 };
 
 const setupResultLightbox = () => {
@@ -284,7 +311,7 @@ const setupFeaturedProducts = async () => {
   if (!grid) return;
 
   try {
-    const response = await fetch("products/featured-products.json?v=20260703y");
+    const response = await fetch("products/featured-products.json?v=20260704a");
     if (!response.ok) throw new Error("Featured product configuration unavailable");
     const configData = await response.json();
     const perBrand = Number(configData.productsPerBrand) || 2;
@@ -313,6 +340,7 @@ const setupFeaturedProducts = async () => {
           <span class="product-brand-badge" data-brand="${escapeHtml(product.brand.toLowerCase())}">${escapeHtml(product.brand)}</span>
           <h3>${escapeHtml(product.name)}</h3>
           <strong>${formatCurrency(Number(product.price))}</strong>
+          <p>${escapeHtml(product.benefit || "Professional home care selected by Lullubelle.")}</p>
           <div class="featured-product-actions">
             <button class="button secondary" type="button" data-featured-cart-add data-product-id="${escapeHtml(product.id)}" data-product-name="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" data-product-price="${Number(product.price)}" data-product-image="${escapeHtml(product.image)}">Add to Cart</button>
             <a class="text-link" href="${escapeHtml(product.shopUrl || "shop.html")}">View Product</a>
@@ -356,6 +384,7 @@ const setupFeaturedProducts = async () => {
 setupBrandFilters();
 setupVitaDermCatalogue();
 setupFeaturedProducts();
+enhanceStaticShopCards();
 setupResultsFilters();
 setupResultLightbox();
 setupPageStructuredData();

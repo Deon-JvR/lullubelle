@@ -921,7 +921,7 @@ h3 {
 
 .kalahari-item {
   display: grid;
-  grid-template-rows: auto auto auto 1fr auto;
+  grid-template-rows: auto auto auto auto 1fr auto auto;
   align-content: stretch;
   gap: 9px;
   height: 100%;
@@ -942,9 +942,9 @@ h3 {
 .product-image-wrap {
   display: grid;
   width: 100%;
-  height: clamp(240px, 22vw, 280px);
-  place-items: start center;
-  padding: 8px 8px 14px;
+  height: clamp(205px, 19vw, 245px);
+  place-items: center;
+  padding: 12px;
   overflow: hidden;
   background: #fff;
 }
@@ -956,7 +956,7 @@ h3 {
   max-height: 100%;
   aspect-ratio: auto;
   object-fit: contain;
-  object-position: top center;
+  object-position: center;
 }
 
 .kalahari-item h3 {
@@ -974,7 +974,16 @@ h3 {
   margin: 0;
   color: var(--muted);
   line-height: 1.55;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
+
+.product-stock { display: inline-flex; align-items: center; gap: 6px; color: var(--leaf); font-size: .76rem; font-weight: 800; }
+.product-stock span { width: 7px; height: 7px; border-radius: 50%; background: #4f9a62; box-shadow: 0 0 0 3px rgba(79,154,98,.13); }
+.product-card-actions { display: grid; gap: 8px; align-self: end; }
+.product-card-actions .text-link { justify-self: center; font-size: .84rem; }
 
 .kalahari-item .button {
   align-self: end;
@@ -2152,8 +2161,13 @@ h3 {
     margin-bottom: 26px;
   }
 
-  .service-grid,.treatment-menu-grid,.peel-grid,.kalahari-grid,.contact-details {
+  .service-grid,.treatment-menu-grid,.peel-grid,.contact-details {
     grid-template-columns: 1fr;
+  }
+
+  .kalahari-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
   }
 
   .brand-grid {
@@ -2174,9 +2188,17 @@ h3 {
     min-height: 300px;
   }
 
-  .service-card,.treatment-menu-card,.home-choice,.kalahari-item,.voucher-card {
+  .service-card,.treatment-menu-card,.home-choice,.voucher-card {
     padding: 20px;
   }
+
+  .kalahari-item { gap: 7px; padding: 10px; }
+  .product-image-wrap { height: 150px; padding: 6px; }
+  .kalahari-item h3 { min-height: 2.8em; font-size: .88rem; }
+  .kalahari-item strong { font-size: 1rem; }
+  .kalahari-item p { font-size: .78rem; line-height: 1.4; }
+  .kalahari-item small,.product-stock { font-size: .68rem; }
+  .kalahari-item .button { min-height: 40px; padding: 8px 6px; font-size: .78rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -3094,7 +3116,7 @@ input,textarea,select,button {
   }
 
   .featured-product-card {
-    flex-basis: calc((100% - var(--featured-gap)) / 2);
+    flex-basis: calc((100% - var(--featured-gap) - var(--featured-gap)) / 3);
   }
 
   .trust-grid {
@@ -3160,6 +3182,8 @@ input,textarea,select,button {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .featured-product-card { flex-basis: calc((100% - var(--featured-gap)) / 2); }
+
   .voucher-promo {
     grid-template-columns: 1fr;
     gap: 24px;
@@ -3222,28 +3246,29 @@ input,textarea,select,button {
     gap: 14px;
   }
 
-  .featured-product-card {
-    flex-basis: 100%;
-  }
+  .featured-product-card { flex-basis: calc((100% - 14px) / 2); }
 
   .featured-product-image {
-    min-height: 188px;
-    padding: 10px;
+    min-height: 145px;
+    padding: 7px;
   }
 
   .featured-product-image img {
-    width: min(170px, 92%);
-    height: 170px;
+    width: min(135px, 92%);
+    height: 135px;
   }
 
   .featured-product-card > div {
     gap: 7px;
-    padding: 14px 12px;
+    padding: 11px 9px;
   }
 
   .featured-product-card h3 {
-    font-size: 0.92rem;
+    font-size: 0.84rem;
   }
+
+  .featured-product-card p { font-size: .75rem; line-height: 1.35; display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+  .featured-product-card strong { font-size: .95rem; }
 
   .featured-product-card .button {
     min-height: 42px;
