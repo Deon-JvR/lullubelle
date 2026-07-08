@@ -1482,7 +1482,8 @@ h3 {
   font-weight: 800;
 }
 
-.checkout-details input {
+.checkout-details input,
+.checkout-details textarea {
   width: 100%;
   border: 1px solid rgba(17, 21, 18, 0.16);
   border-radius: 8px;
@@ -1490,6 +1491,50 @@ h3 {
   color: var(--ink);
   background: #fff;
   font: inherit;
+}
+
+.checkout-details textarea {
+  resize: vertical;
+  min-height: 110px;
+}
+
+.checkout-delivery-options {
+  display: grid;
+  gap: 8px;
+  margin: 4px 0;
+  padding: 14px;
+  border: 1px solid rgba(17, 21, 18, 0.12);
+  border-radius: 12px;
+  background: rgba(245, 238, 229, 0.42);
+}
+
+.checkout-delivery-options legend {
+  padding: 0 6px;
+  color: var(--leaf-dark);
+  font-weight: 900;
+}
+
+.checkout-delivery-options label {
+  display: flex;
+  grid-template-columns: none;
+  align-items: center;
+  gap: 10px;
+}
+
+.checkout-delivery-options input {
+  width: auto;
+  accent-color: var(--leaf);
+}
+
+.checkout-option-note {
+  margin: -2px 0 6px 28px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.checkout-wide-field {
+  grid-column: 1 / -1;
 }
 
 .cart-summary dl {
@@ -1511,6 +1556,17 @@ h3 {
 
 .cart-summary dd {
   color: var(--leaf-dark);
+  font-weight: 900;
+}
+
+.cart-summary dl .cart-final-total {
+  border-top-color: rgba(23, 53, 31, 0.28);
+}
+
+.cart-summary dl .cart-final-total dt,
+.cart-summary dl .cart-final-total dd {
+  color: var(--leaf-dark);
+  font-size: 1.08rem;
   font-weight: 900;
 }
 

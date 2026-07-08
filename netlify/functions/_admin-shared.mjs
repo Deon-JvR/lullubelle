@@ -55,46 +55,16 @@ const readJsonFile = async (path) => {
   }
 };
 
-const normaliseVitaDermProduct = (product) => {
-  const slug = product.source_url?.split("/").filter(Boolean).pop() || product.sku?.toLowerCase() || product.name?.toLowerCase()?.replace(/[^a-z0-9]+/g, "-");
-  return {
-    id: `vitaderm-${slug}`,
-    brand: "VitaDerm",
-    name: product.name,
-    price: Number(product.price) || 0,
-    image: `products/vitaderm/${slug}.webp`,
-    benefit: (product.benefits || product.description || "Professional VitaDerm skincare available from Lullubelle.").replace(/^Benefits?\s*/i, ""),
-    description: (product.description || product.benefits || "Professional VitaDerm skincare available from Lullubelle.").replace(/^Description\s*/i, ""),
-    directions: product.directions || "Use as directed by your skin therapist.",
-    ingredients: product.ingredients || "Ingredient list not published. Please confirm current ingredients with Lullubelle before purchase.",
-    suitable: Array.isArray(product.categories) && product.categories.length ? product.categories.join(", ") : "Selected skin routines after consultation.",
-    size: product.size || "",
-    sku: product.sku || "",
-    stockStatus: "In stock",
-    featured: product.manual_review !== true && Number(product.price) > 0,
-    hidden: false,
-  };
-};
-
 const seedContent = async () => {
-  const [products, vitaDerm, treatments, gallery, vouchers] = await Promise.all([
+  const [products, treatments, gallery, vouchers] = await Promise.all([
     readJsonFile("data/products.json"),
-    readJsonFile("products/vitaderm/catalogue.json"),
     readJsonFile("data/treatments.json"),
     readJsonFile("data/gallery.json"),
     readJsonFile("data/vouchers.json"),
   ]);
 
-  const vitaDermProducts = Array.isArray(vitaDerm) ? vitaDerm.map(normaliseVitaDermProduct) : [];
-  const productIds = new Set();
-  const mergedProducts = [...products, ...vitaDermProducts].filter((product) => {
-    if (!product?.id || productIds.has(product.id)) return false;
-    productIds.add(product.id);
-    return true;
-  });
-
   return {
-    products: mergedProducts,
+    products: Array.isArray(products) ? products : [],
     treatments: Array.isArray(treatments) ? treatments : [],
     gallery: Array.isArray(gallery) ? gallery : [],
     vouchers: Array.isArray(vouchers) ? vouchers : [],

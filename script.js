@@ -141,7 +141,7 @@ const appendStructuredData = (key, data) => {
 };
 
 const syncProductSchemas = (scope = document) => {
-  const buttons = Array.from(scope.querySelectorAll("[data-cart-add], [data-featured-cart-add], [data-vitaderm-cart-add]"));
+  const buttons = Array.from(scope.querySelectorAll("[data-managed-cart-add], [data-product-detail-cart]"));
   const hasStaticProductSchema = Array.from(document.querySelectorAll('script[type="application/ld+json"]'))
     .some((node) => !node.dataset.productSchema && node.textContent.includes('"@type": "Product"'));
   if (hasStaticProductSchema && buttons.length === 1) return;
@@ -204,93 +204,25 @@ const setupPageStructuredData = () => {
   syncProductSchemas();
 };
 
-const setupVitaDermCatalogue = async () => {
-  const grid = document.querySelector("[data-vitaderm-products]");
-  if (!grid) return;
+const setupShopCatalogue = (content) => {
+  const panels = document.querySelectorAll("[data-brand-panel]");
+  if (!panels.length) return;
 
-  try {
-    const response = await fetch("products/vitaderm/catalogue.json?v=20260704b");
-    if (!response.ok) throw new Error("Catalogue unavailable");
-    const products = await response.json();
+  const products = getVisibleManagedItems(content?.products).map(normaliseManagedProduct);
+  panels.forEach((panel) => {
+    const brand = panel.dataset.brandPanel;
+    const grid = panel.querySelector(".kalahari-grid");
+    if (!grid) return;
 
-    grid.innerHTML = products.map((product) => {
-      const slug = product.source_url.split("/").filter(Boolean).pop();
-      const image = `products/vitaderm/${slug}.webp`;
-      const description = product.description.replace(/^Description\s*/i, "");
-      const benefit = (product.benefits || description).replace(/^Benefits?\s*/i, "");
-      const summary = benefit.length > 105 ? `${benefit.slice(0, 102).trim().replace(/\s+\S*$/, "")}…` : benefit;
-      const productId = `vitaderm-${slug}`;
-      return `
-        <article class="kalahari-item">
-          ${product.manual_review ? "" : `<span class="product-status-badge">New</span>`}
-          <div class="product-image-wrap"><img src="${escapeHtml(image)}" alt="VitaDerm ${escapeHtml(product.name)}" width="900" height="900" decoding="async" loading="lazy"></div>
-          <span class="product-brand-badge" data-brand="vitaderm">VitaDerm</span>
-          <h3>${escapeHtml(product.name)}</h3>
-          <strong>${formatCurrency(Number(product.price))}</strong>
-          ${product.size ? `<small>${escapeHtml(product.size)}</small>` : ""}
-          <p>${escapeHtml(summary)}</p>
-          <span class="product-stock"><span aria-hidden="true"></span> In stock</span>
-          <div class="product-card-actions"><button class="button secondary" type="button" data-vitaderm-cart-add data-product-id="${escapeHtml(productId)}" data-product-name="VitaDerm ${escapeHtml(product.name)}" data-product-price="${Number(product.price)}" data-product-image="${escapeHtml(image)}">Add to cart</button><a class="text-link" href="${escapeHtml(productDetailUrl(productId))}">View Product</a></div>
-        </article>`;
-    }).join("");
+    const brandProducts = products.filter((product) => product.brand.toLowerCase() === brand.toLowerCase());
+    if (!brandProducts.length) {
+      grid.innerHTML = `<p>No ${escapeHtml(brand)} products are currently listed in the shared website catalogue.</p>`;
+      return;
+    }
 
-    grid.querySelectorAll("[data-vitaderm-cart-add]").forEach((button) => {
-      button.addEventListener("click", () => {
-        addToCart({
-          id: button.dataset.productId,
-          name: button.dataset.productName,
-          price: Number(button.dataset.productPrice) || 0,
-          image: button.dataset.productImage,
-        });
-        button.textContent = "Added";
-        window.setTimeout(() => { button.textContent = "Add to cart"; }, 1100);
-      });
-    });
+    grid.innerHTML = brandProducts.map(renderManagedProductCard).join("");
+    bindProductButtons(grid);
     syncProductSchemas(grid);
-  } catch {
-    grid.innerHTML = "<p>VitaDerm products could not be loaded. Please contact Lullubelle for current availability.</p>";
-  }
-};
-
-const enhanceStaticShopCards = () => {
-  document.querySelectorAll(".shop-page .kalahari-item").forEach((card, index) => {
-    const cartButton = card.querySelector("[data-product-id]");
-    const productId = cartButton?.dataset.productId || `shop-product-${index + 1}`;
-    const productName = cartButton?.dataset.productName || card.querySelector("h3")?.textContent || "Product";
-    const brand = productName.split(" ")[0] || card.closest("[data-brand-panel]")?.dataset.brandPanel || "Lullubelle";
-    if (!card.id) card.id = productId;
-    if (!card.querySelector(".product-brand-badge")) {
-      const badge = document.createElement("span");
-      badge.className = "product-brand-badge";
-      badge.dataset.brand = brand.toLowerCase();
-      badge.textContent = brand;
-      card.querySelector("h3")?.before(badge);
-    }
-    if (!card.querySelector(".product-status-badge") && (index === 0 || /Hydra-Vital Light/i.test(productName))) {
-      const status = document.createElement("span");
-      status.className = "product-status-badge";
-      status.textContent = index === 0 ? "Best Seller" : "New";
-      card.prepend(status);
-    }
-    if (!card.querySelector(".product-stock")) {
-      const stock = document.createElement("span");
-      stock.className = "product-stock";
-      stock.innerHTML = '<span aria-hidden="true"></span> In stock';
-      card.querySelector(".button")?.before(stock);
-    }
-    const directButton = card.querySelector(":scope > .button");
-    if (directButton) {
-      const actions = document.createElement("div");
-      actions.className = "product-card-actions";
-      directButton.before(actions);
-      actions.append(directButton);
-      const link = document.createElement("a");
-      link.className = "text-link";
-      link.href = productDetailUrl(productId);
-      link.textContent = "View Product";
-      link.setAttribute("aria-label", `View ${card.querySelector("h3")?.textContent || "product"}`);
-      actions.append(link);
-    }
   });
 };
 
@@ -326,83 +258,71 @@ const setupResultLightbox = () => {
   });
 };
 
-const setupFeaturedProducts = async () => {
+const setupFeaturedProducts = (content) => {
   const grid = document.querySelector("[data-featured-products]");
   if (!grid) return;
 
-  try {
-    const response = await fetch("products/featured-products.json?v=20260704b");
-    if (!response.ok) throw new Error("Featured product configuration unavailable");
-    const configData = await response.json();
-    const perBrand = Number(configData.productsPerBrand) || 2;
-    const brandOrder = Array.isArray(configData.brandOrder) ? configData.brandOrder : [];
-    const products = Array.isArray(configData.products) ? configData.products : [];
-    const selectedByBrand = new Map(brandOrder.map((brand) => [brand, products
-      .filter((product) => product.brand === brand && product.available !== false)
-      .sort((a, b) => (Number(a.priority) || 99) - (Number(b.priority) || 99))
-      .slice(0, perBrand)]));
-    const featured = [];
-    for (let index = 0; index < perBrand; index += 1) {
-      brandOrder.forEach((brand) => {
-        const product = selectedByBrand.get(brand)?.[index];
-        if (product) featured.push(product);
-      });
-    }
-    if (!featured.length) throw new Error("No featured products available");
+  const products = getVisibleManagedItems(content?.products).map(normaliseManagedProduct);
+  const brandOrder = ["Kalahari", "VitaDerm", "Mesoestetic"];
+  const featured = [];
 
-    grid.innerHTML = featured.map((product, index) => `
-      <article class="featured-product-card">
-        <a class="featured-product-image" href="${escapeHtml(product.shopUrl || "shop.html")}" aria-label="View ${escapeHtml(product.brand)} ${escapeHtml(product.name)}">
-          ${product.badge ? `<span class="product-status-badge">${escapeHtml(product.badge)}</span>` : ""}
-          <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" width="650" height="650" decoding="async" loading="lazy">
-        </a>
-        <div>
-          <span class="product-brand-badge" data-brand="${escapeHtml(product.brand.toLowerCase())}">${escapeHtml(product.brand)}</span>
-          <h3>${escapeHtml(product.name)}</h3>
-          <strong>${formatCurrency(Number(product.price))}</strong>
-          <p>${escapeHtml(product.benefit || "Professional home care selected by Lullubelle.")}</p>
-          <div class="featured-product-actions">
-            <button class="button secondary" type="button" data-featured-cart-add data-product-id="${escapeHtml(product.id)}" data-product-name="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" data-product-price="${Number(product.price)}" data-product-image="${escapeHtml(product.image)}">Add to Cart</button>
-            <a class="text-link" href="${escapeHtml(product.shopUrl || "shop.html")}">View Product</a>
-          </div>
-        </div>
-      </article>`).join("");
+  brandOrder.forEach((brand) => {
+    products
+      .filter((product) => product.brand === brand && (product.bestSeller || product.featured))
+      .slice(0, 2)
+      .forEach((product) => featured.push(product));
+  });
 
-    grid.querySelectorAll("[data-featured-cart-add]").forEach((button) => {
-      button.addEventListener("click", () => {
-        addToCart({ id: button.dataset.productId, name: button.dataset.productName, price: Number(button.dataset.productPrice) || 0, image: button.dataset.productImage });
-        button.textContent = "Added";
-        window.setTimeout(() => { button.textContent = "Add to Cart"; }, 1100);
-      });
-    });
-    syncProductSchemas(grid);
-
-    const previousButton = document.querySelector("[data-featured-carousel-prev]");
-    const nextButton = document.querySelector("[data-featured-carousel-next]");
-    const updateControls = () => {
-      const atStart = grid.scrollLeft <= 2;
-      const atEnd = grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 2;
-      if (previousButton) previousButton.disabled = atStart;
-      if (nextButton) nextButton.disabled = atEnd;
-    };
-    const moveCarousel = (direction) => {
-      const card = grid.querySelector(".featured-product-card");
-      if (!card) return;
-      const gap = Number.parseFloat(getComputedStyle(grid).columnGap) || 0;
-      grid.scrollBy({ left: direction * (card.getBoundingClientRect().width + gap), behavior: "smooth" });
-    };
-    previousButton?.addEventListener("click", () => moveCarousel(-1));
-    nextButton?.addEventListener("click", () => moveCarousel(1));
-    grid.addEventListener("scroll", updateControls, { passive: true });
-    window.addEventListener("resize", updateControls);
-    updateControls();
-  } catch {
+  if (!featured.length) {
     grid.innerHTML = '<p>Featured products are temporarily unavailable. <a class="text-link" href="shop.html">Browse the full shop</a>.</p>';
+    return;
   }
+
+  grid.innerHTML = featured.slice(0, 8).map((product) => `
+    <article class="featured-product-card">
+      <a class="featured-product-image" href="${escapeHtml(productDetailUrl(product.id))}" aria-label="View ${escapeHtml(product.brand)} ${escapeHtml(product.name)}">
+        ${product.bestSeller ? '<span class="product-status-badge">Best Seller</span>' : product.featured ? '<span class="product-status-badge">Featured</span>' : ""}
+        <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" width="650" height="650" decoding="async" loading="lazy">
+      </a>
+      <div>
+        <span class="product-brand-badge" data-brand="${escapeHtml(product.brand.toLowerCase())}">${escapeHtml(product.brand)}</span>
+        <h3>${escapeHtml(product.name)}</h3>
+        <strong>${formatCurrency(product.price)}</strong>
+        <p>${escapeHtml(product.benefit)}</p>
+        <div class="featured-product-actions">
+          <button class="button secondary" type="button" data-managed-cart-add data-product-id="${escapeHtml(product.id)}" data-product-name="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" data-product-price="${Number(product.price)}" data-product-image="${escapeHtml(product.image)}"${isPurchasable(product) ? "" : " disabled"}>${isPurchasable(product) ? "Add to Cart" : escapeHtml(stockLabel(product.stockStatus))}</button>
+          <a class="text-link" href="${escapeHtml(productDetailUrl(product.id))}">View Product</a>
+        </div>
+      </div>
+    </article>`).join("");
+
+  bindProductButtons(grid);
+  syncProductSchemas(grid);
+
+  const previousButton = document.querySelector("[data-featured-carousel-prev]");
+  const nextButton = document.querySelector("[data-featured-carousel-next]");
+  const updateControls = () => {
+    const atStart = grid.scrollLeft <= 2;
+    const atEnd = grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 2;
+    if (previousButton) previousButton.disabled = atStart;
+    if (nextButton) nextButton.disabled = atEnd;
+  };
+  const moveCarousel = (direction) => {
+    const card = grid.querySelector(".featured-product-card");
+    if (!card) return;
+    const gap = Number.parseFloat(getComputedStyle(grid).columnGap) || 0;
+    grid.scrollBy({ left: direction * (card.getBoundingClientRect().width + gap), behavior: "smooth" });
+  };
+  previousButton?.addEventListener("click", () => moveCarousel(-1));
+  nextButton?.addEventListener("click", () => moveCarousel(1));
+  grid.addEventListener("scroll", updateControls, { passive: true });
+  window.addEventListener("resize", updateControls);
+  updateControls();
 };
 
 const CART_KEY = "lullubelleCart";
 const IKHOKHA_CHECKOUT_ENDPOINT = "/.netlify/functions/ikhokha-checkout";
+const PUDO_DELIVERY_FEE = 80;
 const currencyFormatter = new Intl.NumberFormat("en-ZA", {
   style: "currency",
   currency: "ZAR",
@@ -648,7 +568,8 @@ const applyManagedTreatments = (treatments = []) => {
 
 const applyManagedContent = (content) => {
   if (!content) return;
-  applyManagedProducts(content.products);
+  setupShopCatalogue(content);
+  setupFeaturedProducts(content);
   applyManagedVouchers(content.vouchers);
   applyManagedGallery(content.gallery);
   applyManagedTreatments(content.treatments);
@@ -668,67 +589,11 @@ const sendAdminRecord = (endpoint, payload) => {
   }).catch(() => {});
 };
 
-const SHOP_PRODUCT_DETAILS = [
-  { id: "kalahari-facial-cleanser", brand: "Kalahari", name: "Facial Cleanser", price: 278, image: "products/kalahari-facial-cleanser.webp", benefit: "Everyday cleansing support for a fresh skin routine.", suitable: "Most skin types needing a simple daily cleanse.", directions: "Use morning and evening as the first step in your home-care routine.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
-  { id: "kalahari-gentle-cleansing-milk", brand: "Kalahari", name: "Gentle Cleansing Milk", price: 291, image: "products/kalahari-facial-cleanser.webp", benefit: "Soft cleansing option for dry, sensitive, or delicate skin.", suitable: "Dry, delicate or sensitive-feeling skin.", directions: "Massage gently over the skin and remove with water or damp cotton pads.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
-  { id: "kalahari-toning-lotion", brand: "Kalahari", name: "Toning Lotion", price: 347, image: "products/kalahari-toning-lotion.webp", benefit: "Refreshing toner step after cleansing.", suitable: "Skin needing a fresh second cleanse and toner step.", directions: "Apply after cleansing before serum or moisturiser.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
-  { id: "kalahari-enzyme-face-buff", brand: "Kalahari", name: "Enzyme Face Buff", price: 362, image: "products/kalahari-enzyme-face-buff.webp", benefit: "Polishing exfoliation support for smoother-looking skin.", suitable: "Dull or rough-textured skin that tolerates exfoliation.", directions: "Use as advised by your skin therapist; avoid over-exfoliating.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
-  { id: "kalahari-essential-daily-moisturiser", brand: "Kalahari", name: "Essential Daily Moisturiser", price: 405, image: "products/kalahari-essential-daily-moisturiser.webp", benefit: "Daily hydration for a simple home-care routine.", suitable: "Normal to dry skin needing daily moisture.", directions: "Apply after cleansing and serum. Use SPF during the day.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
-  { id: "kalahari-hydralite-moisturiser", brand: "Kalahari", name: "Hydralite Moisturiser", price: 442, image: "products/kalahari-hydralite-moisturiser.webp", benefit: "Lightweight moisture support for dehydrated skin.", suitable: "Dehydrated skin that prefers a lighter moisturiser.", directions: "Apply morning and evening after serum.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
-  { id: "kalahari-evening-moisturiser", brand: "Kalahari", name: "Evening Moisturiser", price: 431, image: "products/kalahari-essential-daily-moisturiser.webp", benefit: "Night-time comfort and hydration support.", suitable: "Skin needing a richer evening moisturising step.", directions: "Apply in the evening after cleansing and serum.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
-  { id: "kalahari-phyto-rich-moisturiser", brand: "Kalahari", name: "Phyto Rich Moisturiser", price: 597, image: "products/kalahari-hydralite-moisturiser.webp", benefit: "Rich moisturising care for drier skin routines.", suitable: "Dry or mature-feeling skin needing richer comfort.", directions: "Apply after serum, especially as an evening moisturiser.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
-  { id: "kalahari-spf-40-sun-protection", brand: "Kalahari", name: "SPF 40 Sun Protection", price: 457, image: "products/kalahari-spf-40-sun-protection.webp", benefit: "Daily UVA/UVB protection support.", suitable: "Daily daytime protection for most skin routines.", directions: "Apply every morning as the final skincare step. Reapply with sun exposure.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
-  { id: "kalahari-solar-defence-fluid-50", brand: "Kalahari", name: "Solar Defence Fluid 50", price: 581, image: "products/kalahari-solar-defence-fluid-50.webp", benefit: "High-protection fluid for daytime use.", suitable: "Skin needing high daily sun protection.", directions: "Apply generously each morning and reapply when outdoors.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
-  { id: "kalahari-nourishing-eye-balm", brand: "Kalahari", name: "Nourishing Eye Balm Tube", price: 291, image: "products/kalahari-nourishing-eye-balm.webp", benefit: "Eye-area care for a gentle finishing step.", suitable: "Dry or delicate-looking eye area.", directions: "Pat a small amount around the orbital area as advised.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
-  { id: "kalahari-hydrating-collagen-eye-patches", brand: "Kalahari", name: "Hydrating Collagen Eye Patches", price: 72, image: "products/kalahari-nourishing-eye-balm.webp", benefit: "Quick eye-area hydration treatment patches.", suitable: "Tired or dehydrated-looking eye area.", directions: "Use as a short treatment step before moisturiser.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
-  { id: "mesoestetic-hydra-vital-light", brand: "Mesoestetic", name: "Hydra-Vital Light", price: 2135, image: "products/mesoestetic/hydra-vital-light.webp", benefit: "Refreshing moisturising gel-cream for normal, combination and oily skin.", suitable: "Normal, combination and oily skin.", directions: "Apply after cleansing and serum as directed by your therapist.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
-  { id: "mesoestetic-fast-skin-repair", brand: "Mesoestetic", name: "Fast Skin Repair", price: 1889, image: "products/mesoestetic/fast-skin-repair.webp", benefit: "Regenerative comfort cream for sensitive or sensitised skin.", suitable: "Sensitive, sensitised or barrier-stressed skin.", directions: "Apply as a comfort cream according to professional guidance.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
-  { id: "mesoestetic-skin-balance", brand: "Mesoestetic", name: "Skin Balance", price: 2759, image: "products/mesoestetic/skin-balance.webp", benefit: "Intensive calming concentrate supporting sensitive and sensitised skin.", suitable: "Reactive, sensitive or sensitised skin.", directions: "Use as directed by your skin therapist.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
-];
-
 const productDetailUrl = (id) => `product.html?product=${encodeURIComponent(id)}`;
 
-const normaliseVitaDermProduct = (product) => {
-  const slug = product.source_url?.split("/").filter(Boolean).pop() || product.sku?.toLowerCase();
-  return {
-    id: `vitaderm-${slug}`,
-    brand: "VitaDerm",
-    name: product.name,
-    price: Number(product.price) || 0,
-    image: `products/vitaderm/${slug}.webp`,
-    benefit: (product.benefits || product.description || "Professional VitaDerm skincare available from Lullubelle.").replace(/^Benefits?\s*/i, ""),
-    description: (product.description || product.benefits || "").replace(/^Description\s*/i, ""),
-    directions: product.directions || "Use as directed by your skin therapist.",
-    ingredients: product.ingredients || "Ingredient list not published. Please confirm current ingredients with Lullubelle before purchase.",
-    suitable: Array.isArray(product.categories) && product.categories.length ? product.categories.join(", ") : "Selected skin routines after consultation.",
-    size: product.size || "",
-    sku: product.sku || "",
-  };
-};
-
 const getAllShopProducts = async () => {
-  let vitaDermProducts = [];
-  let managedProducts = [];
-  try {
-    const response = await fetch("products/vitaderm/catalogue.json?v=20260704b");
-    if (response.ok) {
-      const products = await response.json();
-      vitaDermProducts = Array.isArray(products) ? products.map(normaliseVitaDermProduct) : [];
-    }
-  } catch {
-    vitaDermProducts = [];
-  }
-
   const managedContent = await loadManagedContent();
-  if (managedContent?.products) {
-    managedProducts = getVisibleManagedItems(managedContent.products).map(normaliseManagedProduct);
-  }
-
-  if (managedProducts.length) {
-    return managedProducts;
-  }
-
-  return [...managedProducts, ...SHOP_PRODUCT_DETAILS, ...vitaDermProducts];
+  return getVisibleManagedItems(managedContent?.products).map(normaliseManagedProduct);
 };
 
 const renderProductDetailPage = async () => {
@@ -736,6 +601,19 @@ const renderProductDetailPage = async () => {
   if (!container) return;
 
   const products = await getAllShopProducts();
+  if (!products.length) {
+    container.innerHTML = `
+      <section class="section product-detail product-detail-page-hero">
+        <div class="product-detail-copy">
+          <p class="eyebrow">Product catalogue</p>
+          <h1>Products are temporarily unavailable</h1>
+          <p class="lead">The shared website catalogue could not be loaded. Please try again shortly or contact Lullubelle for product assistance.</p>
+          <a class="button primary" href="shop">Back to Shop</a>
+        </div>
+      </section>`;
+    return;
+  }
+
   const requestedId = new URLSearchParams(window.location.search).get("product");
   const product = products.find((item) => item.id === requestedId) || products[0];
   const related = products
@@ -892,6 +770,27 @@ const getCartTotals = (items = getCart()) => items.reduce(
   { quantity: 0, amount: 0 }
 );
 
+const getSelectedDeliveryOption = () => {
+  const form = document.querySelector("[data-checkout-details]");
+  const selected = form?.querySelector("input[name='deliveryOption']:checked")?.value || "collection";
+  return selected === "pudo" ? "pudo" : "collection";
+};
+
+const getDeliveryFee = (deliveryOption = getSelectedDeliveryOption()) => deliveryOption === "pudo" ? PUDO_DELIVERY_FEE : 0;
+
+const getOrderTotals = (items = getCart()) => {
+  const cartTotals = getCartTotals(items);
+  const deliveryOption = getSelectedDeliveryOption();
+  const deliveryFee = getDeliveryFee(deliveryOption);
+  return {
+    quantity: cartTotals.quantity,
+    subtotal: cartTotals.amount,
+    deliveryOption,
+    deliveryFee,
+    finalTotal: cartTotals.amount + deliveryFee,
+  };
+};
+
 const updateCartCount = () => {
   const totals = getCartTotals();
   document.querySelectorAll("[data-cart-count]").forEach((badge) => {
@@ -945,11 +844,30 @@ const setCartCheckoutState = (items) => {
   });
 };
 
-const getCheckoutCustomer = () => {
+const updateDeliveryUi = () => {
   const detailsForm = document.querySelector("[data-checkout-details]");
+  if (!detailsForm) return;
+
+  const deliveryOption = getSelectedDeliveryOption();
+  detailsForm.querySelectorAll("[data-address-field]").forEach((field) => {
+    field.required = deliveryOption === "pudo";
+  });
+  detailsForm.querySelectorAll("[data-delivery-note]").forEach((note) => {
+    note.hidden = note.dataset.deliveryNote !== deliveryOption;
+  });
+};
+
+const getCheckoutDetails = () => {
+  const detailsForm = document.querySelector("[data-checkout-details]");
+  updateDeliveryUi();
 
   if (!detailsForm) {
-    return {};
+    return {
+      customer: {},
+      delivery: { option: "collection", label: "Collect from Lullubelle", fee: 0 },
+      address: {},
+      notes: "",
+    };
   }
 
   if (!detailsForm.reportValidity()) {
@@ -957,18 +875,38 @@ const getCheckoutCustomer = () => {
   }
 
   const formData = new FormData(detailsForm);
+  const deliveryOption = formData.get("deliveryOption")?.toString() === "pudo" ? "pudo" : "collection";
+  const address = {
+    streetAddress: formData.get("streetAddress")?.toString().trim() || "",
+    suburb: formData.get("suburb")?.toString().trim() || "",
+    city: formData.get("city")?.toString().trim() || "",
+    province: formData.get("province")?.toString().trim() || "",
+    postalCode: formData.get("postalCode")?.toString().trim() || "",
+  };
+
   return {
-    name: formData.get("name")?.toString().trim() || "",
-    email: formData.get("email")?.toString().trim() || "",
-    phone: formData.get("phone")?.toString().trim() || "",
+    customer: {
+      name: formData.get("name")?.toString().trim() || "",
+      email: formData.get("email")?.toString().trim() || "",
+      phone: formData.get("phone")?.toString().trim() || "",
+      address,
+      notes: formData.get("notes")?.toString().trim() || "",
+    },
+    delivery: {
+      option: deliveryOption,
+      label: deliveryOption === "pudo" ? "Pudo Locker Delivery" : "Collect from Lullubelle",
+      fee: getDeliveryFee(deliveryOption),
+    },
+    address,
+    notes: formData.get("notes")?.toString().trim() || "",
   };
 };
 
 const validateCheckout = () => {
   const status = document.querySelector("[data-cart-status]");
   const items = getCart();
-  const totals = getCartTotals(items);
-  const customer = getCheckoutCustomer();
+  const totals = getOrderTotals(items);
+  const checkoutDetails = getCheckoutDetails();
 
   if (!items.length) {
     if (status) {
@@ -977,14 +915,26 @@ const validateCheckout = () => {
     return null;
   }
 
-  if (!customer) {
+  if (!checkoutDetails) {
     if (status) {
-      status.textContent = "Please complete your checkout details first.";
+      status.textContent = "Please complete the required checkout details first.";
     }
     return null;
   }
 
-  return { status, items, totals, customer };
+  if (checkoutDetails.delivery.option === "pudo") {
+    const missingAddressFields = Object.entries(checkoutDetails.address)
+      .filter(([, value]) => !value)
+      .map(([key]) => key);
+    if (missingAddressFields.length) {
+      if (status) {
+        status.textContent = "Please complete the delivery address fields for Pudo Locker Delivery.";
+      }
+      return null;
+    }
+  }
+
+  return { status, items, totals, ...checkoutDetails };
 };
 
 const setCheckoutLoading = (loading) => {
@@ -1020,11 +970,13 @@ const startIkhokhaCheckout = async () => {
   const checkout = validateCheckout();
   if (!checkout) return;
 
-  const { status, items, totals, customer } = checkout;
+  const { status, items, totals, customer, delivery, address, notes } = checkout;
   console.info("Starting iKhokha checkout.", {
     endpoint: IKHOKHA_CHECKOUT_ENDPOINT,
     itemCount: items.length,
-    total: totals.amount,
+    subtotal: totals.subtotal,
+    deliveryFee: totals.deliveryFee,
+    total: totals.finalTotal,
   });
   if (status) status.textContent = "Redirecting to secure payment…";
   setCheckoutLoading(true);
@@ -1035,9 +987,16 @@ const startIkhokhaCheckout = async () => {
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify({
         customer,
+        delivery,
+        deliveryOption: delivery.option,
+        deliveryFee: totals.deliveryFee,
+        address,
+        notes,
         items,
-        total: totals.amount,
-        totalAmount: totals.amount,
+        subtotal: totals.subtotal,
+        finalTotal: totals.finalTotal,
+        total: totals.finalTotal,
+        totalAmount: totals.finalTotal,
       }),
     });
     const data = await readCheckoutResponse(response);
@@ -1051,7 +1010,7 @@ const startIkhokhaCheckout = async () => {
 
     trackEvent("begin_checkout", {
       payment_provider: "ikhokha",
-      value: totals.amount,
+      value: totals.finalTotal,
       currency: "ZAR",
     });
     console.info("Redirecting to iKhokha hosted payment page.", {
@@ -1103,6 +1062,8 @@ const renderCart = () => {
   const container = document.querySelector("[data-cart-items]");
   const emptyState = document.querySelector("[data-cart-empty]");
   const summaryCount = document.querySelector("[data-cart-summary-count]");
+  const summarySubtotal = document.querySelector("[data-cart-summary-subtotal]");
+  const summaryDelivery = document.querySelector("[data-cart-summary-delivery]");
   const summaryTotal = document.querySelector("[data-cart-summary-total]");
 
   if (!container) {
@@ -1110,7 +1071,8 @@ const renderCart = () => {
   }
 
   const items = getCart();
-  const totals = getCartTotals(items);
+  updateDeliveryUi();
+  const totals = getOrderTotals(items);
 
   container.innerHTML = "";
   emptyState.hidden = items.length > 0;
@@ -1141,27 +1103,18 @@ const renderCart = () => {
   if (summaryCount) {
     summaryCount.textContent = String(totals.quantity);
   }
+  if (summarySubtotal) {
+    summarySubtotal.textContent = formatCurrency(totals.subtotal);
+  }
+  if (summaryDelivery) {
+    summaryDelivery.textContent = formatCurrency(totals.deliveryFee);
+  }
   if (summaryTotal) {
-    summaryTotal.textContent = formatCurrency(totals.amount);
+    summaryTotal.textContent = formatCurrency(totals.finalTotal);
   }
 
   setCartCheckoutState(items);
 };
-
-document.querySelectorAll("[data-cart-add]").forEach((button) => {
-  button.addEventListener("click", () => {
-    addToCart({
-      id: button.dataset.productId,
-      name: button.dataset.productName,
-      price: Number(button.dataset.productPrice) || 0,
-      image: button.dataset.productImage || "lullubelle-logo.jpg",
-    });
-    button.textContent = "Added";
-    window.setTimeout(() => {
-      button.textContent = "Add to cart";
-    }, 1100);
-  });
-});
 
 document.querySelector("[data-newsletter-form]")?.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -1247,6 +1200,16 @@ document.addEventListener("click", (event) => {
   if (clearButton) {
     saveCart([]);
     updateCartCount();
+    renderCart();
+  }
+});
+
+document.querySelector("[data-checkout-details]")?.addEventListener("change", (event) => {
+  const target = event.target instanceof Element ? event.target : null;
+  if (target?.matches("input[name='deliveryOption']")) {
+    const status = document.querySelector("[data-cart-status]");
+    if (status) status.textContent = "";
+    updateDeliveryUi();
     renderCart();
   }
 });
@@ -1508,11 +1471,7 @@ if (appointmentBookingForm) {
 }
 
 setupBrandFilters();
-Promise.allSettled([setupVitaDermCatalogue(), setupFeaturedProducts()])
-  .then(() => {
-    enhanceStaticShopCards();
-    return loadManagedContent();
-  })
+loadManagedContent()
   .then((content) => {
     applyManagedContent(content);
   })

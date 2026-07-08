@@ -32,6 +32,7 @@ const checkoutEndpoint = () => {
 };
 
 const money = (value) => Math.round((Number(value) || 0) * 100) / 100;
+const PUDO_DELIVERY_FEE = 80;
 
 const orderNumber = () => `LUL-${Date.now()}`;
 
@@ -102,13 +103,18 @@ const normaliseItems = async (items) => {
   });
 };
 
-const createPendingOrder = async ({ customer, products, total, paymentReference }) => {
+const createPendingOrder = async ({ customer, delivery, address, notes, products, subtotal, deliveryFee, total, paymentReference }) => {
   const order = {
     id: newId("order"),
     orderNumber: paymentReference,
     createdAt: new Date().toISOString(),
     customer,
+    delivery,
+    address,
+    notes,
     products,
+    subtotal,
+    deliveryFee,
     total,
     paymentProvider: "iKhokha iK Pay",
     paymentStatus: "Pending",
@@ -132,13 +138,22 @@ const callIkhokha = async ({ event, order, testMode }) => {
     externalTransactionID: order.orderNumber,
     description: `Lullubelle order ${order.orderNumber}`,
     customer: order.customer,
-    lineItems: order.products.map((item) => ({
-      id: item.id,
-      name: item.name,
-      quantity: item.quantity,
-      amount: Math.round(Number(item.price) * 100),
-      price: Math.round(Number(item.price) * 100),
-    })),
+    lineItems: [
+      ...order.products.map((item) => ({
+        id: item.id,
+        name: item.name,
+        quantity: item.quantity,
+        amount: Math.round(Number(item.price) * 100),
+        price: Math.round(Number(item.price) * 100),
+      })),
+      ...(order.deliveryFee > 0 ? [{
+        id: "pudo-delivery",
+        name: order.delivery?.label || "Pudo Locker Delivery",
+        quantity: 1,
+        amount: Math.round(Number(order.deliveryFee) * 100),
+        price: Math.round(Number(order.deliveryFee) * 100),
+      }] : []),
+    ],
     successUrl: `${base}/payment-success?order=${encodeURIComponent(order.orderNumber)}`,
     cancelUrl: `${base}/payment-cancelled?order=${encodeURIComponent(order.orderNumber)}`,
     failureUrl: `${base}/payment-cancelled?order=${encodeURIComponent(order.orderNumber)}`,
@@ -286,22 +301,54 @@ export const handler = async (event) => {
   }
 
   const body = parseJson(event);
+  const address = {
+    streetAddress: String(body.address?.streetAddress || body.customer?.address?.streetAddress || "").trim(),
+    suburb: String(body.address?.suburb || body.customer?.address?.suburb || "").trim(),
+    city: String(body.address?.city || body.customer?.address?.city || "").trim(),
+    province: String(body.address?.province || body.customer?.address?.province || "").trim(),
+    postalCode: String(body.address?.postalCode || body.customer?.address?.postalCode || "").trim(),
+  };
   const customer = {
     name: String(body.customer?.name || body.name || "").trim(),
     email: String(body.customer?.email || body.email || "").trim(),
     phone: String(body.customer?.phone || body.phone || "").trim(),
+    address,
+    notes: String(body.customer?.notes || body.notes || "").trim(),
+  };
+  const deliveryOption = String(body.delivery?.option || body.deliveryOption || "collection").toLowerCase() === "pudo"
+    ? "pudo"
+    : "collection";
+  const delivery = {
+    option: deliveryOption,
+    label: deliveryOption === "pudo" ? "Pudo Locker Delivery" : "Collect from Lullubelle",
+    fee: deliveryOption === "pudo" ? PUDO_DELIVERY_FEE : 0,
   };
 
   if (!customer.name || !customer.email || !customer.phone) {
     return json(400, { error: "Customer name, email and phone are required." });
   }
 
+  if (delivery.option === "pudo" && (!address.streetAddress || !address.suburb || !address.city || !address.province || !address.postalCode)) {
+    return json(400, { error: "Street address, suburb, city, province and postal code are required for Pudo Locker Delivery." });
+  }
+
   try {
     const products = await normaliseItems(body.items || body.products);
-    const total = money(products.reduce((sum, item) => sum + Number(item.price) * Number(item.quantity), 0));
+    const subtotal = money(products.reduce((sum, item) => sum + Number(item.price) * Number(item.quantity), 0));
+    const deliveryFee = money(delivery.fee);
+    const total = money(subtotal + deliveryFee);
+    const submittedTotal = body.finalTotal ?? body.totalAmount ?? body.total;
+    if (submittedTotal !== undefined && Math.abs(money(submittedTotal) - total) > 0.01) {
+      return json(400, { error: "Order total mismatch. Please refresh your cart and try again." });
+    }
     const order = await createPendingOrder({
       customer,
+      delivery,
+      address,
+      notes: customer.notes,
       products,
+      subtotal,
+      deliveryFee,
       total,
       paymentReference: orderNumber(),
     });

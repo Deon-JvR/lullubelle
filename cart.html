@@ -82,7 +82,7 @@
             <h2>Order summary</h2>
             <form class="checkout-details" data-checkout-details>
               <label>
-                <span>Name</span>
+                <span>Full name</span>
                 <input type="text" name="name" autocomplete="name" required>
               </label>
               <label>
@@ -93,6 +93,43 @@
                 <span>Phone</span>
                 <input type="tel" name="phone" autocomplete="tel" required>
               </label>
+              <fieldset class="checkout-delivery-options">
+                <legend>Delivery or collection</legend>
+                <label>
+                  <input type="radio" name="deliveryOption" value="collection" checked>
+                  <span>Collect from Lullubelle</span>
+                </label>
+                <p class="checkout-option-note" data-delivery-note="collection">We will confirm collection details after payment.</p>
+                <label>
+                  <input type="radio" name="deliveryOption" value="pudo">
+                  <span>Pudo Locker Delivery <strong>+ R80</strong></span>
+                </label>
+                <p class="checkout-option-note" data-delivery-note="pudo" hidden>Please enter your preferred Pudo locker details or delivery address in the notes field.</p>
+              </fieldset>
+              <label>
+                <span>Street address</span>
+                <input type="text" name="streetAddress" autocomplete="street-address" data-address-field>
+              </label>
+              <label>
+                <span>Suburb</span>
+                <input type="text" name="suburb" autocomplete="address-level3" data-address-field>
+              </label>
+              <label>
+                <span>City</span>
+                <input type="text" name="city" autocomplete="address-level2" data-address-field>
+              </label>
+              <label>
+                <span>Province</span>
+                <input type="text" name="province" autocomplete="address-level1" data-address-field>
+              </label>
+              <label>
+                <span>Postal code</span>
+                <input type="text" name="postalCode" autocomplete="postal-code" inputmode="numeric" data-address-field>
+              </label>
+              <label class="checkout-wide-field">
+                <span>Notes / special instructions</span>
+                <textarea name="notes" rows="4" placeholder="Preferred Pudo locker, delivery details, or anything Lullubelle should know."></textarea>
+              </label>
             </form>
             <dl>
               <div>
@@ -100,7 +137,15 @@
                 <dd data-cart-summary-count>0</dd>
               </div>
               <div>
-                <dt>Total</dt>
+                <dt>Subtotal</dt>
+                <dd data-cart-summary-subtotal>R0</dd>
+              </div>
+              <div>
+                <dt>Delivery fee</dt>
+                <dd data-cart-summary-delivery>R0</dd>
+              </div>
+              <div class="cart-final-total">
+                <dt>Final total</dt>
                 <dd data-cart-summary-total>R0</dd>
               </div>
             </dl>
