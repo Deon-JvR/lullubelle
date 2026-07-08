@@ -574,9 +574,10 @@ const applyManagedGallery = (gallery = []) => {
   grid.innerHTML = visible.map((item) => {
     const title = item.title || "Lullubelle treatment result";
     const category = item.category || "skin-results";
+    const categories = item.categories || slugify(category);
     const description = item.description || "Real Lullubelle treatment progress.";
     return `
-      <article class="result-card" data-results-card data-results-categories="${escapeHtml(slugify(category))}">
+      <article class="result-card" data-results-card data-results-categories="${escapeHtml(categories)}">
         <div class="result-feature-media">
           <button class="result-lightbox-trigger" type="button" data-lightbox-image="${escapeHtml(item.image || "lullubelle-logo.jpg")}" data-lightbox-alt="${escapeHtml(title)}" data-lightbox-title="${escapeHtml(title)}" aria-label="Enlarge ${escapeHtml(title)}">
             <img src="${escapeHtml(item.image || "lullubelle-logo.jpg")}" alt="${escapeHtml(title)}" width="1200" height="1200" loading="lazy" decoding="async">
@@ -595,9 +596,34 @@ const applyManagedGallery = (gallery = []) => {
 
 const applyManagedTreatments = (treatments = []) => {
   const visible = getVisibleManagedItems(treatments);
-  const menu = document.querySelector(".treatment-menu-section");
-  if (!menu || !visible.length || document.querySelector("[data-managed-treatments]")) return;
+  if (!visible.length) return;
 
+  const menuGrid = document.querySelector(".treatment-menu-grid");
+  if (menuGrid) {
+    const grouped = visible.reduce((groups, treatment) => {
+      const category = treatment.category || "Treatments";
+      if (!groups.has(category)) groups.set(category, []);
+      groups.get(category).push(treatment);
+      return groups;
+    }, new Map());
+    menuGrid.innerHTML = Array.from(grouped.entries()).map(([category, items]) => `
+      <article class="treatment-menu-card">
+        <h2 class="treatment-heading">${escapeHtml(category)}</h2>
+        <ul class="treatment-list simple-list">
+          ${items.map((treatment) => `
+            <li>
+              <span>${escapeHtml(treatment.name || "Treatment")}${treatment.duration ? ` <small>${escapeHtml(treatment.duration)}</small>` : ""}${treatment.description ? `<small>${escapeHtml(treatment.description)}</small>` : ""}</span>
+              <b>${escapeHtml(treatment.price || "Confirm")}</b>
+            </li>`).join("")}
+        </ul>
+      </article>`).join("");
+  }
+
+  const menu = document.querySelector(".treatment-menu-section");
+  if (!menu || document.querySelector("[data-managed-treatments]")) return;
+
+  const featured = visible.filter((treatment) => treatment.featured).slice(0, 8);
+  if (!featured.length) return;
   const section = document.createElement("section");
   section.className = "section treatment-discovery-section";
   section.dataset.managedTreatments = "true";
@@ -608,9 +634,9 @@ const applyManagedTreatments = (treatments = []) => {
       <p>These treatment details are managed from the Lullubelle Admin Portal.</p>
     </div>
     <div class="treatment-feature-grid">
-      ${visible.map((treatment) => `
+      ${featured.map((treatment) => `
         <article class="treatment-feature-card">
-          <span aria-hidden="true">${treatment.featured ? "★" : "✦"}</span>
+          <span aria-hidden="true">★</span>
           <h3>${escapeHtml(treatment.name || "Treatment")}</h3>
           <p>${escapeHtml(treatment.description || "Treatment available by appointment.")}</p>
           <p><strong>${escapeHtml(treatment.price || "Confirm price")}</strong>${treatment.duration ? ` · ${escapeHtml(treatment.duration)}` : ""}</p>
@@ -695,6 +721,10 @@ const getAllShopProducts = async () => {
   const managedContent = await loadManagedContent();
   if (managedContent?.products) {
     managedProducts = getVisibleManagedItems(managedContent.products).map(normaliseManagedProduct);
+  }
+
+  if (managedProducts.length) {
+    return managedProducts;
   }
 
   return [...managedProducts, ...SHOP_PRODUCT_DETAILS, ...vitaDermProducts];
@@ -900,7 +930,7 @@ const updateCartItem = (productId, quantity) => {
 };
 
 const setCartCheckoutState = (items) => {
-  const providerLinks = document.querySelectorAll("[data-cart-whatsapp-checkout]");
+  const providerLinks = document.querySelectorAll("[data-cart-ikhokha-checkout]");
 
   providerLinks.forEach((link) => {
     if (!items.length) {
@@ -933,7 +963,7 @@ const getCheckoutCustomer = () => {
   };
 };
 
-const startWhatsAppCheckout = () => {
+const validateCheckout = () => {
   const status = document.querySelector("[data-cart-status]");
   const items = getCart();
   const totals = getCartTotals(items);
@@ -943,42 +973,51 @@ const startWhatsAppCheckout = () => {
     if (status) {
       status.textContent = "Your cart is empty.";
     }
-    return;
+    return null;
   }
 
   if (!customer) {
     if (status) {
       status.textContent = "Please complete your checkout details first.";
     }
-    return;
+    return null;
   }
 
-  const orderLines = items.map((item) => `${item.name} x ${item.quantity} - ${formatCurrency(item.price * item.quantity)}`);
-  const message = [
-    "Hello Lullubelle, I would like to place this order:",
-    "",
-    ...orderLines,
-    "",
-    `Total: ${formatCurrency(totals.amount)}`,
-    `Name: ${customer.name}`,
-    `Email: ${customer.email}`,
-    `Phone: ${customer.phone}`,
-  ].join("\n");
+  return { status, items, totals, customer };
+};
 
-  trackEvent("begin_checkout", {
-    payment_provider: "whatsapp",
-    value: totals.amount,
-    currency: "ZAR",
-  });
-  sendAdminRecord("/.netlify/functions/admin-order", {
-    customer,
-    products: items,
-    total: totals.amount,
-    paymentStatus: "Pending",
-    orderStatus: "New",
-    source: "website_whatsapp_checkout",
-  });
-  window.location.href = `https://wa.me/${config.whatsappNumber}?text=${encodeURIComponent(message)}`;
+const startIkhokhaCheckout = async () => {
+  const checkout = validateCheckout();
+  if (!checkout) return;
+
+  const { status, items, totals, customer } = checkout;
+  const button = document.querySelector("[data-cart-ikhokha-checkout]");
+  if (status) status.textContent = "Starting secure iK Pay checkout…";
+  if (button) button.disabled = true;
+
+  try {
+    const response = await fetch("/.netlify/functions/ikhokha-checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ customer, items }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.paymentUrl) {
+      throw new Error(data.error || "Unable to start secure checkout.");
+    }
+
+    trackEvent("begin_checkout", {
+      payment_provider: "ikhokha",
+      value: totals.amount,
+      currency: "ZAR",
+    });
+    window.location.href = data.paymentUrl;
+  } catch (error) {
+    if (status) {
+      status.textContent = error.message || "Unable to start secure checkout. Please try again or contact Lullubelle for support.";
+    }
+    if (button) button.disabled = false;
+  }
 };
 
 const renderCart = () => {
@@ -1107,16 +1146,16 @@ document.addEventListener("click", (event) => {
   const quantityButton = target?.closest("[data-cart-qty]");
   const removeButton = target?.closest("[data-cart-remove]");
   const clearButton = target?.closest("[data-cart-clear]");
-  const checkoutButton = target?.closest("[data-cart-whatsapp-checkout]");
-  const disabledCheckout = target?.closest("[data-cart-whatsapp-checkout][aria-disabled='true']");
+  const ikhokhaButton = target?.closest("[data-cart-ikhokha-checkout]");
+  const disabledCheckout = target?.closest("[data-cart-ikhokha-checkout][aria-disabled='true']");
 
   if (disabledCheckout) {
     event.preventDefault();
     return;
   }
 
-  if (checkoutButton) {
-    startWhatsAppCheckout();
+  if (ikhokhaButton) {
+    startIkhokhaCheckout();
   }
 
   if (quantityButton) {

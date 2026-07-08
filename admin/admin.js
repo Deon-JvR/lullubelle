@@ -26,6 +26,13 @@ const setStatus = (message, type = "") => {
   node.textContent = message;
 };
 
+const setLoginStatus = (message = "", type = "") => {
+  const node = $("[data-login-status]");
+  if (!node) return;
+  node.className = `status ${type ? `is-${type}` : ""}`;
+  node.textContent = message;
+};
+
 const setDirty = (dirty = true) => {
   state.dirty = dirty;
   $("[data-save-state]").textContent = dirty ? "Unsaved changes" : "All changes saved";
@@ -131,6 +138,7 @@ const renderProducts = () => {
 
 const renderTreatments = () => {
   $("[data-list='treatments']").innerHTML = state.content.treatments.map((item) => cardShell(item, "treatments", item.name || "New treatment", `
+    ${field("Category", item.category || "", "category")}
     ${field("Treatment name", item.name, "name")}
     ${field("Price", item.price || "", "price")}
     ${field("Duration", item.duration || "", "duration")}
@@ -143,6 +151,7 @@ const renderGallery = () => {
   $("[data-list='gallery']").innerHTML = state.content.gallery.map((item) => cardShell(item, "gallery", item.title || "New gallery item", `
     ${field("Title", item.title, "title")}
     ${field("Treatment category", item.category || "microneedling", "category")}
+    ${field("Filter keywords", item.categories || "", "categories")}
     ${field("Number of treatments", item.treatments || "", "treatments")}
     ${checkbox("Featured result", item.featured, "featured")}
     ${field("Description", item.description || "", "description", "textarea", "wide")}
@@ -209,15 +218,22 @@ const loadAll = async () => {
 };
 
 const showDashboard = async () => {
+  setLoginStatus("");
+  setStatus("");
   $("[data-login-panel]").hidden = true;
   $("[data-admin-portal]").hidden = false;
   if (window.location.hash !== "#dashboard") {
     window.location.hash = "dashboard";
   }
-  await loadAll();
+  try {
+    await loadAll();
+  } catch (error) {
+    setStatus(error.message || "Dashboard data could not be loaded.", "error");
+  }
 };
 
 const showLogin = () => {
+  setStatus("");
   $("[data-login-panel]").hidden = false;
   $("[data-admin-portal]").hidden = true;
   if (window.location.hash === "#dashboard") {
@@ -228,8 +244,8 @@ const showLogin = () => {
 const addItem = (collection) => {
   const defaults = {
     products: { id: uid("product"), brand: "Kalahari", name: "New product", price: 0, stockStatus: "In stock", hidden: false },
-    treatments: { id: uid("treatment"), name: "New treatment", price: "", duration: "", hidden: false },
-    gallery: { id: uid("gallery"), title: "New result", category: "microneedling", hidden: false },
+    treatments: { id: uid("treatment"), category: "General", name: "New treatment", price: "", duration: "", hidden: false },
+    gallery: { id: uid("gallery"), title: "New result", category: "Microneedling", categories: "microneedling", hidden: false },
     vouchers: { id: uid("voucher"), name: "Gift Voucher", amount: 250, hidden: false },
   };
   state.content[collection].unshift(defaults[collection]);
@@ -334,17 +350,23 @@ document.addEventListener("click", async (event) => {
   if (target.matches("[data-refresh]")) loadAll().catch((error) => setStatus(error.message, "error"));
 
   if (target.matches("[data-logout]")) {
-    await request("logout", { method: "POST", body: "{}" });
-    location.reload();
+    try {
+      await request("logout", { method: "POST", body: "{}" });
+    } finally {
+      state.content = { products: [], treatments: [], gallery: [], vouchers: [] };
+      state.bookings = [];
+      state.orders = [];
+      state.dirty = false;
+      setLoginStatus("");
+      showLogin();
+    }
   }
 });
 
 $("[data-login-form]").addEventListener("submit", async (event) => {
   event.preventDefault();
-  const status = $("[data-login-status]");
   const formData = new FormData(event.currentTarget);
-  status.textContent = "Signing in…";
-  status.className = "status";
+  setLoginStatus("Signing in…");
   try {
     await request("login", {
       method: "POST",
@@ -355,8 +377,8 @@ $("[data-login-form]").addEventListener("submit", async (event) => {
     });
     await showDashboard();
   } catch (error) {
-    status.textContent = error.message;
-    status.className = "status is-error";
+    showLogin();
+    setLoginStatus(error.message || "Request failed", "error");
   }
 });
 

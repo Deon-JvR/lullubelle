@@ -1,0 +1,331 @@
+import {
+  ORDERS_KEY,
+  json,
+  newId,
+  parseJson,
+  readContent,
+  readList,
+  writeList,
+} from "./_admin-shared.mjs";
+import { createHmac, timingSafeEqual } from "node:crypto";
+
+const toBoolean = (value) => /^(1|true|yes|on)$/i.test(String(value || ""));
+
+const siteUrl = (event) => {
+  const configured = process.env.URL || process.env.DEPLOY_PRIME_URL;
+  if (configured) return configured.replace(/\/$/, "");
+  const host = event.headers.host || event.headers.Host || "localhost:8888";
+  const proto = host.includes("localhost") ? "http" : "https";
+  return `${proto}://${host}`;
+};
+
+const ikhokhaBaseUrl = () => {
+  if (process.env.IKHOKHA_API_BASE_URL) return process.env.IKHOKHA_API_BASE_URL.replace(/\/$/, "");
+  return toBoolean(process.env.IKHOKHA_TEST_MODE)
+    ? "https://sandbox-api.ikhokha.com"
+    : "https://api.ikhokha.com";
+};
+
+const checkoutEndpoint = () => {
+  if (process.env.IKHOKHA_CHECKOUT_PATH) return process.env.IKHOKHA_CHECKOUT_PATH;
+  return "/public-api/v1/api/payment";
+};
+
+const money = (value) => Math.round((Number(value) || 0) * 100) / 100;
+
+const orderNumber = () => `LUL-${Date.now()}`;
+
+const extractPaymentUrl = (payload) => {
+  const candidates = [
+    payload?.paymentUrl,
+    payload?.paymentURL,
+    payload?.checkoutUrl,
+    payload?.checkoutURL,
+    payload?.redirectUrl,
+    payload?.redirectURL,
+    payload?.url,
+    payload?.data?.paymentUrl,
+    payload?.data?.checkoutUrl,
+    payload?.data?.redirectUrl,
+    payload?.data?.url,
+  ];
+  return candidates.find((value) => typeof value === "string" && /^https?:\/\//i.test(value));
+};
+
+const buildCatalog = async () => {
+  const content = await readContent();
+  const productEntries = (content.products || []).map((product) => [
+    product.id,
+    {
+      id: product.id,
+      name: `${product.brand ? `${product.brand} ` : ""}${product.name}`.trim(),
+      price: Number(product.price) || 0,
+      image: product.image || "lullubelle-logo.jpg",
+    },
+  ]);
+  const voucherEntries = (content.vouchers || []).map((voucher) => [
+    voucher.id,
+    {
+      id: voucher.id,
+      name: `Lullubelle Gift Voucher ${voucher.name || `R${voucher.amount}`}`,
+      price: Number(voucher.amount) || 0,
+      image: "lullubelle-logo.jpg",
+    },
+  ]);
+  return new Map([...productEntries, ...voucherEntries]);
+};
+
+const normaliseItems = async (items) => {
+  if (!Array.isArray(items) || !items.length) {
+    throw new Error("Your cart is empty.");
+  }
+
+  const catalog = await buildCatalog();
+  return items.map((item) => {
+    const quantity = Math.max(1, Math.min(99, Number.parseInt(item.quantity, 10) || 1));
+    const catalogItem = catalog.get(item.id);
+    if (catalogItem) {
+      return { ...catalogItem, quantity };
+    }
+
+    if (String(item.id || "").startsWith("online-skin-consultation")) {
+      return {
+        id: String(item.id),
+        name: "Online skin consultation with Luzelle - 30 minutes",
+        price: 800,
+        image: "owner-luzelle.jpg",
+        quantity,
+      };
+    }
+
+    throw new Error(`Product is no longer available: ${item.name || item.id}`);
+  });
+};
+
+const createPendingOrder = async ({ customer, products, total, paymentReference }) => {
+  const order = {
+    id: newId("order"),
+    orderNumber: paymentReference,
+    createdAt: new Date().toISOString(),
+    customer,
+    products,
+    total,
+    paymentProvider: "iKhokha iK Pay",
+    paymentStatus: "Pending",
+    orderStatus: "New",
+  };
+  const orders = await readList(ORDERS_KEY);
+  orders.unshift(order);
+  await writeList(ORDERS_KEY, orders.slice(0, 500));
+  return order;
+};
+
+const callIkhokha = async ({ event, order, testMode }) => {
+  const base = siteUrl(event);
+  const paymentAmount = money(order.total);
+  const payload = {
+    amount: Math.round(paymentAmount * 100),
+    amountInCents: Math.round(paymentAmount * 100),
+    currency: "ZAR",
+    merchantReference: order.orderNumber,
+    reference: order.orderNumber,
+    externalTransactionID: order.orderNumber,
+    description: `Lullubelle order ${order.orderNumber}`,
+    customer: order.customer,
+    lineItems: order.products.map((item) => ({
+      id: item.id,
+      name: item.name,
+      quantity: item.quantity,
+      amount: Math.round(Number(item.price) * 100),
+      price: Math.round(Number(item.price) * 100),
+    })),
+    successUrl: `${base}/payment-success?order=${encodeURIComponent(order.orderNumber)}`,
+    cancelUrl: `${base}/payment-cancelled?order=${encodeURIComponent(order.orderNumber)}`,
+    failureUrl: `${base}/payment-cancelled?order=${encodeURIComponent(order.orderNumber)}`,
+    callbackUrl: `${base}/.netlify/functions/ikhokha-checkout?action=confirm&order=${encodeURIComponent(order.orderNumber)}`,
+    webhookUrl: `${base}/.netlify/functions/ikhokha-checkout?action=confirm&order=${encodeURIComponent(order.orderNumber)}`,
+    mode: testMode ? "test" : "live",
+    testMode,
+  };
+
+  const credentials = Buffer.from(`${process.env.IKHOKHA_API_KEY}:${process.env.IKHOKHA_API_SECRET}`).toString("base64");
+  const response = await fetch(`${ikhokhaBaseUrl()}${checkoutEndpoint()}`, {
+    method: "POST",
+    headers: {
+      "Accept": "application/json",
+      "Content-Type": "application/json",
+      "Authorization": `Basic ${credentials}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const text = await response.text();
+  let data = {};
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    data = { raw: text };
+  }
+
+  if (!response.ok) {
+    throw new Error(data?.message || data?.error || `iKhokha checkout failed with status ${response.status}.`);
+  }
+
+  const paymentUrl = extractPaymentUrl(data);
+  if (!paymentUrl) {
+    throw new Error("iKhokha did not return a hosted payment URL.");
+  }
+
+  return { paymentUrl, providerResponse: data };
+};
+
+const markOrderPaid = async (orderNumber, providerPayload) => {
+  const orders = await readList(ORDERS_KEY);
+  const index = orders.findIndex((order) => order.orderNumber === orderNumber);
+  if (index === -1) return false;
+
+  orders[index] = {
+    ...orders[index],
+    paymentStatus: "Paid",
+    orderStatus: orders[index].orderStatus === "New" ? "Processing" : orders[index].orderStatus,
+    paidAt: new Date().toISOString(),
+    providerConfirmation: providerPayload,
+  };
+  await writeList(ORDERS_KEY, orders);
+  return true;
+};
+
+const markOrderCancelled = async (orderNumber, providerPayload) => {
+  const orders = await readList(ORDERS_KEY);
+  const index = orders.findIndex((order) => order.orderNumber === orderNumber);
+  if (index === -1) return false;
+
+  orders[index] = {
+    ...orders[index],
+    paymentStatus: "Unpaid",
+    orderStatus: "Cancelled",
+    cancelledAt: new Date().toISOString(),
+    providerConfirmation: providerPayload,
+  };
+  await writeList(ORDERS_KEY, orders);
+  return true;
+};
+
+const safeCompare = (left, right) => {
+  const a = Buffer.from(String(left || ""));
+  const b = Buffer.from(String(right || ""));
+  return a.length > 0 && a.length === b.length && timingSafeEqual(a, b);
+};
+
+const verifySignature = (event) => {
+  const signature = event.headers["x-ikhokha-signature"]
+    || event.headers["X-iKhokha-Signature"]
+    || event.headers["x-ik-signature"]
+    || event.headers["X-iK-Signature"]
+    || event.headers["x-signature"]
+    || event.headers["X-Signature"];
+  if (!signature || !process.env.IKHOKHA_API_SECRET) return false;
+
+  const body = event.body || "";
+  const hex = createHmac("sha256", process.env.IKHOKHA_API_SECRET).update(body).digest("hex");
+  const base64 = createHmac("sha256", process.env.IKHOKHA_API_SECRET).update(body).digest("base64");
+  const cleaned = String(signature).replace(/^sha256=/i, "");
+  return safeCompare(cleaned, hex) || safeCompare(cleaned, base64);
+};
+
+const verifyBasicAuth = (event) => {
+  const auth = event.headers.authorization || event.headers.Authorization || "";
+  if (!auth.startsWith("Basic ") || !process.env.IKHOKHA_API_KEY || !process.env.IKHOKHA_API_SECRET) return false;
+  const expected = Buffer.from(`${process.env.IKHOKHA_API_KEY}:${process.env.IKHOKHA_API_SECRET}`).toString("base64");
+  return safeCompare(auth.slice(6), expected);
+};
+
+const isVerifiedIkhokhaConfirmation = (event) => verifySignature(event) || verifyBasicAuth(event);
+
+const handleConfirmation = async (event) => {
+  const body = parseJson(event);
+  const order = event.queryStringParameters?.order || body.orderNumber || body.merchantReference || body.reference;
+  const status = String(body.status || body.paymentStatus || body.result || "").toLowerCase();
+  const paid = ["paid", "success", "successful", "approved", "completed"].includes(status);
+  const cancelled = ["cancelled", "canceled", "failed", "failure", "declined", "rejected", "expired"].includes(status);
+
+  if (!order || !isVerifiedIkhokhaConfirmation(event)) {
+    return json(202, { ok: true, paid: false });
+  }
+
+  if (paid) {
+    const updated = await markOrderPaid(order, body);
+    return json(200, { ok: true, paid: updated });
+  }
+
+  if (cancelled) {
+    const updated = await markOrderCancelled(order, body);
+    return json(200, { ok: true, paid: false, cancelled: updated });
+  }
+
+  return json(202, { ok: true, paid: false });
+};
+
+const wantsJson = (event) => {
+  const accept = event.headers.accept || event.headers.Accept || "";
+  return accept.includes("application/json");
+};
+
+export const handler = async (event) => {
+  if (event.queryStringParameters?.action === "confirm") {
+    return handleConfirmation(event);
+  }
+
+  if (event.httpMethod !== "POST") {
+    return json(405, { error: "Method not allowed." });
+  }
+
+  const missing = ["IKHOKHA_API_KEY", "IKHOKHA_API_SECRET"].filter((key) => !process.env[key]);
+  if (missing.length) {
+    return json(500, { error: `Missing iKhokha environment variables: ${missing.join(", ")}` });
+  }
+
+  const body = parseJson(event);
+  const customer = {
+    name: String(body.customer?.name || body.name || "").trim(),
+    email: String(body.customer?.email || body.email || "").trim(),
+    phone: String(body.customer?.phone || body.phone || "").trim(),
+  };
+
+  if (!customer.name || !customer.email || !customer.phone) {
+    return json(400, { error: "Customer name, email and phone are required." });
+  }
+
+  try {
+    const products = await normaliseItems(body.items || body.products);
+    const total = money(products.reduce((sum, item) => sum + Number(item.price) * Number(item.quantity), 0));
+    const order = await createPendingOrder({
+      customer,
+      products,
+      total,
+      paymentReference: orderNumber(),
+    });
+    const testMode = toBoolean(process.env.IKHOKHA_TEST_MODE);
+    const checkout = await callIkhokha({ event, order, testMode });
+
+    if (!wantsJson(event)) {
+      return {
+        statusCode: 303,
+        headers: {
+          Location: checkout.paymentUrl,
+          "Cache-Control": "no-store",
+        },
+        body: "",
+      };
+    }
+
+    return json(200, {
+      ok: true,
+      orderNumber: order.orderNumber,
+      paymentUrl: checkout.paymentUrl,
+      testMode,
+    });
+  } catch (error) {
+    return json(502, { error: error.message || "Unable to start iKhokha checkout." });
+  }
+};
