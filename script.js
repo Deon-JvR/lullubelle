@@ -209,7 +209,7 @@ const setupVitaDermCatalogue = async () => {
   if (!grid) return;
 
   try {
-    const response = await fetch("products/vitaderm/catalogue.json?v=20260704a");
+    const response = await fetch("products/vitaderm/catalogue.json?v=20260704b");
     if (!response.ok) throw new Error("Catalogue unavailable");
     const products = await response.json();
 
@@ -219,15 +219,18 @@ const setupVitaDermCatalogue = async () => {
       const description = product.description.replace(/^Description\s*/i, "");
       const benefit = (product.benefits || description).replace(/^Benefits?\s*/i, "");
       const summary = benefit.length > 105 ? `${benefit.slice(0, 102).trim().replace(/\s+\S*$/, "")}…` : benefit;
+      const productId = `vitaderm-${slug}`;
       return `
         <article class="kalahari-item">
+          ${product.manual_review ? "" : `<span class="product-status-badge">New</span>`}
           <div class="product-image-wrap"><img src="${escapeHtml(image)}" alt="VitaDerm ${escapeHtml(product.name)}" width="900" height="900" decoding="async" loading="lazy"></div>
+          <span class="product-brand-badge" data-brand="vitaderm">VitaDerm</span>
           <h3>${escapeHtml(product.name)}</h3>
           <strong>${formatCurrency(Number(product.price))}</strong>
           ${product.size ? `<small>${escapeHtml(product.size)}</small>` : ""}
           <p>${escapeHtml(summary)}</p>
           <span class="product-stock"><span aria-hidden="true"></span> In stock</span>
-          <div class="product-card-actions"><button class="button secondary" type="button" data-vitaderm-cart-add data-product-id="vitaderm-${escapeHtml(slug)}" data-product-name="VitaDerm ${escapeHtml(product.name)}" data-product-price="${Number(product.price)}" data-product-image="${escapeHtml(image)}">Add to cart</button><a class="text-link" href="${escapeHtml(product.source_url)}" target="_blank" rel="noopener">View Product</a></div>
+          <div class="product-card-actions"><button class="button secondary" type="button" data-vitaderm-cart-add data-product-id="${escapeHtml(productId)}" data-product-name="VitaDerm ${escapeHtml(product.name)}" data-product-price="${Number(product.price)}" data-product-image="${escapeHtml(image)}">Add to cart</button><a class="text-link" href="${escapeHtml(productDetailUrl(productId))}">View Product</a></div>
         </article>`;
     }).join("");
 
@@ -251,22 +254,39 @@ const setupVitaDermCatalogue = async () => {
 
 const enhanceStaticShopCards = () => {
   document.querySelectorAll(".shop-page .kalahari-item").forEach((card, index) => {
-    if (!card.id) card.id = card.querySelector("[data-product-id]")?.dataset.productId || `shop-product-${index + 1}`;
+    const cartButton = card.querySelector("[data-product-id]");
+    const productId = cartButton?.dataset.productId || `shop-product-${index + 1}`;
+    const productName = cartButton?.dataset.productName || card.querySelector("h3")?.textContent || "Product";
+    const brand = productName.split(" ")[0] || card.closest("[data-brand-panel]")?.dataset.brandPanel || "Lullubelle";
+    if (!card.id) card.id = productId;
+    if (!card.querySelector(".product-brand-badge")) {
+      const badge = document.createElement("span");
+      badge.className = "product-brand-badge";
+      badge.dataset.brand = brand.toLowerCase();
+      badge.textContent = brand;
+      card.querySelector("h3")?.before(badge);
+    }
+    if (!card.querySelector(".product-status-badge") && (index === 0 || /Hydra-Vital Light/i.test(productName))) {
+      const status = document.createElement("span");
+      status.className = "product-status-badge";
+      status.textContent = index === 0 ? "Best Seller" : "New";
+      card.prepend(status);
+    }
     if (!card.querySelector(".product-stock")) {
       const stock = document.createElement("span");
       stock.className = "product-stock";
       stock.innerHTML = '<span aria-hidden="true"></span> In stock';
       card.querySelector(".button")?.before(stock);
     }
-    const button = card.querySelector(":scope > .button");
-    if (button) {
+    const directButton = card.querySelector(":scope > .button");
+    if (directButton) {
       const actions = document.createElement("div");
       actions.className = "product-card-actions";
-      button.before(actions);
-      actions.append(button);
+      directButton.before(actions);
+      actions.append(directButton);
       const link = document.createElement("a");
       link.className = "text-link";
-      link.href = `#${card.id}`;
+      link.href = productDetailUrl(productId);
       link.textContent = "View Product";
       link.setAttribute("aria-label", `View ${card.querySelector("h3")?.textContent || "product"}`);
       actions.append(link);
@@ -311,7 +331,7 @@ const setupFeaturedProducts = async () => {
   if (!grid) return;
 
   try {
-    const response = await fetch("products/featured-products.json?v=20260704a");
+    const response = await fetch("products/featured-products.json?v=20260704b");
     if (!response.ok) throw new Error("Featured product configuration unavailable");
     const configData = await response.json();
     const perBrand = Number(configData.productsPerBrand) || 2;
@@ -381,14 +401,6 @@ const setupFeaturedProducts = async () => {
   }
 };
 
-setupBrandFilters();
-setupVitaDermCatalogue();
-setupFeaturedProducts();
-enhanceStaticShopCards();
-setupResultsFilters();
-setupResultLightbox();
-setupPageStructuredData();
-
 const CART_KEY = "lullubelleCart";
 const currencyFormatter = new Intl.NumberFormat("en-ZA", {
   style: "currency",
@@ -404,6 +416,198 @@ const escapeHtml = (value = "") => String(value)
   .replace(/>/g, "&gt;")
   .replace(/"/g, "&quot;")
   .replace(/'/g, "&#039;");
+
+const SHOP_PRODUCT_DETAILS = [
+  { id: "kalahari-facial-cleanser", brand: "Kalahari", name: "Facial Cleanser", price: 278, image: "products/kalahari-facial-cleanser.webp", benefit: "Everyday cleansing support for a fresh skin routine.", suitable: "Most skin types needing a simple daily cleanse.", directions: "Use morning and evening as the first step in your home-care routine.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
+  { id: "kalahari-gentle-cleansing-milk", brand: "Kalahari", name: "Gentle Cleansing Milk", price: 291, image: "products/kalahari-facial-cleanser.webp", benefit: "Soft cleansing option for dry, sensitive, or delicate skin.", suitable: "Dry, delicate or sensitive-feeling skin.", directions: "Massage gently over the skin and remove with water or damp cotton pads.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
+  { id: "kalahari-toning-lotion", brand: "Kalahari", name: "Toning Lotion", price: 347, image: "products/kalahari-toning-lotion.webp", benefit: "Refreshing toner step after cleansing.", suitable: "Skin needing a fresh second cleanse and toner step.", directions: "Apply after cleansing before serum or moisturiser.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
+  { id: "kalahari-enzyme-face-buff", brand: "Kalahari", name: "Enzyme Face Buff", price: 362, image: "products/kalahari-enzyme-face-buff.webp", benefit: "Polishing exfoliation support for smoother-looking skin.", suitable: "Dull or rough-textured skin that tolerates exfoliation.", directions: "Use as advised by your skin therapist; avoid over-exfoliating.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
+  { id: "kalahari-essential-daily-moisturiser", brand: "Kalahari", name: "Essential Daily Moisturiser", price: 405, image: "products/kalahari-essential-daily-moisturiser.webp", benefit: "Daily hydration for a simple home-care routine.", suitable: "Normal to dry skin needing daily moisture.", directions: "Apply after cleansing and serum. Use SPF during the day.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
+  { id: "kalahari-hydralite-moisturiser", brand: "Kalahari", name: "Hydralite Moisturiser", price: 442, image: "products/kalahari-hydralite-moisturiser.webp", benefit: "Lightweight moisture support for dehydrated skin.", suitable: "Dehydrated skin that prefers a lighter moisturiser.", directions: "Apply morning and evening after serum.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
+  { id: "kalahari-evening-moisturiser", brand: "Kalahari", name: "Evening Moisturiser", price: 431, image: "products/kalahari-essential-daily-moisturiser.webp", benefit: "Night-time comfort and hydration support.", suitable: "Skin needing a richer evening moisturising step.", directions: "Apply in the evening after cleansing and serum.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
+  { id: "kalahari-phyto-rich-moisturiser", brand: "Kalahari", name: "Phyto Rich Moisturiser", price: 597, image: "products/kalahari-hydralite-moisturiser.webp", benefit: "Rich moisturising care for drier skin routines.", suitable: "Dry or mature-feeling skin needing richer comfort.", directions: "Apply after serum, especially as an evening moisturiser.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
+  { id: "kalahari-spf-40-sun-protection", brand: "Kalahari", name: "SPF 40 Sun Protection", price: 457, image: "products/kalahari-spf-40-sun-protection.webp", benefit: "Daily UVA/UVB protection support.", suitable: "Daily daytime protection for most skin routines.", directions: "Apply every morning as the final skincare step. Reapply with sun exposure.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
+  { id: "kalahari-solar-defence-fluid-50", brand: "Kalahari", name: "Solar Defence Fluid 50", price: 581, image: "products/kalahari-solar-defence-fluid-50.webp", benefit: "High-protection fluid for daytime use.", suitable: "Skin needing high daily sun protection.", directions: "Apply generously each morning and reapply when outdoors.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
+  { id: "kalahari-nourishing-eye-balm", brand: "Kalahari", name: "Nourishing Eye Balm Tube", price: 291, image: "products/kalahari-nourishing-eye-balm.webp", benefit: "Eye-area care for a gentle finishing step.", suitable: "Dry or delicate-looking eye area.", directions: "Pat a small amount around the orbital area as advised.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
+  { id: "kalahari-hydrating-collagen-eye-patches", brand: "Kalahari", name: "Hydrating Collagen Eye Patches", price: 72, image: "products/kalahari-nourishing-eye-balm.webp", benefit: "Quick eye-area hydration treatment patches.", suitable: "Tired or dehydrated-looking eye area.", directions: "Use as a short treatment step before moisturiser.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
+  { id: "mesoestetic-hydra-vital-light", brand: "Mesoestetic", name: "Hydra-Vital Light", price: 2135, image: "products/mesoestetic/hydra-vital-light.webp", benefit: "Refreshing moisturising gel-cream for normal, combination and oily skin.", suitable: "Normal, combination and oily skin.", directions: "Apply after cleansing and serum as directed by your therapist.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
+  { id: "mesoestetic-fast-skin-repair", brand: "Mesoestetic", name: "Fast Skin Repair", price: 1889, image: "products/mesoestetic/fast-skin-repair.webp", benefit: "Regenerative comfort cream for sensitive or sensitised skin.", suitable: "Sensitive, sensitised or barrier-stressed skin.", directions: "Apply as a comfort cream according to professional guidance.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
+  { id: "mesoestetic-skin-balance", brand: "Mesoestetic", name: "Skin Balance", price: 2759, image: "products/mesoestetic/skin-balance.webp", benefit: "Intensive calming concentrate supporting sensitive and sensitised skin.", suitable: "Reactive, sensitive or sensitised skin.", directions: "Use as directed by your skin therapist.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
+];
+
+const productDetailUrl = (id) => `product.html?product=${encodeURIComponent(id)}`;
+
+const normaliseVitaDermProduct = (product) => {
+  const slug = product.source_url?.split("/").filter(Boolean).pop() || product.sku?.toLowerCase();
+  return {
+    id: `vitaderm-${slug}`,
+    brand: "VitaDerm",
+    name: product.name,
+    price: Number(product.price) || 0,
+    image: `products/vitaderm/${slug}.webp`,
+    benefit: (product.benefits || product.description || "Professional VitaDerm skincare available from Lullubelle.").replace(/^Benefits?\s*/i, ""),
+    description: (product.description || product.benefits || "").replace(/^Description\s*/i, ""),
+    directions: product.directions || "Use as directed by your skin therapist.",
+    ingredients: product.ingredients || "Ingredient list not published. Please confirm current ingredients with Lullubelle before purchase.",
+    suitable: Array.isArray(product.categories) && product.categories.length ? product.categories.join(", ") : "Selected skin routines after consultation.",
+    size: product.size || "",
+    sku: product.sku || "",
+  };
+};
+
+const getAllShopProducts = async () => {
+  let vitaDermProducts = [];
+  try {
+    const response = await fetch("products/vitaderm/catalogue.json?v=20260704b");
+    if (response.ok) {
+      const products = await response.json();
+      vitaDermProducts = Array.isArray(products) ? products.map(normaliseVitaDermProduct) : [];
+    }
+  } catch {
+    vitaDermProducts = [];
+  }
+  return [...SHOP_PRODUCT_DETAILS, ...vitaDermProducts];
+};
+
+const renderProductDetailPage = async () => {
+  const container = document.querySelector("[data-product-detail]");
+  if (!container) return;
+
+  const products = await getAllShopProducts();
+  const requestedId = new URLSearchParams(window.location.search).get("product");
+  const product = products.find((item) => item.id === requestedId) || products[0];
+  const related = products
+    .filter((item) => item.id !== product.id && item.brand === product.brand)
+    .slice(0, 3);
+  const description = product.description || product.benefit || `${product.brand} ${product.name} is available through Lullubelle Beauty Specialist in Centurion.`;
+
+  document.title = `${product.brand} ${product.name} | Lullubelle Skincare Centurion`;
+  document.querySelector('meta[name="description"]')?.setAttribute("content", `${product.brand} ${product.name} from Lullubelle Beauty Specialist in Centurion. View benefits, directions, skin suitability and order online.`);
+  document.querySelector('link[rel="canonical"]')?.setAttribute("href", `https://www.lullubelle.co.za/product?product=${encodeURIComponent(product.id)}`);
+
+  container.innerHTML = `
+    <section class="section product-detail product-detail-page-hero">
+      <div class="product-detail-media">
+        <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" width="900" height="900" decoding="async" loading="eager" fetchpriority="high">
+      </div>
+      <div class="product-detail-copy">
+        <p class="eyebrow">${escapeHtml(product.brand)} skincare</p>
+        <h1>${escapeHtml(product.name)}</h1>
+        <strong>${formatCurrency(product.price)}</strong>
+        ${product.size ? `<p class="product-size">${escapeHtml(product.size)}</p>` : ""}
+        <p class="lead">${escapeHtml(product.benefit || description)}</p>
+        <div class="product-buy-actions">
+          <button class="button primary" type="button" data-product-detail-cart data-product-id="${escapeHtml(product.id)}" data-product-name="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" data-product-price="${Number(product.price)}" data-product-image="${escapeHtml(product.image)}">Add to Cart</button>
+          <a class="button secondary" href="shop?brand=${encodeURIComponent(product.brand)}">Back to ${escapeHtml(product.brand)}</a>
+        </div>
+      </div>
+    </section>
+    <section class="section product-detail-info">
+      <div class="treatment-info-grid">
+        <article>
+          <p class="eyebrow">Description</p>
+          <h2>Professional home-care support</h2>
+          <p>${escapeHtml(description)}</p>
+        </article>
+        <article>
+          <p class="eyebrow">Benefits</p>
+          <h2>Why clients choose it</h2>
+          <p>${escapeHtml(product.benefit || description)}</p>
+        </article>
+        <article>
+          <p class="eyebrow">Directions</p>
+          <h2>How to use</h2>
+          <p>${escapeHtml(product.directions || "Use as directed by your skin therapist.")}</p>
+        </article>
+        <article>
+          <p class="eyebrow">Suitable skin type</p>
+          <h2>Best suited for</h2>
+          <p>${escapeHtml(product.suitable || "Selected skin routines after consultation.")}</p>
+        </article>
+      </div>
+      <details class="ingredients-disclosure">
+        <summary>Ingredients</summary>
+        <p>${escapeHtml(product.ingredients || "Please confirm current ingredients with Lullubelle before purchase.")}</p>
+      </details>
+    </section>
+    <section class="section related-products-section" aria-labelledby="related-products-heading">
+      <div class="section-heading">
+        <p class="eyebrow">Related products</p>
+        <h2 id="related-products-heading">Complete your routine</h2>
+      </div>
+      <div class="kalahari-grid">
+        ${related.map((item) => `
+          <article class="kalahari-item">
+            <div class="product-image-wrap"><img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.brand)} ${escapeHtml(item.name)}" width="650" height="650" decoding="async" loading="lazy"></div>
+            <span class="product-brand-badge" data-brand="${escapeHtml(item.brand.toLowerCase())}">${escapeHtml(item.brand)}</span>
+            <h3>${escapeHtml(item.name)}</h3>
+            <strong>${formatCurrency(item.price)}</strong>
+            <p>${escapeHtml(item.benefit || "Professional home care selected by Lullubelle.")}</p>
+            <div class="product-card-actions"><a class="button secondary" href="${escapeHtml(productDetailUrl(item.id))}">View Product</a></div>
+          </article>`).join("")}
+      </div>
+    </section>
+    <section class="section faq-section">
+      <div class="section-heading"><p class="eyebrow">Product FAQ</p><h2>Before you order</h2></div>
+      <div class="faq-list">
+        <details><summary>Is this product in stock?</summary><p>Products are marked as available online, but Lullubelle confirms final stock before completing your order.</p></details>
+        <details><summary>Can I get help choosing products?</summary><p>Yes. Book a skin consultation or contact Lullubelle for personalised home-care guidance.</p></details>
+        <details><summary>Are ingredients always current?</summary><p>Brands may update formulations. Please confirm the latest ingredient list before purchase if you have sensitivities or allergies.</p></details>
+      </div>
+    </section>`;
+
+  container.querySelector("[data-product-detail-cart]")?.addEventListener("click", (event) => {
+    const button = event.currentTarget;
+    addToCart({
+      id: button.dataset.productId,
+      name: button.dataset.productName,
+      price: Number(button.dataset.productPrice) || 0,
+      image: button.dataset.productImage,
+    });
+    button.textContent = "Added";
+    window.setTimeout(() => { button.textContent = "Add to Cart"; }, 1100);
+  });
+
+  appendStructuredData("product-detail", {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: `${product.brand} ${product.name}`,
+    description,
+    image: new URL(product.image, window.location.href).href,
+    sku: product.sku || product.id,
+    brand: { "@type": "Brand", name: product.brand },
+    offers: {
+      "@type": "Offer",
+      url: window.location.href.split("#")[0],
+      priceCurrency: "ZAR",
+      price: Number(product.price) || 0,
+      availability: "https://schema.org/InStock",
+      itemCondition: "https://schema.org/NewCondition",
+    },
+  });
+};
+
+const injectFooterTrustSection = () => {
+  const footer = document.querySelector(".site-footer");
+  if (!footer || document.querySelector(".site-trust-footer")) return;
+  const section = document.createElement("section");
+  section.className = "section site-trust-footer";
+  section.setAttribute("aria-label", "Why clients choose Lullubelle");
+  section.innerHTML = `
+    <div class="section-heading">
+      <p class="eyebrow">Why clients choose Lullubelle</p>
+      <h2>Professional skincare, private appointments and trusted local care.</h2>
+    </div>
+    <div class="trust-grid">
+      <div><span>10+</span><p><strong>10+ Years Experience</strong><small>Personal, expert care</small></p></div>
+      <div><span>✦</span><p><strong>Professional Brands</strong><small>Kalahari, VitaDerm &amp; Mesoestetic</small></p></div>
+      <div><span>✓</span><p><strong>Qualified Skin Therapist</strong><small>Consultation-led treatments</small></p></div>
+      <div><span>🔒</span><p><strong>Secure Online Shopping</strong><small>Shop with confidence</small></p></div>
+      <div><span>◷</span><p><strong>Private Studio</strong><small>Appointment-only care</small></p></div>
+      <div><span>★</span><p><strong>Happy Clients</strong><small>Trusted local feedback</small></p></div>
+    </div>`;
+  footer.before(section);
+};
 
 const getCart = () => {
   try {
@@ -925,3 +1129,13 @@ if (appointmentBookingForm) {
     }
   });
 }
+
+setupBrandFilters();
+setupVitaDermCatalogue();
+setupFeaturedProducts();
+enhanceStaticShopCards();
+setupResultsFilters();
+setupResultLightbox();
+setupPageStructuredData();
+renderProductDetailPage();
+injectFooterTrustSection();
