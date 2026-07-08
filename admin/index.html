@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Lullubelle Admin</title>
+    <link rel="stylesheet" href="admin.css">
+  </head>
+  <body>
+    <main class="admin-shell">
+      <section class="login-panel" data-login-panel>
+        <div>
+          <p class="eyebrow">Private portal</p>
+          <h1>Lullubelle Admin</h1>
+          <p>Sign in to manage products, treatments, gallery items, vouchers, bookings and orders.</p>
+        </div>
+        <form data-login-form>
+          <label>Username <input name="username" autocomplete="username" required></label>
+          <label>Password <input name="password" type="password" autocomplete="current-password" required></label>
+          <button class="button primary" type="submit">Sign in</button>
+          <p class="status" data-login-status aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="portal" data-admin-portal hidden>
+        <header class="admin-header">
+          <div>
+            <p class="eyebrow">Lullubelle</p>
+            <h1>Admin Portal</h1>
+            <p data-save-state>All changes saved</p>
+          </div>
+          <div class="header-actions">
+            <button class="button secondary" type="button" data-refresh>Refresh</button>
+            <button class="button primary" type="button" data-save>Save changes</button>
+            <button class="button danger" type="button" data-logout>Logout</button>
+          </div>
+        </header>
+
+        <nav class="tabs" aria-label="Admin sections">
+          <button type="button" class="is-active" data-tab="products">Products</button>
+          <button type="button" data-tab="treatments">Treatments</button>
+          <button type="button" data-tab="gallery">Before &amp; After</button>
+          <button type="button" data-tab="vouchers">Gift Vouchers</button>
+          <button type="button" data-tab="bookings">Bookings</button>
+          <button type="button" data-tab="orders">Orders</button>
+        </nav>
+
+        <p class="status" data-admin-status aria-live="polite"></p>
+
+        <section class="panel is-active" data-panel="products">
+          <div class="panel-heading"><h2>Products</h2><button class="button secondary" type="button" data-add="products">Add product</button></div>
+          <div class="editor-list" data-list="products"></div>
+        </section>
+
+        <section class="panel" data-panel="treatments">
+          <div class="panel-heading"><h2>Treatments</h2><button class="button secondary" type="button" data-add="treatments">Add treatment</button></div>
+          <div class="editor-list" data-list="treatments"></div>
+        </section>
+
+        <section class="panel" data-panel="gallery">
+          <div class="panel-heading"><h2>Before &amp; After Gallery</h2><button class="button secondary" type="button" data-add="gallery">Add gallery item</button></div>
+          <p class="hint">Upload approved client images only. The website will not add generated before/after overlays.</p>
+          <div class="editor-list" data-list="gallery"></div>
+        </section>
+
+        <section class="panel" data-panel="vouchers">
+          <div class="panel-heading"><h2>Gift Vouchers</h2><button class="button secondary" type="button" data-add="vouchers">Add voucher</button></div>
+          <div class="editor-list" data-list="vouchers"></div>
+        </section>
+
+        <section class="panel" data-panel="bookings">
+          <div class="panel-heading"><h2>Bookings</h2><button class="button primary" type="button" data-save-bookings>Save booking statuses</button></div>
+          <div class="editor-list" data-list="bookings"></div>
+        </section>
+
+        <section class="panel" data-panel="orders">
+          <div class="panel-heading"><h2>Orders</h2><button class="button primary" type="button" data-save-orders>Save order statuses</button></div>
+          <p class="hint">Prepared for iKhokha order records. Payment integration can post orders to the order endpoint later.</p>
+          <div class="editor-list" data-list="orders"></div>
+        </section>
+      </section>
+    </main>
+    <script src="admin.js" type="module"></script>
+  </body>
+</html>

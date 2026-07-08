@@ -1,4 +1,9 @@
 [[redirects]]
+  from = "/admin"
+  to = "/admin/index.html"
+  status = 200
+
+[[redirects]]
   from = "/book-appointment"
   to = "/book-appointment.html"
   status = 200
@@ -6,6 +11,11 @@
 [[redirects]]
   from = "/shop"
   to = "/shop.html"
+  status = 200
+
+[[redirects]]
+  from = "/product"
+  to = "/product.html"
   status = 200
 
 [[redirects]]
@@ -87,6 +97,12 @@
   from = "/payment-success"
   to = "/payment-success.html"
   status = 200
+
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store"
 
 [[headers]]
   for = "/*"

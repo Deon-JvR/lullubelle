@@ -417,6 +417,230 @@ const escapeHtml = (value = "") => String(value)
   .replace(/"/g, "&quot;")
   .replace(/'/g, "&#039;");
 
+let managedContentPromise;
+
+const loadManagedContent = async () => {
+  if (!managedContentPromise) {
+    managedContentPromise = fetch("/.netlify/functions/admin-content", { headers: { Accept: "application/json" } })
+      .then((response) => response.ok ? response.json() : null)
+      .catch(() => null);
+  }
+  return managedContentPromise;
+};
+
+const getVisibleManagedItems = (items) => Array.isArray(items)
+  ? items.filter((item) => item && item.hidden !== true)
+  : [];
+
+const slugify = (value = "item") => String(value)
+  .toLowerCase()
+  .replace(/&/g, "and")
+  .replace(/[^a-z0-9]+/g, "-")
+  .replace(/^-|-$/g, "") || "item";
+
+const normaliseManagedProduct = (product) => {
+  const brand = product.brand || "Lullubelle";
+  const name = product.name || "Product";
+  return {
+    id: product.id || `${slugify(brand)}-${slugify(name)}`,
+    brand,
+    name,
+    price: Number(product.price) || 0,
+    image: product.image || "lullubelle-logo.jpg",
+    benefit: product.benefit || product.description || "Professional home care selected by Lullubelle.",
+    description: product.description || product.benefit || "Professional skincare available from Lullubelle Beauty Specialist.",
+    directions: product.directions || "Use as directed by your skin therapist.",
+    ingredients: product.ingredients || "Please confirm current ingredients with Lullubelle before purchase.",
+    suitable: product.suitable || "Selected skin routines after consultation.",
+    size: product.size || "",
+    sku: product.sku || product.id || `${slugify(brand)}-${slugify(name)}`,
+    stockStatus: product.stockStatus || "In stock",
+    featured: product.featured === true,
+    bestSeller: product.bestSeller === true,
+  };
+};
+
+const stockLabel = (status = "In stock") => {
+  if (/out/i.test(status)) return "Out of stock";
+  if (/coming/i.test(status)) return "Coming soon";
+  return "In stock";
+};
+
+const isPurchasable = (product) => stockLabel(product.stockStatus) === "In stock";
+
+const bindProductButtons = (scope = document) => {
+  scope.querySelectorAll("[data-managed-cart-add]").forEach((button) => {
+    if (button.dataset.bound === "true") return;
+    button.dataset.bound = "true";
+    button.addEventListener("click", () => {
+      addToCart({
+        id: button.dataset.productId,
+        name: button.dataset.productName,
+        price: Number(button.dataset.productPrice) || 0,
+        image: button.dataset.productImage || "lullubelle-logo.jpg",
+      });
+      button.textContent = "Added";
+      window.setTimeout(() => { button.textContent = "Add to cart"; }, 1100);
+    });
+  });
+};
+
+const renderManagedProductCard = (product) => {
+  const disabled = isPurchasable(product) ? "" : " disabled";
+  const label = isPurchasable(product) ? "Add to cart" : stockLabel(product.stockStatus);
+  const badge = product.bestSeller ? "Best Seller" : product.featured ? "Featured" : "";
+  return `
+    <article class="kalahari-item">
+      ${badge ? `<span class="product-status-badge">${escapeHtml(badge)}</span>` : ""}
+      <div class="product-image-wrap"><img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" width="650" height="650" decoding="async" loading="lazy"></div>
+      <span class="product-brand-badge" data-brand="${escapeHtml(product.brand.toLowerCase())}">${escapeHtml(product.brand)}</span>
+      <h3>${escapeHtml(product.name)}</h3>
+      <strong>${formatCurrency(product.price)}</strong>
+      <p>${escapeHtml(product.benefit)}</p>
+      <span class="product-stock"><span aria-hidden="true"></span> ${escapeHtml(stockLabel(product.stockStatus))}</span>
+      <div class="product-card-actions">
+        <button class="button secondary" type="button" data-managed-cart-add data-product-id="${escapeHtml(product.id)}" data-product-name="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" data-product-price="${Number(product.price)}" data-product-image="${escapeHtml(product.image)}"${disabled}>${escapeHtml(label)}</button>
+        <a class="text-link" href="${escapeHtml(productDetailUrl(product.id))}">View Product</a>
+      </div>
+    </article>`;
+};
+
+const applyManagedProducts = (products = []) => {
+  const visible = getVisibleManagedItems(products).map(normaliseManagedProduct);
+  if (!visible.length) return;
+
+  document.querySelectorAll("[data-brand-panel]").forEach((panel) => {
+    const brand = panel.dataset.brandPanel;
+    const brandProducts = visible.filter((product) => product.brand.toLowerCase() === brand.toLowerCase());
+    const grid = panel.querySelector(".kalahari-grid");
+    if (!grid || !brandProducts.length) return;
+    grid.innerHTML = brandProducts.map(renderManagedProductCard).join("");
+    bindProductButtons(grid);
+    syncProductSchemas(grid);
+  });
+
+  const featuredGrid = document.querySelector("[data-featured-products]");
+  const featured = visible.filter((product) => product.featured || product.bestSeller).slice(0, 8);
+  if (featuredGrid && featured.length) {
+    featuredGrid.innerHTML = featured.map((product) => `
+      <article class="featured-product-card">
+        <a class="featured-product-image" href="${escapeHtml(productDetailUrl(product.id))}" aria-label="View ${escapeHtml(product.brand)} ${escapeHtml(product.name)}">
+          ${product.bestSeller ? '<span class="product-status-badge">Best Seller</span>' : product.featured ? '<span class="product-status-badge">Featured</span>' : ""}
+          <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" width="650" height="650" decoding="async" loading="lazy">
+        </a>
+        <div>
+          <span class="product-brand-badge" data-brand="${escapeHtml(product.brand.toLowerCase())}">${escapeHtml(product.brand)}</span>
+          <h3>${escapeHtml(product.name)}</h3>
+          <strong>${formatCurrency(product.price)}</strong>
+          <p>${escapeHtml(product.benefit)}</p>
+          <div class="featured-product-actions">
+            <button class="button secondary" type="button" data-managed-cart-add data-product-id="${escapeHtml(product.id)}" data-product-name="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" data-product-price="${Number(product.price)}" data-product-image="${escapeHtml(product.image)}"${isPurchasable(product) ? "" : " disabled"}>${isPurchasable(product) ? "Add to Cart" : escapeHtml(stockLabel(product.stockStatus))}</button>
+            <a class="text-link" href="${escapeHtml(productDetailUrl(product.id))}">View Product</a>
+          </div>
+        </div>
+      </article>`).join("");
+    bindProductButtons(featuredGrid);
+    syncProductSchemas(featuredGrid);
+  }
+};
+
+const applyManagedVouchers = (vouchers = []) => {
+  const visible = getVisibleManagedItems(vouchers);
+  const grid = document.querySelector(".voucher-grid");
+  if (!grid || !visible.length) return;
+
+  grid.innerHTML = visible.map((voucher) => {
+    const amount = Number(voucher.amount) || Number(String(voucher.name || "").replace(/\D/g, "")) || 0;
+    const name = voucher.name || `R${amount}`;
+    return `
+      <article class="voucher-card">
+        <span>Gift Voucher</span>
+        <h2>${escapeHtml(name)}</h2>
+        <p>${escapeHtml(voucher.description || "Flexible Lullubelle beauty credit for treatments or skincare products.")}</p>
+        <div class="product-buy-actions">
+          <button class="button primary" type="button" data-managed-cart-add data-product-id="${escapeHtml(voucher.id || `gift-voucher-${amount}`)}" data-product-name="Lullubelle Gift Voucher ${escapeHtml(name)}" data-product-price="${amount}" data-product-image="lullubelle-logo.jpg">Add to cart</button>
+          <a class="button secondary" href="cart">View cart</a>
+        </div>
+      </article>`;
+  }).join("");
+  bindProductButtons(grid);
+};
+
+const applyManagedGallery = (gallery = []) => {
+  const visible = getVisibleManagedItems(gallery);
+  const grid = document.querySelector(".results-grid");
+  if (!grid || !visible.length) return;
+
+  grid.innerHTML = visible.map((item) => {
+    const title = item.title || "Lullubelle treatment result";
+    const category = item.category || "skin-results";
+    const description = item.description || "Real Lullubelle treatment progress.";
+    return `
+      <article class="result-card" data-results-card data-results-categories="${escapeHtml(slugify(category))}">
+        <div class="result-feature-media">
+          <button class="result-lightbox-trigger" type="button" data-lightbox-image="${escapeHtml(item.image || "lullubelle-logo.jpg")}" data-lightbox-alt="${escapeHtml(title)}" data-lightbox-title="${escapeHtml(title)}" aria-label="Enlarge ${escapeHtml(title)}">
+            <img src="${escapeHtml(item.image || "lullubelle-logo.jpg")}" alt="${escapeHtml(title)}" width="1200" height="1200" loading="lazy" decoding="async">
+          </button>
+          ${item.featured ? '<span class="result-badge">Featured result</span>' : ""}
+        </div>
+        <div>
+          <p class="eyebrow">${escapeHtml(category)}</p>
+          <h2>${escapeHtml(title)}</h2>
+          <p>${escapeHtml(description)}</p>
+          ${item.treatments ? `<p><strong>${escapeHtml(item.treatments)} treatment${String(item.treatments) === "1" ? "" : "s"}</strong></p>` : ""}
+        </div>
+      </article>`;
+  }).join("");
+};
+
+const applyManagedTreatments = (treatments = []) => {
+  const visible = getVisibleManagedItems(treatments);
+  const menu = document.querySelector(".treatment-menu-section");
+  if (!menu || !visible.length || document.querySelector("[data-managed-treatments]")) return;
+
+  const section = document.createElement("section");
+  section.className = "section treatment-discovery-section";
+  section.dataset.managedTreatments = "true";
+  section.innerHTML = `
+    <div class="section-heading">
+      <p class="eyebrow">Current treatment menu</p>
+      <h2>Featured Lullubelle treatments</h2>
+      <p>These treatment details are managed from the Lullubelle Admin Portal.</p>
+    </div>
+    <div class="treatment-feature-grid">
+      ${visible.map((treatment) => `
+        <article class="treatment-feature-card">
+          <span aria-hidden="true">${treatment.featured ? "★" : "✦"}</span>
+          <h3>${escapeHtml(treatment.name || "Treatment")}</h3>
+          <p>${escapeHtml(treatment.description || "Treatment available by appointment.")}</p>
+          <p><strong>${escapeHtml(treatment.price || "Confirm price")}</strong>${treatment.duration ? ` · ${escapeHtml(treatment.duration)}` : ""}</p>
+        </article>`).join("")}
+    </div>`;
+  menu.after(section);
+};
+
+const applyManagedContent = (content) => {
+  if (!content) return;
+  applyManagedProducts(content.products);
+  applyManagedVouchers(content.vouchers);
+  applyManagedGallery(content.gallery);
+  applyManagedTreatments(content.treatments);
+};
+
+const sendAdminRecord = (endpoint, payload) => {
+  const body = JSON.stringify(payload);
+  if (navigator.sendBeacon) {
+    navigator.sendBeacon(endpoint, new Blob([body], { type: "application/json" }));
+    return;
+  }
+  fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body,
+    keepalive: true,
+  }).catch(() => {});
+};
+
 const SHOP_PRODUCT_DETAILS = [
   { id: "kalahari-facial-cleanser", brand: "Kalahari", name: "Facial Cleanser", price: 278, image: "products/kalahari-facial-cleanser.webp", benefit: "Everyday cleansing support for a fresh skin routine.", suitable: "Most skin types needing a simple daily cleanse.", directions: "Use morning and evening as the first step in your home-care routine.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
   { id: "kalahari-gentle-cleansing-milk", brand: "Kalahari", name: "Gentle Cleansing Milk", price: 291, image: "products/kalahari-facial-cleanser.webp", benefit: "Soft cleansing option for dry, sensitive, or delicate skin.", suitable: "Dry, delicate or sensitive-feeling skin.", directions: "Massage gently over the skin and remove with water or damp cotton pads.", ingredients: "Please confirm current ingredient list with Lullubelle before purchase." },
@@ -457,6 +681,7 @@ const normaliseVitaDermProduct = (product) => {
 
 const getAllShopProducts = async () => {
   let vitaDermProducts = [];
+  let managedProducts = [];
   try {
     const response = await fetch("products/vitaderm/catalogue.json?v=20260704b");
     if (response.ok) {
@@ -466,7 +691,13 @@ const getAllShopProducts = async () => {
   } catch {
     vitaDermProducts = [];
   }
-  return [...SHOP_PRODUCT_DETAILS, ...vitaDermProducts];
+
+  const managedContent = await loadManagedContent();
+  if (managedContent?.products) {
+    managedProducts = getVisibleManagedItems(managedContent.products).map(normaliseManagedProduct);
+  }
+
+  return [...managedProducts, ...SHOP_PRODUCT_DETAILS, ...vitaDermProducts];
 };
 
 const renderProductDetailPage = async () => {
@@ -738,6 +969,14 @@ const startWhatsAppCheckout = () => {
     payment_provider: "whatsapp",
     value: totals.amount,
     currency: "ZAR",
+  });
+  sendAdminRecord("/.netlify/functions/admin-order", {
+    customer,
+    products: items,
+    total: totals.amount,
+    paymentStatus: "Pending",
+    orderStatus: "New",
+    source: "website_whatsapp_checkout",
   });
   window.location.href = `https://wa.me/${config.whatsappNumber}?text=${encodeURIComponent(message)}`;
 };
@@ -1028,6 +1267,16 @@ bookingForm?.addEventListener("submit", (event) => {
   if (formStatus) {
     formStatus.textContent = "";
   }
+  sendAdminRecord("/.netlify/functions/admin-booking", {
+    clientName: name || "",
+    phone: formData.get("phone")?.toString().trim() || "",
+    email: formData.get("email")?.toString().trim() || "",
+    treatment: treatment || "",
+    preferredDate: date || "",
+    preferredTime: time || "",
+    notes: message || "",
+    source: "website_booking_form",
+  });
   window.location.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
 });
 
@@ -1104,6 +1353,20 @@ appointmentBookingForm?.addEventListener("submit", (event) => {
     status.classList.add("is-success");
     status.textContent = "Your booking request has been prepared in WhatsApp. Please press send to complete your request.";
   }
+  sendAdminRecord("/.netlify/functions/admin-booking", {
+    clientName: formData.get("name")?.toString() || "",
+    phone: formData.get("mobile")?.toString() || "",
+    email: formData.get("email")?.toString() || "",
+    treatment: formData.get("service")?.toString() || "",
+    preferredDate: formData.get("date")?.toString() || "",
+    preferredTime: formData.get("time")?.toString() || "",
+    notes: [
+      formData.get("notes")?.toString() || "",
+      `First-time client: ${formData.get("firstTime") || "Not specified"}`,
+      `Preferred contact: ${formData.get("contactMethod") || "Not specified"}`,
+    ].filter(Boolean).join(" | "),
+    source: "appointment_page_form",
+  });
   window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`, "_blank", "noopener");
 });
 
@@ -1131,11 +1394,18 @@ if (appointmentBookingForm) {
 }
 
 setupBrandFilters();
-setupVitaDermCatalogue();
-setupFeaturedProducts();
-enhanceStaticShopCards();
-setupResultsFilters();
-setupResultLightbox();
-setupPageStructuredData();
-renderProductDetailPage();
-injectFooterTrustSection();
+Promise.allSettled([setupVitaDermCatalogue(), setupFeaturedProducts()])
+  .then(() => {
+    enhanceStaticShopCards();
+    return loadManagedContent();
+  })
+  .then((content) => {
+    applyManagedContent(content);
+  })
+  .finally(() => {
+    setupResultsFilters();
+    setupResultLightbox();
+    setupPageStructuredData();
+    renderProductDetailPage();
+    injectFooterTrustSection();
+  });

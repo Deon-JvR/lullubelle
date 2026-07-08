@@ -1,0 +1,13 @@
+{
+  "name": "lullubelle-site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --check script.js && node --check admin/admin.js && node --check netlify/functions/_admin-shared.mjs && node --check netlify/functions/admin-api.mjs && node --check netlify/functions/admin-content.mjs && node --check netlify/functions/admin-booking.mjs && node --check netlify/functions/admin-order.mjs && node --check netlify/functions/admin-asset.mjs",
+    "admin:hash-password": "node tools/hash-admin-password.mjs"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^8.2.0"
+  }
+}
