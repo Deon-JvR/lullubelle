@@ -340,11 +340,42 @@ const escapeHtml = (value = "") => String(value)
 
 let managedContentPromise;
 
+const loadStaticProductCatalogue = async () => {
+  try {
+    const response = await fetch("/data/products.json", { headers: { Accept: "application/json" } });
+    if (!response.ok) return null;
+    const products = await response.json();
+    return Array.isArray(products) ? { products } : null;
+  } catch {
+    return null;
+  }
+};
+
 const loadManagedContent = async () => {
   if (!managedContentPromise) {
     managedContentPromise = fetch("/.netlify/functions/admin-content", { headers: { Accept: "application/json" } })
       .then((response) => response.ok ? response.json() : null)
-      .catch(() => null);
+      .then(async (content) => {
+        const fallback = await loadStaticProductCatalogue();
+        if (hasRequiredProductBrands(content?.products)) return content;
+        return {
+          products: fallback?.products || [],
+          treatments: content?.treatments || [],
+          gallery: content?.gallery || [],
+          vouchers: content?.vouchers || [],
+          updatedAt: content?.updatedAt || new Date().toISOString(),
+        };
+      })
+      .catch(async () => {
+        const fallback = await loadStaticProductCatalogue();
+        return {
+          products: fallback?.products || [],
+          treatments: [],
+          gallery: [],
+          vouchers: [],
+          updatedAt: new Date().toISOString(),
+        };
+      });
   }
   return managedContentPromise;
 };
@@ -352,6 +383,12 @@ const loadManagedContent = async () => {
 const getVisibleManagedItems = (items) => Array.isArray(items)
   ? items.filter((item) => item && item.hidden !== true)
   : [];
+
+const hasRequiredProductBrands = (items) => {
+  if (!Array.isArray(items) || !items.length) return false;
+  const brands = new Set(items.map((product) => product?.brand).filter(Boolean));
+  return ["Kalahari", "VitaDerm", "Mesoestetic"].every((brand) => brands.has(brand));
+};
 
 const slugify = (value = "item") => String(value)
   .toLowerCase()

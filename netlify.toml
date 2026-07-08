@@ -3,6 +3,9 @@
   to = "/admin/index.html"
   status = 200
 
+[functions]
+  included_files = ["data/*.json"]
+
 [[redirects]]
   from = "/book-appointment"
   to = "/book-appointment.html"

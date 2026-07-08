@@ -73,21 +73,25 @@ const seedContent = async () => {
 };
 
 const hasItems = (value) => Array.isArray(value) && value.length > 0;
+const hasRequiredProductBrands = (value) => {
+  if (!Array.isArray(value) || !value.length) return false;
+  const brands = new Set(value.map((product) => product?.brand).filter(Boolean));
+  return ["Kalahari", "VitaDerm", "Mesoestetic"].every((brand) => brands.has(brand));
+};
 
 export const readContent = async () => {
   const seed = await seedContent();
   let stored = null;
   try {
     stored = await contentStore().get(CONTENT_KEY, { type: "json" });
-  } catch (error) {
-    if (isNetlifyRuntime()) throw error;
+  } catch {
     stored = null;
   }
   if (!stored) return seed;
   return {
     ...seed,
     ...stored,
-    products: hasItems(stored.products) ? stored.products : seed.products,
+    products: hasRequiredProductBrands(stored.products) ? stored.products : seed.products,
     treatments: hasItems(stored.treatments) ? stored.treatments : seed.treatments,
     gallery: hasItems(stored.gallery) ? stored.gallery : seed.gallery,
     vouchers: hasItems(stored.vouchers) ? stored.vouchers : seed.vouchers,

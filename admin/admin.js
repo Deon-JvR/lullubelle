@@ -12,6 +12,7 @@ const $$ = (selector, scope = document) => Array.from(scope.querySelectorAll(sel
 
 const uid = (prefix) => `${prefix}_${Date.now().toString(36)}_${Math.random().toString(16).slice(2, 8)}`;
 const money = (value) => Number(value || 0);
+const REQUIRED_PRODUCT_BRANDS = ["Kalahari", "VitaDerm", "Mesoestetic"];
 const escapeHtml = (value = "") => String(value)
   .replace(/&/g, "&amp;")
   .replace(/</g, "&lt;")
@@ -125,6 +126,7 @@ const renderProducts = () => {
   $("[data-list='products']").innerHTML = state.content.products.map((item) => cardShell(item, "products", item.name || "New product", `
     ${field("Product name", item.name, "name")}
     ${select("Brand", item.brand || "Kalahari", "brand", ["Kalahari", "VitaDerm", "Mesoestetic"])}
+    ${field("Category", item.category || "", "category")}
     ${field("Price", item.price || 0, "price", "number")}
     ${select("Stock status", item.stockStatus || "In stock", "stockStatus", ["In stock", "Out of stock", "Coming soon"])}
     ${checkbox("Featured product", item.featured, "featured")}
@@ -244,7 +246,7 @@ const showLogin = () => {
 
 const addItem = (collection) => {
   const defaults = {
-    products: { id: uid("product"), brand: "Kalahari", name: "New product", price: 0, stockStatus: "In stock", hidden: false },
+    products: { id: uid("product"), brand: "Kalahari", category: "Needs review", name: "New product", price: 0, stockStatus: "In stock", hidden: false },
     treatments: { id: uid("treatment"), category: "General", name: "New treatment", price: "", duration: "", hidden: false },
     gallery: { id: uid("gallery"), title: "New result", category: "Microneedling", categories: "microneedling", hidden: false },
     vouchers: { id: uid("voucher"), name: "Gift Voucher", amount: 250, hidden: false },
@@ -252,6 +254,33 @@ const addItem = (collection) => {
   state.content[collection].unshift(defaults[collection]);
   setDirty();
   render();
+};
+
+const validateProductsBeforeSave = () => {
+  const products = Array.isArray(state.content.products) ? state.content.products : [];
+  if (products.length < 61) {
+    return "The product catalogue must contain all 61 products before saving.";
+  }
+
+  const brands = new Set(products.map((product) => product.brand).filter(Boolean));
+  const missingBrands = REQUIRED_PRODUCT_BRANDS.filter((brand) => !brands.has(brand));
+  if (missingBrands.length) {
+    return `The product catalogue is missing required brand(s): ${missingBrands.join(", ")}.`;
+  }
+
+  const invalid = products.find((product) => {
+    const price = Number(product.price);
+    return !product.name?.trim()
+      || !product.brand?.trim()
+      || !product.image?.trim()
+      || !Number.isFinite(price)
+      || price <= 0;
+  });
+  if (invalid) {
+    return `Please complete product name, brand, image and a valid price before saving: ${invalid.name || invalid.id || "Unnamed product"}.`;
+  }
+
+  return "";
 };
 
 const updateRecord = (card, key, value) => {
@@ -327,6 +356,12 @@ document.addEventListener("click", async (event) => {
   }
 
   if (target.matches("[data-save]")) {
+    const validationError = validateProductsBeforeSave();
+    if (validationError) {
+      setStatus(validationError, "error");
+      return;
+    }
+
     setStatus("Saving…");
     try {
       state.content = await request("content", { method: "PUT", body: JSON.stringify(state.content) });

@@ -32,6 +32,35 @@ const parseRequestBody = (event) => {
 const missingAdminEnv = () => ["ADMIN_USERNAME", "ADMIN_PASSWORD_HASH", "ADMIN_SESSION_SECRET"]
   .filter((name) => !process.env[name]);
 
+const REQUIRED_PRODUCT_BRANDS = ["Kalahari", "VitaDerm", "Mesoestetic"];
+
+const validateProductCatalogue = (content) => {
+  const products = Array.isArray(content?.products) ? content.products : [];
+  if (products.length < 61) {
+    return "The product catalogue must contain all 61 products before saving.";
+  }
+
+  const brands = new Set(products.map((product) => product?.brand).filter(Boolean));
+  const missingBrands = REQUIRED_PRODUCT_BRANDS.filter((brand) => !brands.has(brand));
+  if (missingBrands.length) {
+    return `The product catalogue is missing required brand(s): ${missingBrands.join(", ")}.`;
+  }
+
+  const invalidProduct = products.find((product) => {
+    const price = Number(product?.price);
+    return !product?.name?.trim()
+      || !product?.brand?.trim()
+      || !product?.image?.trim()
+      || !Number.isFinite(price)
+      || price <= 0;
+  });
+  if (invalidProduct) {
+    return `Product name, brand, image and a valid price are required for every product. Please review: ${invalidProduct.name || invalidProduct.id || "Unnamed product"}.`;
+  }
+
+  return "";
+};
+
 const saveUpload = async ({ filename, mimeType, base64 }) => {
   if (!base64) throw new Error("No image supplied");
   const extension = (filename || "image.webp").split(".").pop()?.replace(/[^a-z0-9]/gi, "").toLowerCase() || "webp";
@@ -89,6 +118,8 @@ export const handler = async (event) => {
   }
 
   if (method === "PUT" && action === "content") {
+    const validationError = validateProductCatalogue(body);
+    if (validationError) return json(400, { error: validationError });
     return json(200, await writeContent(body));
   }
 
