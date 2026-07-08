@@ -21,9 +21,7 @@ const siteUrl = (event) => {
 
 const ikhokhaBaseUrl = () => {
   if (process.env.IKHOKHA_API_BASE_URL) return process.env.IKHOKHA_API_BASE_URL.replace(/\/$/, "");
-  return toBoolean(process.env.IKHOKHA_TEST_MODE)
-    ? "https://sandbox-api.ikhokha.com"
-    : "https://api.ikhokha.com";
+  return "https://api.ikhokha.com";
 };
 
 const checkoutEndpoint = () => {
@@ -33,6 +31,15 @@ const checkoutEndpoint = () => {
 
 const money = (value) => Math.round((Number(value) || 0) * 100) / 100;
 const PUDO_DELIVERY_FEE = 80;
+
+const safeProviderBody = (data) => {
+  if (!data || typeof data !== "object") return data;
+  const blocked = new Set(["authorization", "Authorization", "token", "secret", "apiKey", "apiSecret", "password"]);
+  return Object.fromEntries(Object.entries(data).map(([key, value]) => [
+    key,
+    blocked.has(key) ? "[masked]" : value,
+  ]));
+};
 
 const orderNumber = () => `LUL-${Date.now()}`;
 
@@ -164,15 +171,31 @@ const callIkhokha = async ({ event, order, testMode }) => {
   };
 
   const credentials = Buffer.from(`${process.env.IKHOKHA_API_KEY}:${process.env.IKHOKHA_API_SECRET}`).toString("base64");
-  const response = await fetch(`${ikhokhaBaseUrl()}${checkoutEndpoint()}`, {
-    method: "POST",
-    headers: {
-      "Accept": "application/json",
-      "Content-Type": "application/json",
-      "Authorization": `Basic ${credentials}`,
-    },
-    body: JSON.stringify(payload),
-  });
+  const requestUrl = `${ikhokhaBaseUrl()}${checkoutEndpoint()}`;
+  let response;
+  try {
+    response = await fetch(requestUrl, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "Authorization": `Basic ${credentials}`,
+      },
+      body: JSON.stringify(payload),
+    });
+  } catch (error) {
+    const diagnostic = {
+      step: "Function outbound request to iKhokha",
+      requestUrl,
+      method: "POST",
+      testMode,
+      error: error.message || "Network request to iKhokha failed.",
+    };
+    console.error("iKhokha network request failed.", diagnostic);
+    const detail = new Error(`Unable to reach iKhokha API at ${requestUrl}: ${diagnostic.error}`);
+    detail.diagnostic = diagnostic;
+    throw detail;
+  }
 
   const text = await response.text();
   let data = {};
@@ -183,12 +206,36 @@ const callIkhokha = async ({ event, order, testMode }) => {
   }
 
   if (!response.ok) {
-    throw new Error(data?.message || data?.error || `iKhokha checkout failed with status ${response.status}.`);
+    const diagnostic = {
+      step: "iKhokha rejected checkout request",
+      requestUrl,
+      method: "POST",
+      testMode,
+      status: response.status,
+      statusText: response.statusText,
+      responseBody: safeProviderBody(data),
+    };
+    console.error("iKhokha checkout request rejected.", diagnostic);
+    const message = data?.message || data?.error || `iKhokha checkout failed with status ${response.status}.`;
+    const detail = new Error(message);
+    detail.diagnostic = diagnostic;
+    throw detail;
   }
 
   const paymentUrl = extractPaymentUrl(data);
   if (!paymentUrl) {
-    throw new Error("iKhokha did not return a hosted payment URL.");
+    const diagnostic = {
+      step: "iKhokha response missing payment URL",
+      requestUrl,
+      method: "POST",
+      testMode,
+      status: response.status,
+      responseBody: safeProviderBody(data),
+    };
+    console.error("iKhokha did not return a hosted payment URL.", diagnostic);
+    const detail = new Error("iKhokha did not return a hosted payment URL.");
+    detail.diagnostic = diagnostic;
+    throw detail;
   }
 
   return { paymentUrl, providerResponse: data };
@@ -373,6 +420,12 @@ export const handler = async (event) => {
       testMode,
     });
   } catch (error) {
-    return json(502, { error: error.message || "Unable to start iKhokha checkout." });
+    return json(502, {
+      error: error.message || "Unable to start iKhokha checkout.",
+      diagnostic: error.diagnostic || {
+        step: "Checkout function",
+        error: error.message || "Unable to start iKhokha checkout.",
+      },
+    });
   }
 };
