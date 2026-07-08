@@ -208,6 +208,23 @@ const loadAll = async () => {
   render();
 };
 
+const showDashboard = async () => {
+  $("[data-login-panel]").hidden = true;
+  $("[data-admin-portal]").hidden = false;
+  if (window.location.hash !== "#dashboard") {
+    window.location.hash = "dashboard";
+  }
+  await loadAll();
+};
+
+const showLogin = () => {
+  $("[data-login-panel]").hidden = false;
+  $("[data-admin-portal]").hidden = true;
+  if (window.location.hash === "#dashboard") {
+    history.replaceState(null, "", window.location.pathname);
+  }
+};
+
 const addItem = (collection) => {
   const defaults = {
     products: { id: uid("product"), brand: "Kalahari", name: "New product", price: 0, stockStatus: "In stock", hidden: false },
@@ -336,9 +353,7 @@ $("[data-login-form]").addEventListener("submit", async (event) => {
         password: formData.get("password"),
       }),
     });
-    $("[data-login-panel]").hidden = true;
-    $("[data-admin-portal]").hidden = false;
-    await loadAll();
+    await showDashboard();
   } catch (error) {
     status.textContent = error.message;
     status.className = "status is-error";
@@ -352,12 +367,7 @@ window.addEventListener("beforeunload", (event) => {
 });
 
 request("me")
-  .then(async () => {
-    $("[data-login-panel]").hidden = true;
-    $("[data-admin-portal]").hidden = false;
-    await loadAll();
-  })
+  .then(showDashboard)
   .catch(() => {
-    $("[data-login-panel]").hidden = false;
-    $("[data-admin-portal]").hidden = true;
+    showLogin();
   });

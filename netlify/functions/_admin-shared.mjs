@@ -1,10 +1,8 @@
 import { getStore } from "@netlify/blobs";
 import {
-  createHash,
   createHmac,
   pbkdf2Sync,
   randomBytes,
-  scryptSync,
   timingSafeEqual,
 } from "node:crypto";
 
@@ -131,17 +129,6 @@ export const verifyPassword = (password, storedHash) => {
     const [, digest, iterations, salt, expected] = parts;
     const hash = pbkdf2Sync(password, salt, Number(iterations), 32, digest).toString("hex");
     return safeCompareHex(hash, expected);
-  }
-
-  if (parts[0] === "scrypt" && parts.length === 3) {
-    const [, salt, expected] = parts;
-    const hash = scryptSync(password, salt, 32).toString("hex");
-    return safeCompareHex(hash, expected);
-  }
-
-  if (parts[0] === "sha256" && parts.length === 2) {
-    const hash = createHash("sha256").update(password).digest("hex");
-    return safeCompareHex(hash, parts[1]);
   }
 
   return false;

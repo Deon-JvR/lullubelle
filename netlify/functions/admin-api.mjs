@@ -20,6 +20,18 @@ const requireAuth = (event) => {
   return session || null;
 };
 
+const parseRequestBody = (event) => {
+  if (!event.body) return {};
+  try {
+    return JSON.parse(event.body);
+  } catch {
+    return null;
+  }
+};
+
+const missingAdminEnv = () => ["ADMIN_USERNAME", "ADMIN_PASSWORD_HASH", "ADMIN_SESSION_SECRET"]
+  .filter((name) => !process.env[name]);
+
 const saveUpload = async ({ filename, mimeType, base64 }) => {
   if (!base64) throw new Error("No image supplied");
   const extension = (filename || "image.webp").split(".").pop()?.replace(/[^a-z0-9]/gi, "").toLowerCase() || "webp";
@@ -37,25 +49,29 @@ const saveUpload = async ({ filename, mimeType, base64 }) => {
 export const handler = async (event) => {
   const method = event.httpMethod;
   const action = event.queryStringParameters?.action || "";
-  const body = parseJson(event);
 
   if (method === "POST" && action === "login") {
-    const username = String(body.username || "").trim();
-    const password = String(body.password || "");
-    const expectedUsername = process.env.ADMIN_USERNAME;
-    const expectedHash = process.env.ADMIN_PASSWORD_HASH;
-    const sessionSecret = process.env.ADMIN_SESSION_SECRET;
-
-    if (!expectedUsername || !expectedHash || !sessionSecret) {
-      return json(500, { error: "Admin environment variables are not configured." });
+    const body = parseRequestBody(event);
+    if (!body || typeof body !== "object" || !("username" in body) || !("password" in body)) {
+      return json(400, { error: "Invalid request. Send username and password as JSON." });
     }
 
-    if (username !== expectedUsername || !verifyPassword(password, expectedHash)) {
-      return json(401, { error: "Invalid admin login." });
+    const username = String(body.username || "").trim();
+    const password = String(body.password || "");
+    const missing = missingAdminEnv();
+
+    if (missing.length) {
+      return json(500, { error: `Missing environment variables: ${missing.join(", ")}` });
+    }
+
+    if (username !== process.env.ADMIN_USERNAME || !verifyPassword(password, process.env.ADMIN_PASSWORD_HASH)) {
+      return json(401, { error: "Wrong username or password." });
     }
 
     return json(200, { ok: true, username }, { "Set-Cookie": createSessionCookie(username) });
   }
+
+  const body = parseJson(event);
 
   if (method === "POST" && action === "logout") {
     return json(200, { ok: true }, { "Set-Cookie": clearSessionCookie() });
