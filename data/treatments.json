@@ -1,0 +1,295 @@
+[
+  {
+    "id": "treatment-hydrate",
+    "category": "Booster Treatments",
+    "name": "Hydrate",
+    "price": "R330",
+    "duration": "30 min",
+    "description": "Focuses on Dermal Hydrain and Skin Barrier.",
+    "featured": true,
+    "hidden": false
+  },
+  {
+    "id": "treatment-purify",
+    "category": "Booster Treatments",
+    "name": "Purify",
+    "price": "R350",
+    "duration": "30 min",
+    "description": "Target breakouts and reduce bacteria.",
+    "hidden": false
+  },
+  {
+    "id": "treatment-nanoglow",
+    "category": "Booster Treatments",
+    "name": "NanoGlow",
+    "price": "R400",
+    "duration": "30 min",
+    "description": "Painless NanoNeedling with Vit C. Boost radiance and uneven skin tone.",
+    "hidden": false
+  },
+  {
+    "id": "treatment-teen-purifying",
+    "category": "Signature Treatments",
+    "name": "Teen Purifying",
+    "price": "R420",
+    "duration": "45 min",
+    "description": "Young skin struggling with congestion and breakouts. Extraction included.",
+    "hidden": false
+  },
+  {
+    "id": "treatment-pure-hydration",
+    "category": "Signature Treatments",
+    "name": "Pure Hydration",
+    "price": "R450",
+    "duration": "50 min",
+    "description": "Protect skin cells and improve skin texture.",
+    "hidden": false
+  },
+  {
+    "id": "treatment-deep-purifying",
+    "category": "Signature Treatments",
+    "name": "Deep Purifying",
+    "price": "R490",
+    "duration": "60 min",
+    "description": "Focusing on congestion and bacteria. Includes High Frequency and extractions.",
+    "hidden": false
+  },
+  {
+    "id": "treatment-vita-c-glow",
+    "category": "Signature Treatments",
+    "name": "Vita C Glow",
+    "price": "R530",
+    "duration": "60 min",
+    "description": "Relaxing anti-oxidant rich facial targeting pre-mature ageing.",
+    "featured": true,
+    "hidden": false
+  },
+  {
+    "id": "treatment-light-therapy",
+    "category": "Enhancements",
+    "name": "Light Therapy",
+    "price": "R100",
+    "duration": "",
+    "description": "Add-on light therapy to customise your treatment.",
+    "hidden": false
+  },
+  {
+    "id": "treatment-vitamin-c-sheet-mask",
+    "category": "Enhancements",
+    "name": "Vitamin C Sheet Mask",
+    "price": "R100",
+    "duration": "",
+    "description": "Add-on Vitamin C sheet mask.",
+    "hidden": false
+  },
+  {
+    "id": "treatment-extraction",
+    "category": "Enhancements",
+    "name": "Extraction",
+    "price": "R60",
+    "duration": "",
+    "description": "Add-on extractions where suitable.",
+    "hidden": false
+  },
+  {
+    "id": "treatment-brow-lip-chin-wax",
+    "category": "Enhancements",
+    "name": "Brow / Lip / Chin Wax",
+    "price": "R50",
+    "duration": "",
+    "description": "Add-on brow, lip or chin waxing.",
+    "hidden": false
+  },
+  {
+    "id": "treatment-brow-lash-tint",
+    "category": "Enhancements",
+    "name": "Brow / Lash Tint",
+    "price": "R50",
+    "duration": "",
+    "description": "Add-on brow or lash tint.",
+    "hidden": false
+  },
+  {
+    "id": "treatment-kalahari-chemi-peel-face",
+    "category": "Kalahari Chemi Peels",
+    "name": "Face Only",
+    "price": "R430",
+    "duration": "30 min",
+    "description": "Kalahari chemi peel for the face.",
+    "hidden": false
+  },
+  {
+    "id": "treatment-kalahari-chemi-peel-face-neck",
+    "category": "Kalahari Chemi Peels",
+    "name": "Face and Neck",
+    "price": "R550",
+    "duration": "60 min",
+    "description": "Kalahari chemi peel for face and neck, including decollete hot stone massage.",
+    "hidden": false
+  },
+  {
+    "id": "treatment-vitaderm-lactic-face",
+    "category": "VitaDerm Peels",
+    "name": "Lactic Acid Face Only",
+    "price": "R570",
+    "duration": "",
+    "description": "VitaDerm lactic acid peel. No face waxing.",
+    "hidden": false
+  },
+  {
+    "id": "treatment-vitaderm-lactic-face-neck",
+    "category": "VitaDerm Peels",
+    "name": "Lactic Acid Face and Neck",
+    "price": "R620",
+    "duration": "",
+    "description": "VitaDerm lactic acid peel for face and neck, includes decollete hot stone massage.",
+    "hidden": false
+  },
+  {
+    "id": "treatment-vitaderm-mandelic-face",
+    "category": "VitaDerm Peels",
+    "name": "Mandelic Face Only",
+    "price": "R570",
+    "duration": "",
+    "description": "VitaDerm mandelic peel. No face waxing.",
+    "hidden": false
+  },
+  {
+    "id": "treatment-vitaderm-mandelic-face-neck",
+    "category": "VitaDerm Peels",
+    "name": "Mandelic Face and Neck",
+    "price": "R620",
+    "duration": "",
+    "description": "VitaDerm mandelic peel for face and neck, includes decollete hot stone massage.",
+    "hidden": false
+  },
+  {
+    "id": "treatment-vitaderm-glycolic-face",
+    "category": "VitaDerm Peels",
+    "name": "Glycolic Face Only",
+    "price": "R570",
+    "duration": "",
+    "description": "VitaDerm glycolic peel. No face waxing.",
+    "hidden": false
+  },
+  {
+    "id": "treatment-vitaderm-glycolic-face-neck",
+    "category": "VitaDerm Peels",
+    "name": "Glycolic Face and Neck",
+    "price": "R620",
+    "duration": "",
+    "description": "VitaDerm glycolic peel for face and neck, includes decollete hot stone massage.",
+    "hidden": false
+  },
+  {
+    "id": "treatment-microneedling-face",
+    "category": "Microneedling",
+    "name": "Face",
+    "price": "R760",
+    "duration": "60 min",
+    "description": "Dr. Pen microneedling for the face.",
+    "featured": true,
+    "hidden": false
+  },
+  {
+    "id": "treatment-microneedling-face-neck",
+    "category": "Microneedling",
+    "name": "Face and Neck",
+    "price": "R820",
+    "duration": "60 min",
+    "description": "Dr. Pen microneedling for face and neck, includes decollete hot stone massage.",
+    "hidden": false
+  },
+  {
+    "id": "treatment-microneedling-face-neck-decollete",
+    "category": "Microneedling",
+    "name": "Face, Neck and Decollete",
+    "price": "R950",
+    "duration": "60 min",
+    "description": "Dr. Pen microneedling for face, neck and decollete.",
+    "hidden": false
+  },
+  {
+    "id": "treatment-dermaplaning-quick-glow",
+    "category": "Dermaplaning",
+    "name": "Quick Glow",
+    "price": "R375",
+    "duration": "30 min",
+    "description": "Dermaplaning only.",
+    "hidden": false
+  },
+  {
+    "id": "treatment-dermaplaning-ultimate-glow",
+    "category": "Dermaplaning",
+    "name": "Ultimate Glow",
+    "price": "R474",
+    "duration": "60 min",
+    "description": "Dermaplaning, mask and massage.",
+    "featured": true,
+    "hidden": false
+  },
+  {
+    "id": "treatment-online-skin-consultation",
+    "category": "Online Skin Consultation",
+    "name": "Personalised skin guidance and home-care direction",
+    "price": "R800",
+    "duration": "30 min",
+    "description": "One-on-one online skin consultation with Luzelle.",
+    "featured": true,
+    "hidden": false
+  },
+  {
+    "id": "treatment-waxing",
+    "category": "Hair Removal",
+    "name": "Waxing",
+    "price": "Confirm",
+    "duration": "15–45 min",
+    "description": "Waxing available by appointment. Please confirm the current price when booking.",
+    "hidden": false
+  },
+  {
+    "id": "treatment-epilfree-hair-removal",
+    "category": "Hair Removal",
+    "name": "Epilfree Hair Removal",
+    "price": "Confirm",
+    "duration": "",
+    "description": "Epilfree hair removal available by appointment. Please confirm the current price when booking.",
+    "hidden": false
+  },
+  {
+    "id": "treatment-massage",
+    "category": "Body and Relaxation",
+    "name": "Massage Treatments",
+    "price": "Confirm",
+    "duration": "60 min",
+    "description": "Massage treatments available by appointment. Please confirm the current price when booking.",
+    "hidden": false
+  },
+  {
+    "id": "treatment-hand-treatment",
+    "category": "Finishing Treatments",
+    "name": "Hand Treatment",
+    "price": "Confirm",
+    "duration": "",
+    "description": "Hand treatment available by appointment.",
+    "hidden": false
+  },
+  {
+    "id": "treatment-foot-treatment",
+    "category": "Finishing Treatments",
+    "name": "Foot Treatment",
+    "price": "Confirm",
+    "duration": "",
+    "description": "Foot treatment available by appointment.",
+    "hidden": false
+  },
+  {
+    "id": "treatment-tinting",
+    "category": "Finishing Treatments",
+    "name": "Tinting",
+    "price": "Confirm",
+    "duration": "",
+    "description": "Tinting available by appointment.",
+    "hidden": false
+  }
+]

@@ -1,0 +1,57 @@
+[
+  {
+    "id": "gallery-epilfree-after-1-treatment",
+    "title": "Visible Hair Reduction After 1 Epilfree Treatment",
+    "category": "Epilfree Hair Removal",
+    "categories": "epilfree hair-removal facial-hair",
+    "description": "Reduction in visible facial hair following one Epilfree treatment. Results vary between clients and multiple treatments may be recommended for optimal long-term reduction.",
+    "treatments": "After 1 Treatment",
+    "image": "../before-after-images/epilfree-after-1-treatment.webp",
+    "featured": true,
+    "hidden": false
+  },
+  {
+    "id": "gallery-microneedling-skin-rejuvenation",
+    "title": "Microneedling Skin Rejuvenation",
+    "category": "Microneedling",
+    "categories": "microneedling skin-texture pigmentation skin-rejuvenation",
+    "description": "Before-and-after example showing visible improvement in overall skin texture and the appearance of pigmentation following a microneedling treatment. Individual results vary depending on skin type, skin condition and the recommended treatment plan.",
+    "treatments": "Before & After Treatment",
+    "image": "../before-after-images/microneedling-skin-rejuvenation.webp",
+    "featured": true,
+    "hidden": false
+  },
+  {
+    "id": "gallery-microneedling-skin-rejuvenation-2",
+    "title": "Microneedling – Skin Rejuvenation",
+    "category": "Microneedling",
+    "categories": "microneedling skin-texture skin-rejuvenation",
+    "description": "Before-and-after example showing improvement in the appearance of skin texture and overall skin quality following a microneedling treatment. Individual results vary depending on skin type, skin condition and the recommended treatment plan.",
+    "treatments": "Before & After Treatment",
+    "image": "../before-after-images/microneedling-skin-rejuvenation-2.webp",
+    "featured": false,
+    "hidden": false
+  },
+  {
+    "id": "gallery-advanced-facial-acne-clarifying",
+    "title": "Advanced Facial – Acne & Skin Clarifying Results",
+    "category": "Advanced Facials",
+    "categories": "advanced-facials facials acne skin-rejuvenation",
+    "description": "Before-and-after example showing improvement in the appearance of active breakouts, skin clarity and overall complexion following a professional facial treatment. Individual results vary depending on skin type, skin condition and the recommended treatment plan.",
+    "treatments": "Before & After Treatment",
+    "image": "../before-after-images/advanced-facial-acne-clarifying.webp",
+    "featured": false,
+    "hidden": false
+  },
+  {
+    "id": "gallery-cosmelan-pigmentation-correction",
+    "title": "Cosmelan – Pigmentation Correction",
+    "category": "Pigmentation",
+    "categories": "pigmentation cosmelan melasma uneven-skin-tone depigmentation",
+    "description": "Before-and-after example showing improvement in the appearance of uneven pigmentation and overall skin tone following a Cosmelan treatment programme. Individual results vary depending on skin type, pigmentation severity and adherence to the recommended home-care routine.",
+    "treatments": "1 Month Progress",
+    "image": "../before-after-images/cosmelan-pigmentation-correction.webp",
+    "featured": true,
+    "hidden": false
+  }
+]

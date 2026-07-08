@@ -1,0 +1,23 @@
+[
+  {
+    "id": "gift-voucher-250",
+    "name": "R250",
+    "amount": 250,
+    "description": "Perfect for a small beauty treat, product contribution, or part-payment toward a treatment.",
+    "hidden": false
+  },
+  {
+    "id": "gift-voucher-500",
+    "name": "R500",
+    "amount": 500,
+    "description": "A lovely option for a full treatment, pamper session, or flexible Lullubelle beauty credit.",
+    "hidden": false
+  },
+  {
+    "id": "gift-voucher-1000",
+    "name": "R1000",
+    "amount": 1000,
+    "description": "A generous gift for multiple treatments, product care, or a complete self-care experience.",
+    "hidden": false
+  }
+]
