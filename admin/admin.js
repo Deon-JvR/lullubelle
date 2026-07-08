@@ -133,7 +133,7 @@ const renderProducts = () => {
     ${field("Description", item.description || "", "description", "textarea", "wide")}
     ${field("Image URL", item.image || "", "image", "text", "wide")}
     <label class="wide">Upload/change image <input type="file" accept="image/*" data-upload="image"></label>
-  `)).join("") || `<p>No managed products yet. Existing static products remain visible until you add managed products.</p>`;
+  `)).join("") || `<p>No products were found in the shared website catalogue.</p>`;
 };
 
 const renderTreatments = () => {
@@ -144,7 +144,7 @@ const renderTreatments = () => {
     ${field("Duration", item.duration || "", "duration")}
     ${checkbox("Featured treatment", item.featured, "featured")}
     ${field("Description", item.description || "", "description", "textarea", "wide")}
-  `, "")).join("") || `<p>No managed treatments yet.</p>`;
+  `, "")).join("") || `<p>No treatments were found in the shared website catalogue.</p>`;
 };
 
 const renderGallery = () => {
@@ -157,7 +157,7 @@ const renderGallery = () => {
     ${field("Description", item.description || "", "description", "textarea", "wide")}
     ${field("Image URL", item.image || "", "image", "text", "wide")}
     <label class="wide">Upload before/after image <input type="file" accept="image/*" data-upload="image"></label>
-  `)).join("") || `<p>No managed gallery items yet. Static approved results remain visible.</p>`;
+  `)).join("") || `<p>No Before &amp; After items were found in the shared website catalogue.</p>`;
 };
 
 const renderVouchers = () => {
@@ -165,7 +165,7 @@ const renderVouchers = () => {
     ${field("Voucher name", item.name || "", "name")}
     ${field("Amount", item.amount || 0, "amount", "number")}
     ${field("Description", item.description || "", "description", "textarea", "wide")}
-  `, "")).join("") || `<p>No managed vouchers yet. Static voucher amounts remain visible.</p>`;
+  `, "")).join("") || `<p>No gift vouchers were found in the shared website catalogue.</p>`;
 };
 
 const renderBookings = () => {
@@ -233,6 +233,7 @@ const showDashboard = async () => {
 };
 
 const showLogin = () => {
+  setLoginStatus("");
   setStatus("");
   $("[data-login-panel]").hidden = false;
   $("[data-admin-portal]").hidden = true;

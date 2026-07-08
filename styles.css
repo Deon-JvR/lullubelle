@@ -499,6 +499,30 @@ h3 {
   opacity: 0.72;
 }
 
+.button:disabled {
+  cursor: wait;
+  opacity: 0.78;
+}
+
+.button-spinner {
+  display: none;
+  width: 1em;
+  height: 1em;
+  margin-right: 8px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 999px;
+  animation: checkout-spin 700ms linear infinite;
+}
+
+.button.is-loading .button-spinner {
+  display: inline-block;
+}
+
+@keyframes checkout-spin {
+  to { transform: rotate(360deg); }
+}
+
 .cart-count {
   display: inline-grid;
   min-width: 22px;

@@ -4,25 +4,25 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Shopping Cart | Lullubelle Beauty Specialist</title>
-    <meta name="description" content="Review your Lullubelle product and gift voucher cart, update quantities, and send your order directly to Lullubelle on WhatsApp.">
+    <meta name="description" content="Review your Lullubelle product and gift voucher cart, update quantities, and pay securely online with iKhokha.">
     <meta name="robots" content="noindex, follow">
     <meta name="theme-color" content="#17351f">
     <link rel="canonical" href="https://www.lullubelle.co.za/cart">
     <meta property="og:site_name" content="Lullubelle Beauty Specialist">
     <meta property="og:locale" content="en_ZA">
     <meta property="og:title" content="Shopping Cart | Lullubelle">
-    <meta property="og:description" content="Review your Lullubelle cart and send your order directly to Lullubelle on WhatsApp.">
+    <meta property="og:description" content="Review your Lullubelle cart and pay securely online with iKhokha.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.lullubelle.co.za/cart">
     <meta property="og:image" content="https://www.lullubelle.co.za/lullubelle-logo.jpg">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Shopping Cart | Lullubelle">
-    <meta name="twitter:description" content="Review your products and vouchers before sending your order to Lullubelle on WhatsApp.">
+    <meta name="twitter:description" content="Review your products and vouchers before secure online payment.">
     <meta name="twitter:image" content="https://www.lullubelle.co.za/lullubelle-logo.jpg">
     <link rel="icon" href="favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
-    <link rel="stylesheet" href="styles.css?v=20260704b">
+    <link rel="stylesheet" href="styles.css?v=20260708b">
     <script>
       window.LULLUBELLE_CONFIG = {
         googleAnalyticsId: "G-7PG6BZR9QV",
@@ -64,7 +64,7 @@
         <div class="section-heading">
           <p class="eyebrow">Checkout</p>
           <h1>Your cart</h1>
-          <p>Review your products and gift vouchers, then send the complete order to Lullubelle on WhatsApp for confirmation.</p>
+          <p>Review your products and gift vouchers, then continue to secure online payment with iKhokha.</p>
         </div>
         <div class="cart-layout" data-cart-page>
           <div class="cart-panel">
@@ -105,7 +105,10 @@
               </div>
             </dl>
             <div class="cart-checkout-actions">
-              <button class="button primary" type="button" data-cart-ikhokha-checkout>Pay Securely Online</button>
+              <button id="pay-securely-online" class="button primary" type="button" data-cart-ikhokha-checkout>
+                <span class="button-spinner" aria-hidden="true"></span>
+                <span data-checkout-button-label>Pay Securely Online</span>
+              </button>
             </div>
             <p class="form-status" data-cart-status aria-live="polite"></p>
             <p class="cart-note">You will be redirected to iKhokha to complete secure online payment.</p>
@@ -124,6 +127,6 @@
     <aside class="conversion-dock" aria-label="Book with Lullubelle">
       <a class="button primary" href="/book-appointment" data-track-event="booking_dock_click">Book Appointment</a>
     </aside>
-    <script defer src="script.js?v=20260704b"></script>
+    <script defer src="script.js?v=20260708b"></script>
   </body>
 </html>

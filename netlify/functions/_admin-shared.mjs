@@ -102,8 +102,7 @@ const seedContent = async () => {
   };
 };
 
-const hasAnyContent = (content) => ["products", "treatments", "gallery", "vouchers"]
-  .some((key) => Array.isArray(content?.[key]) && content[key].length > 0);
+const hasItems = (value) => Array.isArray(value) && value.length > 0;
 
 export const readContent = async () => {
   const seed = await seedContent();
@@ -114,14 +113,14 @@ export const readContent = async () => {
     if (isNetlifyRuntime()) throw error;
     stored = null;
   }
-  if (!stored || !hasAnyContent(stored)) return seed;
+  if (!stored) return seed;
   return {
     ...seed,
     ...stored,
-    products: Array.isArray(stored.products) ? stored.products : seed.products,
-    treatments: Array.isArray(stored.treatments) ? stored.treatments : seed.treatments,
-    gallery: Array.isArray(stored.gallery) ? stored.gallery : seed.gallery,
-    vouchers: Array.isArray(stored.vouchers) ? stored.vouchers : seed.vouchers,
+    products: hasItems(stored.products) ? stored.products : seed.products,
+    treatments: hasItems(stored.treatments) ? stored.treatments : seed.treatments,
+    gallery: hasItems(stored.gallery) ? stored.gallery : seed.gallery,
+    vouchers: hasItems(stored.vouchers) ? stored.vouchers : seed.vouchers,
     updatedAt: stored.updatedAt || seed.updatedAt,
   };
 };

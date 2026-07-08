@@ -402,6 +402,7 @@ const setupFeaturedProducts = async () => {
 };
 
 const CART_KEY = "lullubelleCart";
+const IKHOKHA_CHECKOUT_ENDPOINT = "/.netlify/functions/ikhokha-checkout";
 const currencyFormatter = new Intl.NumberFormat("en-ZA", {
   style: "currency",
   currency: "ZAR",
@@ -986,24 +987,66 @@ const validateCheckout = () => {
   return { status, items, totals, customer };
 };
 
+const setCheckoutLoading = (loading) => {
+  const button = document.querySelector("[data-cart-ikhokha-checkout]");
+  const label = button?.querySelector("[data-checkout-button-label]");
+  if (!button) return;
+
+  button.disabled = loading;
+  button.classList.toggle("is-loading", loading);
+  button.setAttribute("aria-busy", String(loading));
+  if (label) {
+    label.textContent = loading ? "Redirecting to secure payment…" : "Pay Securely Online";
+  }
+};
+
+const readCheckoutResponse = async (response) => {
+  const text = await response.text();
+  try {
+    return text ? JSON.parse(text) : {};
+  } catch (error) {
+    console.error("iKhokha checkout returned a non-JSON response.", {
+      status: response.status,
+      body: text.slice(0, 500),
+      error,
+    });
+    throw new Error([404, 405, 501].includes(response.status)
+      ? "Secure checkout is not available yet. The iKhokha payment function is missing from this deployment."
+      : "Secure checkout returned an unexpected response. Please contact Lullubelle for support.");
+  }
+};
+
 const startIkhokhaCheckout = async () => {
   const checkout = validateCheckout();
   if (!checkout) return;
 
   const { status, items, totals, customer } = checkout;
-  const button = document.querySelector("[data-cart-ikhokha-checkout]");
-  if (status) status.textContent = "Starting secure iK Pay checkout…";
-  if (button) button.disabled = true;
+  console.info("Starting iKhokha checkout.", {
+    endpoint: IKHOKHA_CHECKOUT_ENDPOINT,
+    itemCount: items.length,
+    total: totals.amount,
+  });
+  if (status) status.textContent = "Redirecting to secure payment…";
+  setCheckoutLoading(true);
 
   try {
-    const response = await fetch("/.netlify/functions/ikhokha-checkout", {
+    const response = await fetch(IKHOKHA_CHECKOUT_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({ customer, items }),
+      body: JSON.stringify({
+        customer,
+        items,
+        total: totals.amount,
+        totalAmount: totals.amount,
+      }),
     });
-    const data = await response.json().catch(() => ({}));
+    const data = await readCheckoutResponse(response);
     if (!response.ok || !data.paymentUrl) {
-      throw new Error(data.error || "Unable to start secure checkout.");
+      console.error("iKhokha checkout API returned an error.", {
+        status: response.status,
+        response: data,
+      });
+      throw new Error(data.error || "Unable to start secure checkout. Please contact Lullubelle for support.");
     }
 
     trackEvent("begin_checkout", {
@@ -1011,12 +1054,48 @@ const startIkhokhaCheckout = async () => {
       value: totals.amount,
       currency: "ZAR",
     });
+    console.info("Redirecting to iKhokha hosted payment page.", {
+      orderNumber: data.orderNumber,
+      testMode: data.testMode,
+    });
     window.location.href = data.paymentUrl;
   } catch (error) {
+    console.error("Unable to start iKhokha checkout.", error);
     if (status) {
       status.textContent = error.message || "Unable to start secure checkout. Please try again or contact Lullubelle for support.";
     }
-    if (button) button.disabled = false;
+    setCheckoutLoading(false);
+  }
+};
+
+const setupIkhokhaCheckout = () => {
+  const button = document.querySelector("[data-cart-ikhokha-checkout]");
+  if (!button) {
+    if (document.querySelector("[data-cart-page]")) {
+      console.warn("iKhokha checkout button was not found on the cart page.", {
+        selector: "[data-cart-ikhokha-checkout]",
+      });
+    }
+    return;
+  }
+  if (button.dataset.checkoutBound === "true") return;
+  button.dataset.checkoutBound = "true";
+  button.addEventListener("click", (event) => {
+    event.preventDefault();
+    startIkhokhaCheckout();
+  });
+  console.info("iKhokha checkout button is ready.", {
+    endpoint: IKHOKHA_CHECKOUT_ENDPOINT,
+    selector: "[data-cart-ikhokha-checkout]",
+    id: button.id || "",
+  });
+};
+
+const setupIkhokhaCheckoutWhenReady = () => {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setupIkhokhaCheckout, { once: true });
+  } else {
+    setupIkhokhaCheckout();
   }
 };
 
@@ -1146,16 +1225,11 @@ document.addEventListener("click", (event) => {
   const quantityButton = target?.closest("[data-cart-qty]");
   const removeButton = target?.closest("[data-cart-remove]");
   const clearButton = target?.closest("[data-cart-clear]");
-  const ikhokhaButton = target?.closest("[data-cart-ikhokha-checkout]");
   const disabledCheckout = target?.closest("[data-cart-ikhokha-checkout][aria-disabled='true']");
 
   if (disabledCheckout) {
     event.preventDefault();
     return;
-  }
-
-  if (ikhokhaButton) {
-    startIkhokhaCheckout();
   }
 
   if (quantityButton) {
@@ -1179,6 +1253,7 @@ document.addEventListener("click", (event) => {
 
 updateCartCount();
 renderCart();
+setupIkhokhaCheckoutWhenReady();
 
 navToggle?.addEventListener("click", () => {
   const isOpen = nav?.classList.toggle("is-open") ?? false;
