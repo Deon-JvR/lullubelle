@@ -808,8 +808,7 @@ const getCartTotals = (items = getCart()) => items.reduce(
 );
 
 const getSelectedDeliveryOption = () => {
-  const form = document.querySelector("[data-checkout-details]");
-  const selected = form?.querySelector("input[name='deliveryOption']:checked")?.value || "collection";
+  const selected = document.querySelector("input[name='deliveryOption']:checked")?.value || "collection";
   return selected === "pudo" ? "pudo" : "collection";
 };
 
@@ -888,8 +887,11 @@ const updateDeliveryUi = () => {
   const deliveryOption = getSelectedDeliveryOption();
   detailsForm.querySelectorAll("[data-address-field]").forEach((field) => {
     field.required = deliveryOption === "pudo";
+    const wrapper = field.closest("label");
+    if (wrapper) wrapper.hidden = deliveryOption !== "pudo";
   });
-  detailsForm.querySelectorAll("[data-delivery-note]").forEach((note) => {
+  detailsForm.querySelector("[data-address-section]")?.toggleAttribute("hidden", deliveryOption !== "pudo");
+  document.querySelectorAll("[data-delivery-note]").forEach((note) => {
     note.hidden = note.dataset.deliveryNote !== deliveryOption;
   });
 };
@@ -1241,7 +1243,7 @@ document.addEventListener("click", (event) => {
   }
 });
 
-document.querySelector("[data-checkout-details]")?.addEventListener("change", (event) => {
+document.addEventListener("change", (event) => {
   const target = event.target instanceof Element ? event.target : null;
   if (target?.matches("input[name='deliveryOption']")) {
     const status = document.querySelector("[data-cart-status]");
