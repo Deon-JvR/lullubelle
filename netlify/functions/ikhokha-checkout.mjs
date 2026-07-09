@@ -44,11 +44,12 @@ const safeProviderBody = (data) => {
 const maskedIkhokhaHeaders = () => ({
   Accept: "application/json",
   "Content-Type": "application/json",
-  Authorization: "[masked Basic credentials]",
+  "IK-APPID": process.env.IKHOKHA_API_KEY ? "[masked Application Key ID]" : "",
+  "IK-SIGN": "[generated HMAC signature]",
 });
 
 const maskedAuthDiagnostic = () => ({
-  authMethod: "Basic",
+  authMethod: "IK-APPID + IK-SIGN",
   applicationKeyIdPresent: Boolean(process.env.IKHOKHA_API_KEY),
   applicationKeySecretPresent: Boolean(process.env.IKHOKHA_API_SECRET),
   applicationKeyIdLength: String(process.env.IKHOKHA_API_KEY || "").length,
@@ -76,38 +77,27 @@ const providerErrorMessage = (data, fallback) => {
   return `${base}: ${String(validation)}`;
 };
 
-const customerForProvider = (customer = {}) => ({
-  name: customer.name,
-  email: customer.email,
-  phone: customer.phone,
-});
+export const generateIkhokhaSignature = ({ path, requestBody, secret }) => createHmac("sha256", secret)
+  .update(`${path}${JSON.stringify(requestBody)}`)
+  .digest("hex");
 
-const buildIkhokhaPayload = ({ base, order }) => {
+export const buildIkhokhaPayload = ({ base, order }) => {
   const amountInCents = Math.round(money(order.total) * 100);
+  const encodedOrder = encodeURIComponent(order.orderNumber);
   return {
     amount: amountInCents,
     currency: "ZAR",
     externalTransactionID: order.orderNumber,
     description: `Lullubelle order ${order.orderNumber}`,
-    customer: customerForProvider(order.customer),
-    lineItems: [
-      ...order.products.map((item) => ({
-        id: item.id,
-        name: item.name,
-        quantity: item.quantity,
-        amount: Math.round(Number(item.price) * 100),
-      })),
-      ...(order.deliveryFee > 0 ? [{
-        id: "pudo-delivery",
-        name: order.delivery?.label || "Pudo Locker Delivery",
-        quantity: 1,
-        amount: Math.round(Number(order.deliveryFee) * 100),
-      }] : []),
-    ],
-    successUrl: `${base}/payment-success?order=${encodeURIComponent(order.orderNumber)}`,
-    cancelUrl: `${base}/payment-cancelled?order=${encodeURIComponent(order.orderNumber)}`,
-    failureUrl: `${base}/payment-cancelled?order=${encodeURIComponent(order.orderNumber)}`,
-    callbackUrl: `${base}/.netlify/functions/ikhokha-checkout?action=confirm&order=${encodeURIComponent(order.orderNumber)}`,
+    entityID: process.env.IKHOKHA_API_KEY,
+    mode: toBoolean(process.env.IKHOKHA_TEST_MODE) ? "test" : "live",
+    requesterUrl: base,
+    urls: {
+      callbackUrl: `${base}/.netlify/functions/ikhokha-checkout?action=confirm&order=${encodedOrder}`,
+      successPageUrl: `${base}/payment-success?order=${encodedOrder}`,
+      failurePageUrl: `${base}/payment-cancelled?order=${encodedOrder}`,
+      cancelUrl: `${base}/payment-cancelled?order=${encodedOrder}`,
+    },
   };
 };
 
@@ -213,13 +203,19 @@ const callIkhokha = async ({ event, order, testMode }) => {
   const base = siteUrl(event);
   const payload = buildIkhokhaPayload({ base, order, testMode });
 
-  const credentials = Buffer.from(`${process.env.IKHOKHA_API_KEY}:${process.env.IKHOKHA_API_SECRET}`).toString("base64");
-  const requestUrl = `${ikhokhaBaseUrl()}${checkoutEndpoint()}`;
+  const path = checkoutEndpoint();
+  const requestUrl = `${ikhokhaBaseUrl()}${path}`;
+  const signature = generateIkhokhaSignature({
+    path,
+    requestBody: payload,
+    secret: process.env.IKHOKHA_API_SECRET,
+  });
   const requestLog = {
     requestUrl,
     method: "POST",
     headers: maskedIkhokhaHeaders(),
     authentication: maskedAuthDiagnostic(),
+    signatureInput: `${path} + JSON.stringify(requestBody)`,
     body: payload,
   };
   logIkhokhaDiagnostic("info", "Creating iKhokha hosted checkout.", requestLog);
@@ -231,7 +227,8 @@ const callIkhokha = async ({ event, order, testMode }) => {
       headers: {
         "Accept": "application/json",
         "Content-Type": "application/json",
-        "Authorization": `Basic ${credentials}`,
+        "IK-APPID": process.env.IKHOKHA_API_KEY,
+        "IK-SIGN": signature,
       },
       body: JSON.stringify(payload),
     });
@@ -350,14 +347,7 @@ const verifySignature = (event) => {
   return safeCompare(cleaned, hex) || safeCompare(cleaned, base64);
 };
 
-const verifyBasicAuth = (event) => {
-  const auth = event.headers.authorization || event.headers.Authorization || "";
-  if (!auth.startsWith("Basic ") || !process.env.IKHOKHA_API_KEY || !process.env.IKHOKHA_API_SECRET) return false;
-  const expected = Buffer.from(`${process.env.IKHOKHA_API_KEY}:${process.env.IKHOKHA_API_SECRET}`).toString("base64");
-  return safeCompare(auth.slice(6), expected);
-};
-
-const isVerifiedIkhokhaConfirmation = (event) => verifySignature(event) || verifyBasicAuth(event);
+const isVerifiedIkhokhaConfirmation = (event) => verifySignature(event);
 
 const handleConfirmation = async (event) => {
   const body = parseJson(event);
