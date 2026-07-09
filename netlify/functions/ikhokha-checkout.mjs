@@ -47,6 +47,16 @@ const maskedIkhokhaHeaders = () => ({
   Authorization: "[masked Basic credentials]",
 });
 
+const maskedAuthDiagnostic = () => ({
+  authMethod: "Basic",
+  applicationKeyIdPresent: Boolean(process.env.IKHOKHA_API_KEY),
+  applicationKeySecretPresent: Boolean(process.env.IKHOKHA_API_SECRET),
+  applicationKeyIdLength: String(process.env.IKHOKHA_API_KEY || "").length,
+  applicationKeySecretLength: String(process.env.IKHOKHA_API_SECRET || "").length,
+});
+
+const responseHeadersObject = (headers) => Object.fromEntries(headers.entries());
+
 const providerErrorMessage = (data, fallback) => {
   const base = data?.message || data?.error || fallback;
   const validation = data?.validationErrors || data?.errors || data?.details;
@@ -209,6 +219,7 @@ const callIkhokha = async ({ event, order, testMode }) => {
     requestUrl,
     method: "POST",
     headers: maskedIkhokhaHeaders(),
+    authentication: maskedAuthDiagnostic(),
     body: payload,
   };
   logIkhokhaDiagnostic("info", "Creating iKhokha hosted checkout.", requestLog);
@@ -252,12 +263,13 @@ const callIkhokha = async ({ event, order, testMode }) => {
       testMode,
       status: response.status,
       statusText: response.statusText,
+      responseHeaders: responseHeadersObject(response.headers),
       responseBody: safeProviderBody(data),
+      rawResponseBody: text,
     };
     logIkhokhaDiagnostic("error", "iKhokha checkout request rejected.", diagnostic);
     const message = providerErrorMessage(data, `iKhokha checkout failed with status ${response.status}.`);
     const detail = new Error(message);
-    detail.publicMessage = "iKhokha could not start the secure payment. Please check your details or contact Lullubelle for help.";
     detail.diagnostic = diagnostic;
     throw detail;
   }
@@ -269,7 +281,10 @@ const callIkhokha = async ({ event, order, testMode }) => {
       ...requestLog,
       testMode,
       status: response.status,
+      statusText: response.statusText,
+      responseHeaders: responseHeadersObject(response.headers),
       responseBody: safeProviderBody(data),
+      rawResponseBody: text,
     };
     logIkhokhaDiagnostic("error", "iKhokha did not return a hosted payment URL.", diagnostic);
     const detail = new Error("iKhokha did not return a hosted payment URL.");
@@ -461,7 +476,7 @@ export const handler = async (event) => {
     });
   } catch (error) {
     return json(502, {
-      error: error.publicMessage || "Unable to start secure payment. Please contact Lullubelle for help.",
+      error: error.message || "Unable to start iKhokha checkout.",
       diagnostic: error.diagnostic || {
         step: "Checkout function",
         error: error.message || "Unable to start iKhokha checkout.",
