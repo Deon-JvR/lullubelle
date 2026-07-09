@@ -66,6 +66,41 @@ const providerErrorMessage = (data, fallback) => {
   return `${base}: ${String(validation)}`;
 };
 
+const customerForProvider = (customer = {}) => ({
+  name: customer.name,
+  email: customer.email,
+  phone: customer.phone,
+});
+
+const buildIkhokhaPayload = ({ base, order }) => {
+  const amountInCents = Math.round(money(order.total) * 100);
+  return {
+    amount: amountInCents,
+    currency: "ZAR",
+    externalTransactionID: order.orderNumber,
+    description: `Lullubelle order ${order.orderNumber}`,
+    customer: customerForProvider(order.customer),
+    lineItems: [
+      ...order.products.map((item) => ({
+        id: item.id,
+        name: item.name,
+        quantity: item.quantity,
+        amount: Math.round(Number(item.price) * 100),
+      })),
+      ...(order.deliveryFee > 0 ? [{
+        id: "pudo-delivery",
+        name: order.delivery?.label || "Pudo Locker Delivery",
+        quantity: 1,
+        amount: Math.round(Number(order.deliveryFee) * 100),
+      }] : []),
+    ],
+    successUrl: `${base}/payment-success?order=${encodeURIComponent(order.orderNumber)}`,
+    cancelUrl: `${base}/payment-cancelled?order=${encodeURIComponent(order.orderNumber)}`,
+    failureUrl: `${base}/payment-cancelled?order=${encodeURIComponent(order.orderNumber)}`,
+    callbackUrl: `${base}/.netlify/functions/ikhokha-checkout?action=confirm&order=${encodeURIComponent(order.orderNumber)}`,
+  };
+};
+
 const logIkhokhaDiagnostic = (level, message, diagnostic) => {
   const rendered = JSON.stringify(diagnostic, null, 2);
   if (level === "error") console.error(`${message}\n${rendered}`);
@@ -166,40 +201,7 @@ const createPendingOrder = async ({ customer, delivery, address, notes, products
 
 const callIkhokha = async ({ event, order, testMode }) => {
   const base = siteUrl(event);
-  const paymentAmount = money(order.total);
-  const payload = {
-    amount: Math.round(paymentAmount * 100),
-    amountInCents: Math.round(paymentAmount * 100),
-    currency: "ZAR",
-    merchantReference: order.orderNumber,
-    reference: order.orderNumber,
-    externalTransactionID: order.orderNumber,
-    description: `Lullubelle order ${order.orderNumber}`,
-    customer: order.customer,
-    lineItems: [
-      ...order.products.map((item) => ({
-        id: item.id,
-        name: item.name,
-        quantity: item.quantity,
-        amount: Math.round(Number(item.price) * 100),
-        price: Math.round(Number(item.price) * 100),
-      })),
-      ...(order.deliveryFee > 0 ? [{
-        id: "pudo-delivery",
-        name: order.delivery?.label || "Pudo Locker Delivery",
-        quantity: 1,
-        amount: Math.round(Number(order.deliveryFee) * 100),
-        price: Math.round(Number(order.deliveryFee) * 100),
-      }] : []),
-    ],
-    successUrl: `${base}/payment-success?order=${encodeURIComponent(order.orderNumber)}`,
-    cancelUrl: `${base}/payment-cancelled?order=${encodeURIComponent(order.orderNumber)}`,
-    failureUrl: `${base}/payment-cancelled?order=${encodeURIComponent(order.orderNumber)}`,
-    callbackUrl: `${base}/.netlify/functions/ikhokha-checkout?action=confirm&order=${encodeURIComponent(order.orderNumber)}`,
-    webhookUrl: `${base}/.netlify/functions/ikhokha-checkout?action=confirm&order=${encodeURIComponent(order.orderNumber)}`,
-    mode: testMode ? "test" : "live",
-    testMode,
-  };
+  const payload = buildIkhokhaPayload({ base, order, testMode });
 
   const credentials = Buffer.from(`${process.env.IKHOKHA_API_KEY}:${process.env.IKHOKHA_API_SECRET}`).toString("base64");
   const requestUrl = `${ikhokhaBaseUrl()}${checkoutEndpoint()}`;
@@ -255,6 +257,7 @@ const callIkhokha = async ({ event, order, testMode }) => {
     logIkhokhaDiagnostic("error", "iKhokha checkout request rejected.", diagnostic);
     const message = providerErrorMessage(data, `iKhokha checkout failed with status ${response.status}.`);
     const detail = new Error(message);
+    detail.publicMessage = "iKhokha could not start the secure payment. Please check your details or contact Lullubelle for help.";
     detail.diagnostic = diagnostic;
     throw detail;
   }
@@ -270,6 +273,7 @@ const callIkhokha = async ({ event, order, testMode }) => {
     };
     logIkhokhaDiagnostic("error", "iKhokha did not return a hosted payment URL.", diagnostic);
     const detail = new Error("iKhokha did not return a hosted payment URL.");
+    detail.publicMessage = "iKhokha did not return a payment page. Please contact Lullubelle for help.";
     detail.diagnostic = diagnostic;
     throw detail;
   }
@@ -457,7 +461,7 @@ export const handler = async (event) => {
     });
   } catch (error) {
     return json(502, {
-      error: error.message || "Unable to start iKhokha checkout.",
+      error: error.publicMessage || "Unable to start secure payment. Please contact Lullubelle for help.",
       diagnostic: error.diagnostic || {
         step: "Checkout function",
         error: error.message || "Unable to start iKhokha checkout.",
