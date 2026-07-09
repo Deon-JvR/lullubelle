@@ -9,6 +9,8 @@ const state = {
     mode: "list",
     editingId: "",
     selectedIds: new Set(),
+    lastQuickEditAt: 0,
+    lastQuickEditId: "",
     search: "",
     brand: "all",
     stock: "all",
@@ -44,6 +46,12 @@ const escapeHtml = (value = "") => String(value)
 const cssEscape = (value = "") => window.CSS?.escape
   ? CSS.escape(String(value))
   : String(value).replace(/["\\]/g, "\\$&");
+const ADMIN_SCROLL_DEBUG = new URLSearchParams(window.location.search).has("debugAdminScroll")
+  || window.localStorage?.getItem("debugAdminScroll") === "true";
+const debugAdminScroll = (label, details = {}) => {
+  if (!ADMIN_SCROLL_DEBUG) return;
+  console.debug(`[admin-scroll] ${label}`, details);
+};
 
 const setStatus = (message, type = "") => {
   const node = $("[data-admin-status]");
@@ -271,21 +279,21 @@ const renderProductRows = (products) => {
                 </div>
               </td>
               <td data-label="Brand" data-product-brand="${escapeHtml(product.id)}">${escapeHtml(product.brand || "Needs review")}</td>
-              <td data-label="Price"><input class="quick-price" type="number" min="1" step="1" value="${money(product.price)}" data-product-quick="${escapeHtml(product.id)}" data-product-key="price" aria-label="Edit price for ${escapeHtml(product.name || "product")}"></td>
+              <td data-label="Price"><input class="quick-price" type="number" min="1" step="1" value="${money(product.price)}" name="price-${escapeHtml(product.id)}" data-product-id="${escapeHtml(product.id)}" data-product-quick="${escapeHtml(product.id)}" data-product-key="price" aria-label="Edit price for ${escapeHtml(product.name || "product")}"></td>
               <td data-label="Stock">
-                <select class="quick-select" data-product-quick="${escapeHtml(product.id)}" data-product-key="stockStatus" aria-label="Edit stock for ${escapeHtml(product.name || "product")}">
+                <select class="quick-select" name="stock-${escapeHtml(product.id)}" data-product-id="${escapeHtml(product.id)}" data-product-quick="${escapeHtml(product.id)}" data-product-key="stockStatus" aria-label="Edit stock for ${escapeHtml(product.name || "product")}">
                   ${STOCK_STATUSES.map((status) => `<option value="${escapeHtml(status)}" ${status === (product.stockStatus || "In stock") ? "selected" : ""}>${escapeHtml(status)}</option>`).join("")}
                 </select>
               </td>
               <td data-label="Badges">
                 <div class="badge-stack">
                   <span data-product-badges="${escapeHtml(product.id)}">${productBadges(product)}</span>
-                  <button class="quick-chip featured ${product.featured ? "is-on" : ""}" type="button" data-product-toggle="${escapeHtml(product.id)}" data-product-key="featured">F</button>
-                  <button class="quick-chip best-seller ${product.bestSeller ? "is-on" : ""}" type="button" data-product-toggle="${escapeHtml(product.id)}" data-product-key="bestSeller">B</button>
+                  <button class="quick-chip featured ${product.featured ? "is-on" : ""}" type="button" name="featured-${escapeHtml(product.id)}" data-product-id="${escapeHtml(product.id)}" data-product-toggle="${escapeHtml(product.id)}" data-product-key="featured">F</button>
+                  <button class="quick-chip best-seller ${product.bestSeller ? "is-on" : ""}" type="button" name="bestSeller-${escapeHtml(product.id)}" data-product-id="${escapeHtml(product.id)}" data-product-toggle="${escapeHtml(product.id)}" data-product-key="bestSeller">B</button>
                 </div>
               </td>
               <td data-label="Visibility">
-                <select class="quick-select" data-product-quick="${escapeHtml(product.id)}" data-product-key="hidden" aria-label="Edit visibility for ${escapeHtml(product.name || "product")}">
+                <select class="quick-select" name="visibility-${escapeHtml(product.id)}" data-product-id="${escapeHtml(product.id)}" data-product-quick="${escapeHtml(product.id)}" data-product-key="hidden" aria-label="Edit visibility for ${escapeHtml(product.name || "product")}">
                   <option value="false" ${product.hidden ? "" : "selected"}>Visible</option>
                   <option value="true" ${product.hidden ? "selected" : ""}>Hidden</option>
                 </select>
@@ -411,6 +419,53 @@ const renderProducts = () => {
   `;
 };
 
+const captureAdminPosition = () => {
+  const active = document.activeElement;
+  return {
+    scrollY: window.scrollY,
+    activeTab: $(".tabs .is-active")?.dataset.tab || "",
+    activeProductId: active?.dataset?.productId || active?.dataset?.productQuick || "",
+    activeName: active?.name || "",
+    activeProductKey: active?.dataset?.productKey || "",
+    selectionStart: typeof active?.selectionStart === "number" ? active.selectionStart : null,
+    selectionEnd: typeof active?.selectionEnd === "number" ? active.selectionEnd : null,
+  };
+};
+
+const restoreAdminPosition = (snapshot, label = "restore") => {
+  requestAnimationFrame(() => {
+    window.scrollTo(0, snapshot.scrollY);
+    const selectors = [
+      snapshot.activeName ? `[name="${cssEscape(snapshot.activeName)}"]` : "",
+      snapshot.activeProductId && snapshot.activeProductKey
+        ? `[data-product-id="${cssEscape(snapshot.activeProductId)}"][data-product-key="${cssEscape(snapshot.activeProductKey)}"]`
+        : "",
+      snapshot.activeProductId ? `[data-product-id="${cssEscape(snapshot.activeProductId)}"]` : "",
+    ].filter(Boolean);
+    const focusTarget = selectors.map((selector) => $(selector)).find(Boolean);
+    focusTarget?.focus?.({ preventScroll: true });
+    if (focusTarget && snapshot.selectionStart !== null && typeof focusTarget.setSelectionRange === "function") {
+      const end = snapshot.selectionEnd ?? snapshot.selectionStart;
+      focusTarget.setSelectionRange(snapshot.selectionStart, end);
+    }
+    debugAdminScroll(label, {
+      before: snapshot.scrollY,
+      after: window.scrollY,
+      activeTab: snapshot.activeTab,
+      activeProductId: snapshot.activeProductId,
+      activeName: snapshot.activeName,
+    });
+  });
+};
+
+const preserveAdminPosition = (label, callback) => {
+  const snapshot = captureAdminPosition();
+  debugAdminScroll(`${label}:capture`, snapshot);
+  const result = callback();
+  restoreAdminPosition(snapshot, `${label}:restore`);
+  return result;
+};
+
 const updateProductSelectionSummary = () => {
   const selectedCount = state.productUi.selectedIds.size;
   const bulkActions = $(".bulk-actions");
@@ -458,11 +513,19 @@ const updateProductQuickControl = (input) => {
   const item = getProductById(input.dataset.productQuick);
   if (!item) return;
   const key = input.dataset.productKey;
+  state.productUi.lastQuickEditAt = Date.now();
+  state.productUi.lastQuickEditId = item.id;
   if (key === "price") item.price = Number(input.value) || 0;
   else if (key === "hidden") item.hidden = input.value === "true";
   else item[key] = input.value;
   setDirty();
   updateProductRow(item);
+  debugAdminScroll("quick edit updated without render", {
+    productId: item.id,
+    key,
+    scrollY: window.scrollY,
+    activeName: document.activeElement?.name || "",
+  });
 };
 
 const renderTreatments = () => {
@@ -820,10 +883,20 @@ document.addEventListener("click", async (event) => {
 
   const productRow = target.closest?.("[data-product-row]");
   const isInteractive = target.closest?.("button, input, select, textarea, a, label");
+  const clickAfterQuickEdit = productRow
+    && productRow.dataset.productRow === state.productUi.lastQuickEditId
+    && Date.now() - state.productUi.lastQuickEditAt < 600;
+  if (clickAfterQuickEdit) {
+    debugAdminScroll("suppressed row click after quick edit", {
+      productId: productRow.dataset.productRow,
+      scrollY: window.scrollY,
+    });
+    return;
+  }
   if (productRow && !isInteractive) {
     state.productUi.mode = "edit";
     state.productUi.editingId = productRow.dataset.productRow;
-    renderProducts();
+    preserveAdminPosition("open product editor from row click", renderProducts);
   }
 
   const card = target.closest?.(".editor-card");
@@ -857,7 +930,7 @@ document.addEventListener("click", async (event) => {
     try {
       state.content = await request("content", { method: "PUT", body: JSON.stringify(state.content) });
       setDirty(false);
-      render();
+      preserveAdminPosition("save content render", render);
       setStatus("Website content saved.", "success");
     } catch (error) {
       setStatus(error.message, "error");
