@@ -22,9 +22,9 @@ body {
 }
 
 .admin-shell {
-  width: min(1180px, 100%);
+  width: min(1660px, 100%);
   margin: 0 auto;
-  padding: clamp(18px, 4vw, 42px);
+  padding: clamp(14px, 2.6vw, 34px);
 }
 
 .login-panel,
@@ -43,7 +43,10 @@ body {
   padding: clamp(24px, 5vw, 52px);
 }
 
-.portal { padding: clamp(16px, 3vw, 28px); }
+.portal {
+  overflow: hidden;
+  padding: clamp(16px, 2.2vw, 26px);
+}
 
 .eyebrow {
   margin: 0 0 8px;
@@ -173,10 +176,10 @@ textarea { min-height: 92px; resize: vertical; }
 
 .product-tools {
   display: grid;
-  grid-template-columns: minmax(220px, 1.4fr) repeat(6, minmax(130px, 1fr));
-  gap: 12px;
+  grid-template-columns: minmax(240px, 1.35fr) repeat(5, minmax(118px, .82fr)) minmax(158px, .95fr);
+  gap: 10px;
   align-items: end;
-  padding: 14px;
+  padding: 12px;
   margin-bottom: 12px;
   border: 1px solid var(--line);
   border-radius: 16px;
@@ -184,6 +187,19 @@ textarea { min-height: 92px; resize: vertical; }
 }
 
 .product-search { min-width: 0; }
+
+.product-tools label,
+.product-tools input,
+.product-tools select {
+  min-width: 0;
+}
+
+.product-tools input,
+.product-tools select {
+  min-height: 40px;
+  padding: 8px 10px;
+  font-size: .9rem;
+}
 
 .product-list-summary {
   margin: 8px 0 12px;
@@ -230,13 +246,24 @@ textarea { min-height: 92px; resize: vertical; }
 .product-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 960px;
-  table-layout: auto;
+  min-width: 1040px;
+  table-layout: fixed;
+}
+
+.product-table col.col-select { width: 3.2%; }
+.product-table col.col-image { width: 6.8%; }
+.product-table col.col-product { width: 31%; }
+.product-table col.col-brand { width: 9%; }
+.product-table col.col-price { width: 7%; }
+.product-table col.col-stock { width: 8.5%; }
+.product-table col.col-badges { width: 10.5%; }
+.product-table col.col-visibility { width: 8.5%; }
+.product-table col.col-actions { width: 15.5%; }
 }
 
 .product-table th,
 .product-table td {
-  padding: 8px 9px;
+  padding: 7px 8px;
   border-bottom: 1px solid var(--line);
   text-align: left;
   vertical-align: middle;
@@ -246,7 +273,7 @@ textarea { min-height: 92px; resize: vertical; }
 .product-table th {
   color: var(--leaf-dark);
   background: var(--mist);
-  font-size: .78rem;
+  font-size: .74rem;
   text-transform: uppercase;
   letter-spacing: .04em;
 }
@@ -260,8 +287,8 @@ textarea { min-height: 92px; resize: vertical; }
 }
 
 .product-row-title strong {
-  max-width: 260px;
   line-height: 1.22;
+  overflow-wrap: anywhere;
 }
 
 .product-row-title small {
@@ -280,28 +307,28 @@ textarea { min-height: 92px; resize: vertical; }
 }
 
 .product-list-thumb {
-  width: 64px;
-  height: 64px;
+  width: 58px;
+  height: 58px;
 }
 
 .badge-stack {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  min-width: 108px;
+  gap: 3px;
+  min-width: 0;
 }
 
 .status-pill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 54px;
-  padding: 4px 8px;
+  min-width: 0;
+  padding: 4px 7px;
   border: 1px solid var(--line);
   border-radius: 999px;
   color: #5e6760;
   background: #fff;
-  font-size: .78rem;
+  font-size: .74rem;
   font-weight: 900;
   white-space: nowrap;
 }
@@ -309,22 +336,34 @@ textarea { min-height: 92px; resize: vertical; }
 .product-table .row-actions {
   display: flex;
   flex-wrap: nowrap;
-  gap: 5px;
-  min-width: 160px;
+  gap: 4px;
+  min-width: 0;
 }
 
 .product-table .row-actions .button,
 .bulk-action-buttons .button {
-  min-height: 34px;
-  padding: 6px 10px;
+  min-height: 32px;
+  padding: 5px 8px;
   border-radius: 999px;
-  font-size: .78rem;
+  font-size: .74rem;
 }
 
 .product-table .row-actions .button.danger {
   color: #9d3030;
   background: #fff;
   border-color: rgba(157, 48, 48, .34);
+}
+
+@media (max-width: 1320px) {
+  .product-tools {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 980px) {
+  .product-tools {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .status-pill.is-active {
@@ -487,8 +526,8 @@ textarea { min-height: 92px; resize: vertical; }
   }
 
   .product-list-thumb {
-    width: 64px;
-    height: 64px;
+    width: 58px;
+    height: 58px;
   }
 
   .product-table .row-actions {

@@ -222,6 +222,17 @@ const renderProductRows = (products) => {
     </div>
     <div class="product-table-wrap">
       <table class="product-table">
+        <colgroup>
+          <col class="col-select">
+          <col class="col-image">
+          <col class="col-product">
+          <col class="col-brand">
+          <col class="col-price">
+          <col class="col-stock">
+          <col class="col-badges">
+          <col class="col-visibility">
+          <col class="col-actions">
+        </colgroup>
         <thead>
           <tr>
             <th aria-label="Select"></th>
