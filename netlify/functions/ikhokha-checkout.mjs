@@ -25,7 +25,6 @@ const ikhokhaBaseUrl = () => {
 };
 
 const checkoutEndpoint = () => {
-  if (process.env.IKHOKHA_CHECKOUT_PATH) return process.env.IKHOKHA_CHECKOUT_PATH;
   return "/public-api/v1/api/payment";
 };
 
@@ -54,6 +53,8 @@ const maskedAuthDiagnostic = () => ({
   applicationKeySecretPresent: Boolean(process.env.IKHOKHA_API_SECRET),
   applicationKeyIdLength: String(process.env.IKHOKHA_API_KEY || "").length,
   applicationKeySecretLength: String(process.env.IKHOKHA_API_SECRET || "").length,
+  trimmedApplicationKeyIdLength: String(process.env.IKHOKHA_API_KEY || "").trim().length,
+  trimmedApplicationKeySecretLength: String(process.env.IKHOKHA_API_SECRET || "").trim().length,
 });
 
 const responseHeadersObject = (headers) => Object.fromEntries(headers.entries());
@@ -77,9 +78,18 @@ const providerErrorMessage = (data, fallback) => {
   return `${base}: ${String(validation)}`;
 };
 
-export const generateIkhokhaSignature = ({ path, requestBody, secret }) => createHmac("sha256", secret)
-  .update(`${path}${JSON.stringify(requestBody)}`)
-  .digest("hex");
+export const escapeIkhokhaSignatureString = (value) => String(value)
+  .replace(/[\\"']/g, "\\$&")
+  .replace(/\u0000/g, "\\0");
+
+export const generateIkhokhaSignature = ({ path, requestBody, requestBodyString, secret }) => {
+  const bodyString = requestBodyString ?? JSON.stringify(requestBody);
+  const payloadToSign = `${path}${bodyString}`;
+  return createHmac("sha256", String(secret || "").trim())
+    .update(escapeIkhokhaSignatureString(payloadToSign))
+    .digest("hex")
+    .trim();
+};
 
 export const buildIkhokhaPayload = ({ base, order }) => {
   const amountInCents = Math.round(money(order.total) * 100);
@@ -89,7 +99,7 @@ export const buildIkhokhaPayload = ({ base, order }) => {
     currency: "ZAR",
     externalTransactionID: order.orderNumber,
     description: `Lullubelle order ${order.orderNumber}`,
-    entityID: process.env.IKHOKHA_API_KEY,
+    entityID: String(process.env.IKHOKHA_API_KEY || "").trim(),
     mode: toBoolean(process.env.IKHOKHA_TEST_MODE) ? "test" : "live",
     requesterUrl: base,
     urls: {
@@ -109,21 +119,62 @@ const logIkhokhaDiagnostic = (level, message, diagnostic) => {
 
 const orderNumber = () => `LUL-${Date.now()}`;
 
-const extractPaymentUrl = (payload) => {
-  const candidates = [
-    payload?.paymentUrl,
-    payload?.paymentURL,
-    payload?.checkoutUrl,
-    payload?.checkoutURL,
-    payload?.redirectUrl,
-    payload?.redirectURL,
-    payload?.url,
-    payload?.data?.paymentUrl,
-    payload?.data?.checkoutUrl,
-    payload?.data?.redirectUrl,
-    payload?.data?.url,
-  ];
-  return candidates.find((value) => typeof value === "string" && /^https?:\/\//i.test(value));
+const PROVIDER_URL_FIELD_NAMES = [
+  "paymentUrl",
+  "paymentURL",
+  "paymentPageUrl",
+  "paymentPageURL",
+  "paymentLinkUrl",
+  "paymentLinkURL",
+  "paymentLink",
+  "paylinkUrl",
+  "payLinkUrl",
+  "payLinkURL",
+  "checkoutUrl",
+  "checkoutURL",
+  "checkoutLink",
+  "redirectUrl",
+  "redirectURL",
+  "url",
+  "href",
+  "link",
+];
+
+const REQUEST_URL_FIELD_NAMES = new Set([
+  "requesterUrl",
+  "callbackUrl",
+  "successPageUrl",
+  "failurePageUrl",
+  "cancelUrl",
+  "successUrl",
+  "failureUrl",
+]);
+
+const isHostedPaymentUrlCandidate = ({ key, path, value }) => {
+  if (typeof value !== "string" || !/^https?:\/\//i.test(value)) return false;
+  if (REQUEST_URL_FIELD_NAMES.has(key)) return false;
+  if (path.some((segment) => REQUEST_URL_FIELD_NAMES.has(segment))) return false;
+  return PROVIDER_URL_FIELD_NAMES.includes(key) || /payment|pay|checkout|redirect|link|url/i.test(key);
+};
+
+const collectHostedPaymentUrlCandidates = (payload, path = []) => {
+  if (!payload || typeof payload !== "object") return [];
+  return Object.entries(payload).flatMap(([key, value]) => {
+    const nextPath = [...path, key];
+    const direct = isHostedPaymentUrlCandidate({ key, path: nextPath, value })
+      ? [{ path: nextPath.join("."), value }]
+      : [];
+    const nested = value && typeof value === "object"
+      ? collectHostedPaymentUrlCandidates(value, nextPath)
+      : [];
+    return [...direct, ...nested];
+  });
+};
+
+export const extractPaymentUrl = (payload) => {
+  const candidates = collectHostedPaymentUrlCandidates(payload);
+  const preferred = candidates.find((candidate) => /payment|pay|checkout/i.test(candidate.path));
+  return preferred?.value || candidates[0]?.value || "";
 };
 
 const buildCatalog = async () => {
@@ -205,9 +256,12 @@ const callIkhokha = async ({ event, order, testMode }) => {
 
   const path = checkoutEndpoint();
   const requestUrl = `${ikhokhaBaseUrl()}${path}`;
+  const requestBodyString = JSON.stringify(payload);
+  const payloadToSign = `${path}${requestBodyString}`;
+  const applicationKey = String(process.env.IKHOKHA_API_KEY || "").trim();
   const signature = generateIkhokhaSignature({
     path,
-    requestBody: payload,
+    requestBodyString,
     secret: process.env.IKHOKHA_API_SECRET,
   });
   const requestLog = {
@@ -215,7 +269,10 @@ const callIkhokha = async ({ event, order, testMode }) => {
     method: "POST",
     headers: maskedIkhokhaHeaders(),
     authentication: maskedAuthDiagnostic(),
-    signatureInput: `${path} + JSON.stringify(requestBody)`,
+    requestBodyString,
+    payloadToSign,
+    escapedPayloadToSign: escapeIkhokhaSignatureString(payloadToSign),
+    generatedSignatureLength: signature.length,
     body: payload,
   };
   logIkhokhaDiagnostic("info", "Creating iKhokha hosted checkout.", requestLog);
@@ -227,10 +284,10 @@ const callIkhokha = async ({ event, order, testMode }) => {
       headers: {
         "Accept": "application/json",
         "Content-Type": "application/json",
-        "IK-APPID": process.env.IKHOKHA_API_KEY,
-        "IK-SIGN": signature,
+        "IK-APPID": applicationKey,
+        "IK-SIGN": signature.trim(),
       },
-      body: JSON.stringify(payload),
+      body: requestBodyString,
     });
   } catch (error) {
     const diagnostic = {
@@ -253,6 +310,22 @@ const callIkhokha = async ({ event, order, testMode }) => {
     data = { raw: text };
   }
 
+  const responseLog = {
+    step: "iKhokha checkout response received",
+    ...requestLog,
+    testMode,
+    status: response.status,
+    statusText: response.statusText,
+    responseHeaders: responseHeadersObject(response.headers),
+    responseBody: data,
+    rawResponseBody: text,
+  };
+  logIkhokhaDiagnostic(
+    response.ok ? "info" : "error",
+    response.ok ? "iKhokha checkout response received." : "iKhokha checkout request rejected.",
+    responseLog,
+  );
+
   if (!response.ok) {
     const diagnostic = {
       step: "iKhokha rejected checkout request",
@@ -261,10 +334,9 @@ const callIkhokha = async ({ event, order, testMode }) => {
       status: response.status,
       statusText: response.statusText,
       responseHeaders: responseHeadersObject(response.headers),
-      responseBody: safeProviderBody(data),
+      responseBody: data,
       rawResponseBody: text,
     };
-    logIkhokhaDiagnostic("error", "iKhokha checkout request rejected.", diagnostic);
     const message = providerErrorMessage(data, `iKhokha checkout failed with status ${response.status}.`);
     const detail = new Error(message);
     detail.diagnostic = diagnostic;
@@ -280,7 +352,7 @@ const callIkhokha = async ({ event, order, testMode }) => {
       status: response.status,
       statusText: response.statusText,
       responseHeaders: responseHeadersObject(response.headers),
-      responseBody: safeProviderBody(data),
+      responseBody: data,
       rawResponseBody: text,
     };
     logIkhokhaDiagnostic("error", "iKhokha did not return a hosted payment URL.", diagnostic);
