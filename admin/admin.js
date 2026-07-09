@@ -41,6 +41,9 @@ const escapeHtml = (value = "") => String(value)
   .replace(/>/g, "&gt;")
   .replace(/"/g, "&quot;")
   .replace(/'/g, "&#039;");
+const cssEscape = (value = "") => window.CSS?.escape
+  ? CSS.escape(String(value))
+  : String(value).replace(/["\\]/g, "\\$&");
 
 const setStatus = (message, type = "") => {
   const node = $("[data-admin-status]");
@@ -262,12 +265,12 @@ const renderProductRows = (products) => {
               <td data-label="Product">
                 <div class="product-row-title">
                   <div>
-                    <strong>${escapeHtml(product.name || "Unnamed product")}</strong>
-                    <small>${escapeHtml(product.id || "")}</small>
+                    <strong data-product-name="${escapeHtml(product.id)}">${escapeHtml(product.name || "Unnamed product")}</strong>
+                    <small data-product-slug="${escapeHtml(product.id)}">${escapeHtml(product.id || "")}</small>
                   </div>
                 </div>
               </td>
-              <td data-label="Brand">${escapeHtml(product.brand || "Needs review")}</td>
+              <td data-label="Brand" data-product-brand="${escapeHtml(product.id)}">${escapeHtml(product.brand || "Needs review")}</td>
               <td data-label="Price"><input class="quick-price" type="number" min="1" step="1" value="${money(product.price)}" data-product-quick="${escapeHtml(product.id)}" data-product-key="price" aria-label="Edit price for ${escapeHtml(product.name || "product")}"></td>
               <td data-label="Stock">
                 <select class="quick-select" data-product-quick="${escapeHtml(product.id)}" data-product-key="stockStatus" aria-label="Edit stock for ${escapeHtml(product.name || "product")}">
@@ -276,7 +279,7 @@ const renderProductRows = (products) => {
               </td>
               <td data-label="Badges">
                 <div class="badge-stack">
-                  ${productBadges(product)}
+                  <span data-product-badges="${escapeHtml(product.id)}">${productBadges(product)}</span>
                   <button class="quick-chip featured ${product.featured ? "is-on" : ""}" type="button" data-product-toggle="${escapeHtml(product.id)}" data-product-key="featured">F</button>
                   <button class="quick-chip best-seller ${product.bestSeller ? "is-on" : ""}" type="button" data-product-toggle="${escapeHtml(product.id)}" data-product-key="bestSeller">B</button>
                 </div>
@@ -290,7 +293,7 @@ const renderProductRows = (products) => {
               <td data-label="Actions">
                 <div class="row-actions">
                   <button class="button secondary" type="button" data-product-edit="${escapeHtml(product.id)}">Edit</button>
-                  <button class="button secondary" type="button" data-product-hide="${escapeHtml(product.id)}">${product.hidden ? "Show" : "Hide"}</button>
+                  <button class="button secondary" type="button" data-product-hide="${escapeHtml(product.id)}" data-product-hide-label="${escapeHtml(product.id)}">${product.hidden ? "Show" : "Hide"}</button>
                   <button class="button danger" type="button" data-product-delete="${escapeHtml(product.id)}">Delete</button>
                 </div>
               </td>
@@ -406,6 +409,60 @@ const renderProducts = () => {
     </div>
     ${renderProductRows(filteredProducts)}
   `;
+};
+
+const updateProductSelectionSummary = () => {
+  const selectedCount = state.productUi.selectedIds.size;
+  const bulkActions = $(".bulk-actions");
+  if (!bulkActions) return;
+  const countNode = bulkActions.querySelector("span");
+  if (countNode) countNode.textContent = `${selectedCount} selected`;
+  const buttons = bulkActions.querySelector(".bulk-action-buttons");
+  if (buttons) buttons.hidden = selectedCount === 0;
+  const selectAll = bulkActions.querySelector("[data-product-select-all]");
+  if (selectAll) {
+    const shown = getFilteredProducts();
+    selectAll.checked = shown.length > 0 && shown.every((product) => state.productUi.selectedIds.has(product.id));
+  }
+};
+
+const updateProductRow = (product) => {
+  if (!product?.id) return;
+  const productId = cssEscape(product.id);
+  const row = $(`[data-product-row="${productId}"]`);
+  if (!row) return;
+  row.classList.toggle("is-hidden", Boolean(product.hidden));
+  row.setAttribute("aria-label", `Edit ${product.name || "product"}`);
+  const name = row.querySelector(`[data-product-name="${productId}"]`);
+  if (name) name.textContent = product.name || "Unnamed product";
+  const slug = row.querySelector(`[data-product-slug="${productId}"]`);
+  if (slug) slug.textContent = product.id || "";
+  const brand = row.querySelector(`[data-product-brand="${productId}"]`);
+  if (brand) brand.textContent = product.brand || "Needs review";
+  const badges = row.querySelector(`[data-product-badges="${productId}"]`);
+  if (badges) badges.innerHTML = productBadges(product);
+  row.querySelectorAll("[data-product-toggle]").forEach((button) => {
+    button.classList.toggle("is-on", Boolean(product[button.dataset.productKey]));
+  });
+  const visibility = row.querySelector("[data-product-key='hidden']");
+  if (visibility && document.activeElement !== visibility) visibility.value = product.hidden ? "true" : "false";
+  const stock = row.querySelector("[data-product-key='stockStatus']");
+  if (stock && document.activeElement !== stock) stock.value = product.stockStatus || "In stock";
+  const price = row.querySelector("[data-product-key='price']");
+  if (price && document.activeElement !== price) price.value = money(product.price);
+  const hideLabel = row.querySelector(`[data-product-hide-label="${productId}"]`);
+  if (hideLabel) hideLabel.textContent = product.hidden ? "Show" : "Hide";
+};
+
+const updateProductQuickControl = (input) => {
+  const item = getProductById(input.dataset.productQuick);
+  if (!item) return;
+  const key = input.dataset.productKey;
+  if (key === "price") item.price = Number(input.value) || 0;
+  else if (key === "hidden") item.hidden = input.value === "true";
+  else item[key] = input.value;
+  setDirty();
+  updateProductRow(item);
 };
 
 const renderTreatments = () => {
@@ -553,9 +610,10 @@ const applyProductBulkAction = (action) => {
     if (action === "unfeature") product.featured = false;
     if (action === "bestseller") product.bestSeller = true;
     if (action === "unbestseller") product.bestSeller = false;
+    updateProductRow(product);
   });
   setDirty();
-  renderProducts();
+  updateProductSelectionSummary();
   setStatus(`${selected.length} product(s) updated. Remember to save changes.`, "success");
 };
 
@@ -633,6 +691,11 @@ const handleUploadInput = async (input) => {
 document.addEventListener("input", async (event) => {
   const input = event.target;
 
+  if (input.matches("[data-product-quick]")) {
+    updateProductQuickControl(input);
+    return;
+  }
+
   if (input.matches("[data-product-search]")) {
     state.productUi.search = input.value;
     state.productUi.selectedIds.clear();
@@ -664,7 +727,7 @@ document.addEventListener("change", async (event) => {
   if (input.matches("[data-product-select]")) {
     if (input.checked) state.productUi.selectedIds.add(input.dataset.productSelect);
     else state.productUi.selectedIds.delete(input.dataset.productSelect);
-    renderProducts();
+    updateProductSelectionSummary();
     return;
   }
 
@@ -674,24 +737,27 @@ document.addEventListener("change", async (event) => {
       if (input.checked) state.productUi.selectedIds.add(product.id);
       else state.productUi.selectedIds.delete(product.id);
     });
-    renderProducts();
+    $$("[data-product-select]").forEach((checkbox) => {
+      checkbox.checked = state.productUi.selectedIds.has(checkbox.dataset.productSelect);
+    });
+    updateProductSelectionSummary();
     return;
   }
 
   if (input.matches("[data-product-quick]")) {
-    const item = getProductById(input.dataset.productQuick);
-    if (!item) return;
-    const key = input.dataset.productKey;
-    if (key === "price") item.price = Number(input.value) || 0;
-    else if (key === "hidden") item.hidden = input.value === "true";
-    else item[key] = input.value;
-    setDirty();
-    renderProducts();
+    updateProductQuickControl(input);
     return;
   }
 
   if (input.matches("[data-upload]")) {
     await handleUploadInput(input);
+    return;
+  }
+
+  const card = input.closest?.(".editor-card");
+  const key = input.dataset.key;
+  if (card && key) {
+    updateRecord(card, key, input.type === "checkbox" ? input.checked : input.value);
   }
 });
 
@@ -727,7 +793,7 @@ document.addEventListener("click", async (event) => {
     if (item && confirm(`${item.hidden ? "Show" : "Hide"} this product?`)) {
       item.hidden = !item.hidden;
       setDirty();
-      renderProducts();
+      updateProductRow(item);
     }
   }
 
@@ -748,7 +814,7 @@ document.addEventListener("click", async (event) => {
     if (item) {
       item[target.dataset.productKey] = !item[target.dataset.productKey];
       setDirty();
-      renderProducts();
+      updateProductRow(item);
     }
   }
 
