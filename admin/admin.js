@@ -16,6 +16,7 @@ const state = {
     featured: "all",
     bestSeller: "all",
     sort: "name-az",
+    filtersOpen: false,
   },
 };
 
@@ -138,8 +139,8 @@ const adminImageSrc = (image) => {
 };
 const productBadges = (product) => {
   const badges = [];
-  if (product.featured) badges.push(productBadge("Featured", true));
-  if (product.bestSeller) badges.push(productBadge("Best Seller", true));
+  if (product.featured) badges.push(productBadge("Featured", true, "featured"));
+  if (product.bestSeller) badges.push(productBadge("Best Seller", true, "best-seller"));
   return badges.join(" ") || productBadge("None", false);
 };
 
@@ -181,6 +182,8 @@ const getFilteredProducts = () => {
 
 const productFilterControls = (products) => {
   const brands = [...new Set(products.map((product) => product.brand).filter(Boolean))].sort();
+  const activeAdvancedFilters = ["brand", "stock", "visibility", "featured", "bestSeller"]
+    .filter((key) => state.productUi[key] !== "all").length;
   const filterSelect = (label, key, value, options) => `
     <label>${escapeHtml(label)}
       <select data-product-filter="${escapeHtml(key)}">
@@ -190,15 +193,20 @@ const productFilterControls = (products) => {
 
   return `
     <div class="product-tools">
-      <label class="product-search">Search products
-        <input type="search" data-product-search value="${escapeHtml(state.productUi.search)}" placeholder="Search by product name">
-      </label>
-      ${filterSelect("Brand", "brand", state.productUi.brand, [["all", "All brands"], ...brands.map((brand) => [brand, brand])])}
-      ${filterSelect("Stock", "stock", state.productUi.stock, [["all", "All stock"], ...STOCK_STATUSES.map((status) => [status, status])])}
-      ${filterSelect("Visibility", "visibility", state.productUi.visibility, [["all", "All"], ["visible", "Visible"], ["hidden", "Hidden"]])}
-      ${filterSelect("Featured", "featured", state.productUi.featured, [["all", "All"], ["yes", "Featured"], ["no", "Not featured"]])}
-      ${filterSelect("Best seller", "bestSeller", state.productUi.bestSeller, [["all", "All"], ["yes", "Best sellers"], ["no", "Not best sellers"]])}
-      ${filterSelect("Sort", "sort", state.productUi.sort, PRODUCT_SORTS)}
+      <div class="product-tools-main">
+        <label class="product-search">Search products
+          <input type="search" data-product-search value="${escapeHtml(state.productUi.search)}" placeholder="Search by product name">
+        </label>
+        ${filterSelect("Sort", "sort", state.productUi.sort, PRODUCT_SORTS)}
+        <button class="button secondary compact-button" type="button" data-product-filters-toggle aria-expanded="${state.productUi.filtersOpen ? "true" : "false"}">More Filters${activeAdvancedFilters ? ` (${activeAdvancedFilters})` : ""}</button>
+      </div>
+      <div class="product-tools-drawer" ${state.productUi.filtersOpen ? "" : "hidden"}>
+        ${filterSelect("Brand", "brand", state.productUi.brand, [["all", "All brands"], ...brands.map((brand) => [brand, brand])])}
+        ${filterSelect("Stock", "stock", state.productUi.stock, [["all", "All stock"], ...STOCK_STATUSES.map((status) => [status, status])])}
+        ${filterSelect("Visibility", "visibility", state.productUi.visibility, [["all", "All"], ["visible", "Visible"], ["hidden", "Hidden"]])}
+        ${filterSelect("Featured", "featured", state.productUi.featured, [["all", "All"], ["yes", "Featured"], ["no", "Not featured"]])}
+        ${filterSelect("Best seller", "bestSeller", state.productUi.bestSeller, [["all", "All"], ["yes", "Best sellers"], ["no", "Not best sellers"]])}
+      </div>
     </div>`;
 };
 
@@ -248,9 +256,9 @@ const renderProductRows = (products) => {
         </thead>
         <tbody>
           ${products.map((product) => `
-            <tr class="${product.hidden ? "is-hidden" : ""}" data-product-row="${escapeHtml(product.id)}">
+            <tr class="clickable-product-row ${product.hidden ? "is-hidden" : ""}" data-product-row="${escapeHtml(product.id)}" tabindex="0" aria-label="Edit ${escapeHtml(product.name || "product")}">
               <td data-label="Select"><input type="checkbox" data-product-select="${escapeHtml(product.id)}" ${state.productUi.selectedIds.has(product.id) ? "checked" : ""}></td>
-              <td data-label="Image"><img class="product-list-thumb" src="${escapeHtml(adminImageSrc(product.image))}" alt="${escapeHtml(product.imageAlt || product.name || "Product image")}" loading="lazy"></td>
+              <td data-label="Image"><button class="image-button" type="button" data-product-edit="${escapeHtml(product.id)}"><img class="product-list-thumb" src="${escapeHtml(adminImageSrc(product.image))}" alt="${escapeHtml(product.imageAlt || product.name || "Product image")}" loading="lazy"></button></td>
               <td data-label="Product">
                 <div class="product-row-title">
                   <div>
@@ -260,10 +268,25 @@ const renderProductRows = (products) => {
                 </div>
               </td>
               <td data-label="Brand">${escapeHtml(product.brand || "Needs review")}</td>
-              <td data-label="Price">R${money(product.price).toLocaleString("en-ZA")}</td>
-              <td data-label="Stock">${productBadge(product.stockStatus || "In stock", product.stockStatus !== "Out of stock", "stock")}</td>
-              <td data-label="Badges"><div class="badge-stack">${productBadges(product)}</div></td>
-              <td data-label="Visibility">${productBadge(productVisibilityLabel(product), !product.hidden, product.hidden ? "hidden" : "visible")}</td>
+              <td data-label="Price"><input class="quick-price" type="number" min="1" step="1" value="${money(product.price)}" data-product-quick="${escapeHtml(product.id)}" data-product-key="price" aria-label="Edit price for ${escapeHtml(product.name || "product")}"></td>
+              <td data-label="Stock">
+                <select class="quick-select" data-product-quick="${escapeHtml(product.id)}" data-product-key="stockStatus" aria-label="Edit stock for ${escapeHtml(product.name || "product")}">
+                  ${STOCK_STATUSES.map((status) => `<option value="${escapeHtml(status)}" ${status === (product.stockStatus || "In stock") ? "selected" : ""}>${escapeHtml(status)}</option>`).join("")}
+                </select>
+              </td>
+              <td data-label="Badges">
+                <div class="badge-stack">
+                  ${productBadges(product)}
+                  <button class="quick-chip featured ${product.featured ? "is-on" : ""}" type="button" data-product-toggle="${escapeHtml(product.id)}" data-product-key="featured">F</button>
+                  <button class="quick-chip best-seller ${product.bestSeller ? "is-on" : ""}" type="button" data-product-toggle="${escapeHtml(product.id)}" data-product-key="bestSeller">B</button>
+                </div>
+              </td>
+              <td data-label="Visibility">
+                <select class="quick-select" data-product-quick="${escapeHtml(product.id)}" data-product-key="hidden" aria-label="Edit visibility for ${escapeHtml(product.name || "product")}">
+                  <option value="false" ${product.hidden ? "" : "selected"}>Visible</option>
+                  <option value="true" ${product.hidden ? "selected" : ""}>Hidden</option>
+                </select>
+              </td>
               <td data-label="Actions">
                 <div class="row-actions">
                   <button class="button secondary" type="button" data-product-edit="${escapeHtml(product.id)}">Edit</button>
@@ -655,6 +678,18 @@ document.addEventListener("change", async (event) => {
     return;
   }
 
+  if (input.matches("[data-product-quick]")) {
+    const item = getProductById(input.dataset.productQuick);
+    if (!item) return;
+    const key = input.dataset.productKey;
+    if (key === "price") item.price = Number(input.value) || 0;
+    else if (key === "hidden") item.hidden = input.value === "true";
+    else item[key] = input.value;
+    setDirty();
+    renderProducts();
+    return;
+  }
+
   if (input.matches("[data-upload]")) {
     await handleUploadInput(input);
   }
@@ -669,6 +704,11 @@ document.addEventListener("click", async (event) => {
   }
 
   if (target.matches("[data-add]")) addItem(target.dataset.add);
+
+  if (target.matches("[data-product-filters-toggle]")) {
+    state.productUi.filtersOpen = !state.productUi.filtersOpen;
+    renderProducts();
+  }
 
   if (target.matches("[data-product-back]")) {
     state.productUi.mode = "list";
@@ -702,6 +742,23 @@ document.addEventListener("click", async (event) => {
   }
 
   if (target.matches("[data-product-bulk]")) applyProductBulkAction(target.dataset.productBulk);
+
+  if (target.matches("[data-product-toggle]")) {
+    const item = getProductById(target.dataset.productToggle);
+    if (item) {
+      item[target.dataset.productKey] = !item[target.dataset.productKey];
+      setDirty();
+      renderProducts();
+    }
+  }
+
+  const productRow = target.closest?.("[data-product-row]");
+  const isInteractive = target.closest?.("button, input, select, textarea, a, label");
+  if (productRow && !isInteractive) {
+    state.productUi.mode = "edit";
+    state.productUi.editingId = productRow.dataset.productRow;
+    renderProducts();
+  }
 
   const card = target.closest?.(".editor-card");
   if (card?.dataset.collection && target.matches("[data-hide]")) {
@@ -765,6 +822,16 @@ document.addEventListener("click", async (event) => {
       showLogin();
     }
   }
+});
+
+document.addEventListener("keydown", (event) => {
+  if (!["Enter", " "].includes(event.key)) return;
+  const row = event.target.closest?.("[data-product-row]");
+  if (!row || event.target.closest?.("button, input, select, textarea, a, label")) return;
+  event.preventDefault();
+  state.productUi.mode = "edit";
+  state.productUi.editingId = row.dataset.productRow;
+  renderProducts();
 });
 
 $("[data-login-form]").addEventListener("submit", async (event) => {
