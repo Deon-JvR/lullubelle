@@ -130,6 +130,18 @@ const checkbox = (label, checked, key) => `
 
 const productVisibilityLabel = (product) => product.hidden ? "Hidden" : "Visible";
 const productBadge = (label, active, tone = "") => `<span class="status-pill ${active ? "is-active" : ""} ${tone}">${escapeHtml(label)}</span>`;
+const adminImageSrc = (image) => {
+  const value = String(image || "").trim();
+  if (!value) return "lullubelle-logo.jpg";
+  if (/^(https?:|data:|blob:|\/)/i.test(value)) return value;
+  return `/${value.replace(/^\.?\//, "")}`;
+};
+const productBadges = (product) => {
+  const badges = [];
+  if (product.featured) badges.push(productBadge("Featured", true));
+  if (product.bestSeller) badges.push(productBadge("Best Seller", true));
+  return badges.join(" ") || productBadge("None", false);
+};
 
 const getProductById = (id) => state.content.products.find((product) => product.id === id);
 
@@ -199,24 +211,26 @@ const renderProductRows = (products) => {
     <div class="bulk-actions">
       <label class="check-row"><input type="checkbox" data-product-select-all ${allShownSelected ? "checked" : ""}> Select all shown</label>
       <span>${state.productUi.selectedIds.size} selected</span>
-      <button class="button secondary" type="button" data-product-bulk="hide">Hide selected</button>
-      <button class="button secondary" type="button" data-product-bulk="show">Show selected</button>
-      <button class="button secondary" type="button" data-product-bulk="feature">Mark featured</button>
-      <button class="button secondary" type="button" data-product-bulk="unfeature">Remove featured</button>
-      <button class="button secondary" type="button" data-product-bulk="bestseller">Mark best seller</button>
-      <button class="button secondary" type="button" data-product-bulk="unbestseller">Remove best seller</button>
+      <div class="bulk-action-buttons" ${state.productUi.selectedIds.size ? "" : "hidden"}>
+        <button class="button secondary" type="button" data-product-bulk="hide">Hide</button>
+        <button class="button secondary" type="button" data-product-bulk="show">Show</button>
+        <button class="button secondary" type="button" data-product-bulk="feature">Featured</button>
+        <button class="button secondary" type="button" data-product-bulk="unfeature">Unfeatured</button>
+        <button class="button secondary" type="button" data-product-bulk="bestseller">Best Seller</button>
+        <button class="button secondary" type="button" data-product-bulk="unbestseller">Not Best Seller</button>
+      </div>
     </div>
     <div class="product-table-wrap">
       <table class="product-table">
         <thead>
           <tr>
             <th aria-label="Select"></th>
+            <th>Image</th>
             <th>Product</th>
             <th>Brand</th>
             <th>Price</th>
             <th>Stock</th>
-            <th>Featured</th>
-            <th>Best seller</th>
+            <th>Badges</th>
             <th>Visibility</th>
             <th>Actions</th>
           </tr>
@@ -225,9 +239,9 @@ const renderProductRows = (products) => {
           ${products.map((product) => `
             <tr class="${product.hidden ? "is-hidden" : ""}" data-product-row="${escapeHtml(product.id)}">
               <td data-label="Select"><input type="checkbox" data-product-select="${escapeHtml(product.id)}" ${state.productUi.selectedIds.has(product.id) ? "checked" : ""}></td>
+              <td data-label="Image"><img class="product-list-thumb" src="${escapeHtml(adminImageSrc(product.image))}" alt="${escapeHtml(product.imageAlt || product.name || "Product image")}" loading="lazy"></td>
               <td data-label="Product">
                 <div class="product-row-title">
-                  <img class="product-list-thumb" src="${escapeHtml(product.image || "lullubelle-logo.jpg")}" alt="">
                   <div>
                     <strong>${escapeHtml(product.name || "Unnamed product")}</strong>
                     <small>${escapeHtml(product.id || "")}</small>
@@ -237,8 +251,7 @@ const renderProductRows = (products) => {
               <td data-label="Brand">${escapeHtml(product.brand || "Needs review")}</td>
               <td data-label="Price">R${money(product.price).toLocaleString("en-ZA")}</td>
               <td data-label="Stock">${productBadge(product.stockStatus || "In stock", product.stockStatus !== "Out of stock", "stock")}</td>
-              <td data-label="Featured">${productBadge(product.featured ? "Yes" : "No", product.featured)}</td>
-              <td data-label="Best seller">${productBadge(product.bestSeller ? "Yes" : "No", product.bestSeller)}</td>
+              <td data-label="Badges"><div class="badge-stack">${productBadges(product)}</div></td>
               <td data-label="Visibility">${productBadge(productVisibilityLabel(product), !product.hidden, product.hidden ? "hidden" : "visible")}</td>
               <td data-label="Actions">
                 <div class="row-actions">
@@ -284,7 +297,7 @@ const renderProductEditor = (product) => `
       <section class="editor-section">
         <h4>Image</h4>
         <div class="product-image-editor">
-          <img class="product-editor-thumb" src="${escapeHtml(product.image || "lullubelle-logo.jpg")}" alt="">
+          <img class="product-editor-thumb" src="${escapeHtml(adminImageSrc(product.image))}" alt="${escapeHtml(product.imageAlt || product.name || "Product image")}">
           <div class="form-grid">
             ${field("Image URL", product.image || "", "image", "text", "wide")}
             ${field("Image alt text", product.imageAlt || "", "imageAlt", "text", "wide")}

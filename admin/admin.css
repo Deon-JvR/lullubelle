@@ -194,20 +194,31 @@ textarea { min-height: 92px; resize: vertical; }
 .bulk-actions {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 8px;
-  padding: 12px;
+  padding: 9px 10px;
   margin-bottom: 12px;
   border: 1px solid var(--line);
   border-radius: 14px;
   background: #fff;
+  overflow-x: auto;
 }
 
 .bulk-actions span {
+  flex: 0 0 auto;
   margin-right: auto;
   color: #5e6760;
   font-weight: 900;
 }
+
+.bulk-action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+.bulk-action-buttons[hidden] { display: none !important; }
 
 .product-table-wrap {
   overflow-x: auto;
@@ -219,15 +230,17 @@ textarea { min-height: 92px; resize: vertical; }
 .product-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 1080px;
+  min-width: 960px;
+  table-layout: auto;
 }
 
 .product-table th,
 .product-table td {
-  padding: 12px;
+  padding: 8px 9px;
   border-bottom: 1px solid var(--line);
   text-align: left;
   vertical-align: middle;
+  font-size: .92rem;
 }
 
 .product-table th {
@@ -241,22 +254,20 @@ textarea { min-height: 92px; resize: vertical; }
 .product-table tr:last-child td { border-bottom: 0; }
 .product-table tr.is-hidden { opacity: .62; }
 
-.product-row-title {
-  display: grid;
-  grid-template-columns: 72px minmax(0, 1fr);
-  align-items: center;
-  gap: 12px;
-  min-width: 250px;
-}
-
 .product-row-title strong,
 .product-row-title small {
   display: block;
 }
 
+.product-row-title strong {
+  max-width: 260px;
+  line-height: 1.22;
+}
+
 .product-row-title small {
-  margin-top: 4px;
+  margin-top: 3px;
   color: #6c756e;
+  font-size: .76rem;
   overflow-wrap: anywhere;
 }
 
@@ -269,8 +280,15 @@ textarea { min-height: 92px; resize: vertical; }
 }
 
 .product-list-thumb {
-  width: 72px;
-  height: 72px;
+  width: 64px;
+  height: 64px;
+}
+
+.badge-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 108px;
 }
 
 .status-pill {
@@ -278,7 +296,7 @@ textarea { min-height: 92px; resize: vertical; }
   align-items: center;
   justify-content: center;
   min-width: 54px;
-  padding: 5px 9px;
+  padding: 4px 8px;
   border: 1px solid var(--line);
   border-radius: 999px;
   color: #5e6760;
@@ -286,6 +304,27 @@ textarea { min-height: 92px; resize: vertical; }
   font-size: .78rem;
   font-weight: 900;
   white-space: nowrap;
+}
+
+.product-table .row-actions {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 5px;
+  min-width: 160px;
+}
+
+.product-table .row-actions .button,
+.bulk-action-buttons .button {
+  min-height: 34px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: .78rem;
+}
+
+.product-table .row-actions .button.danger {
+  color: #9d3030;
+  background: #fff;
+  border-color: rgba(157, 48, 48, .34);
 }
 
 .status-pill.is-active {
@@ -399,6 +438,12 @@ textarea { min-height: 92px; resize: vertical; }
     width: 100%;
   }
 
+  .bulk-actions,
+  .bulk-action-buttons {
+    display: grid;
+    width: 100%;
+  }
+
   .sticky-editor-actions {
     position: static;
     display: grid;
@@ -429,7 +474,7 @@ textarea { min-height: 92px; resize: vertical; }
 
   .product-table td {
     display: grid;
-    grid-template-columns: 110px minmax(0, 1fr);
+    grid-template-columns: 90px minmax(0, 1fr);
     gap: 10px;
     padding: 8px 0;
     border-bottom: 0;
@@ -441,14 +486,13 @@ textarea { min-height: 92px; resize: vertical; }
     font-weight: 900;
   }
 
-  .product-row-title {
-    grid-template-columns: 82px minmax(0, 1fr);
-    min-width: 0;
+  .product-list-thumb {
+    width: 64px;
+    height: 64px;
   }
 
-  .product-list-thumb {
-    width: 82px;
-    height: 82px;
+  .product-table .row-actions {
+    min-width: 0;
   }
 
   .product-editor-header {
