@@ -5,6 +5,18 @@ const state = {
   bookings: [],
   orders: [],
   dirty: false,
+  productUi: {
+    mode: "list",
+    editingId: "",
+    selectedIds: new Set(),
+    search: "",
+    brand: "all",
+    stock: "all",
+    visibility: "all",
+    featured: "all",
+    bestSeller: "all",
+    sort: "name-az",
+  },
 };
 
 const $ = (selector, scope = document) => scope.querySelector(selector);
@@ -13,6 +25,15 @@ const $$ = (selector, scope = document) => Array.from(scope.querySelectorAll(sel
 const uid = (prefix) => `${prefix}_${Date.now().toString(36)}_${Math.random().toString(16).slice(2, 8)}`;
 const money = (value) => Number(value || 0);
 const REQUIRED_PRODUCT_BRANDS = ["Kalahari", "VitaDerm", "Mesoestetic"];
+const STOCK_STATUSES = ["In stock", "Out of stock", "Coming soon"];
+const PRODUCT_SORTS = [
+  ["name-az", "Product name A-Z"],
+  ["brand", "Brand"],
+  ["price-asc", "Price low-high"],
+  ["price-desc", "Price high-low"],
+  ["newest", "Newest"],
+  ["oldest", "Oldest"],
+];
 const escapeHtml = (value = "") => String(value)
   .replace(/&/g, "&amp;")
   .replace(/</g, "&lt;")
@@ -107,6 +128,204 @@ const select = (label, value, key, options) => `
 const checkbox = (label, checked, key) => `
   <label class="check-row"><input type="checkbox" data-key="${escapeHtml(key)}" ${checked ? "checked" : ""}> ${escapeHtml(label)}</label>`;
 
+const productVisibilityLabel = (product) => product.hidden ? "Hidden" : "Visible";
+const productBadge = (label, active, tone = "") => `<span class="status-pill ${active ? "is-active" : ""} ${tone}">${escapeHtml(label)}</span>`;
+
+const getProductById = (id) => state.content.products.find((product) => product.id === id);
+
+const getFilteredProducts = () => {
+  const ui = state.productUi;
+  const search = ui.search.trim().toLowerCase();
+  return [...state.content.products]
+    .filter((product) => {
+      const name = String(product.name || "").toLowerCase();
+      const brand = String(product.brand || "");
+      const stock = String(product.stockStatus || "In stock");
+      const visibleMatch = ui.visibility === "all"
+        || (ui.visibility === "visible" && !product.hidden)
+        || (ui.visibility === "hidden" && product.hidden);
+      const featuredMatch = ui.featured === "all"
+        || (ui.featured === "yes" && product.featured === true)
+        || (ui.featured === "no" && product.featured !== true);
+      const bestSellerMatch = ui.bestSeller === "all"
+        || (ui.bestSeller === "yes" && product.bestSeller === true)
+        || (ui.bestSeller === "no" && product.bestSeller !== true);
+      return (!search || name.includes(search))
+        && (ui.brand === "all" || brand === ui.brand)
+        && (ui.stock === "all" || stock === ui.stock)
+        && visibleMatch
+        && featuredMatch
+        && bestSellerMatch;
+    })
+    .sort((a, b) => {
+      if (ui.sort === "brand") return `${a.brand || ""} ${a.name || ""}`.localeCompare(`${b.brand || ""} ${b.name || ""}`);
+      if (ui.sort === "price-asc") return money(a.price) - money(b.price);
+      if (ui.sort === "price-desc") return money(b.price) - money(a.price);
+      if (ui.sort === "newest") return state.content.products.indexOf(a) - state.content.products.indexOf(b);
+      if (ui.sort === "oldest") return state.content.products.indexOf(b) - state.content.products.indexOf(a);
+      return String(a.name || "").localeCompare(String(b.name || ""));
+    });
+};
+
+const productFilterControls = (products) => {
+  const brands = [...new Set(products.map((product) => product.brand).filter(Boolean))].sort();
+  const filterSelect = (label, key, value, options) => `
+    <label>${escapeHtml(label)}
+      <select data-product-filter="${escapeHtml(key)}">
+        ${options.map(([optionValue, optionLabel]) => `<option value="${escapeHtml(optionValue)}" ${optionValue === value ? "selected" : ""}>${escapeHtml(optionLabel)}</option>`).join("")}
+      </select>
+    </label>`;
+
+  return `
+    <div class="product-tools">
+      <label class="product-search">Search products
+        <input type="search" data-product-search value="${escapeHtml(state.productUi.search)}" placeholder="Search by product name">
+      </label>
+      ${filterSelect("Brand", "brand", state.productUi.brand, [["all", "All brands"], ...brands.map((brand) => [brand, brand])])}
+      ${filterSelect("Stock", "stock", state.productUi.stock, [["all", "All stock"], ...STOCK_STATUSES.map((status) => [status, status])])}
+      ${filterSelect("Visibility", "visibility", state.productUi.visibility, [["all", "All"], ["visible", "Visible"], ["hidden", "Hidden"]])}
+      ${filterSelect("Featured", "featured", state.productUi.featured, [["all", "All"], ["yes", "Featured"], ["no", "Not featured"]])}
+      ${filterSelect("Best seller", "bestSeller", state.productUi.bestSeller, [["all", "All"], ["yes", "Best sellers"], ["no", "Not best sellers"]])}
+      ${filterSelect("Sort", "sort", state.productUi.sort, PRODUCT_SORTS)}
+    </div>`;
+};
+
+const renderProductRows = (products) => {
+  if (!state.content.products.length) return `<p>No products were found in the shared website catalogue.</p>`;
+  if (!products.length) return `<p>No products match the current search or filters.</p>`;
+  const allShownSelected = products.every((product) => state.productUi.selectedIds.has(product.id));
+
+  return `
+    <div class="bulk-actions">
+      <label class="check-row"><input type="checkbox" data-product-select-all ${allShownSelected ? "checked" : ""}> Select all shown</label>
+      <span>${state.productUi.selectedIds.size} selected</span>
+      <button class="button secondary" type="button" data-product-bulk="hide">Hide selected</button>
+      <button class="button secondary" type="button" data-product-bulk="show">Show selected</button>
+      <button class="button secondary" type="button" data-product-bulk="feature">Mark featured</button>
+      <button class="button secondary" type="button" data-product-bulk="unfeature">Remove featured</button>
+      <button class="button secondary" type="button" data-product-bulk="bestseller">Mark best seller</button>
+      <button class="button secondary" type="button" data-product-bulk="unbestseller">Remove best seller</button>
+    </div>
+    <div class="product-table-wrap">
+      <table class="product-table">
+        <thead>
+          <tr>
+            <th aria-label="Select"></th>
+            <th>Product</th>
+            <th>Brand</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Featured</th>
+            <th>Best seller</th>
+            <th>Visibility</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${products.map((product) => `
+            <tr class="${product.hidden ? "is-hidden" : ""}" data-product-row="${escapeHtml(product.id)}">
+              <td data-label="Select"><input type="checkbox" data-product-select="${escapeHtml(product.id)}" ${state.productUi.selectedIds.has(product.id) ? "checked" : ""}></td>
+              <td data-label="Product">
+                <div class="product-row-title">
+                  <img class="product-list-thumb" src="${escapeHtml(product.image || "lullubelle-logo.jpg")}" alt="">
+                  <div>
+                    <strong>${escapeHtml(product.name || "Unnamed product")}</strong>
+                    <small>${escapeHtml(product.id || "")}</small>
+                  </div>
+                </div>
+              </td>
+              <td data-label="Brand">${escapeHtml(product.brand || "Needs review")}</td>
+              <td data-label="Price">R${money(product.price).toLocaleString("en-ZA")}</td>
+              <td data-label="Stock">${productBadge(product.stockStatus || "In stock", product.stockStatus !== "Out of stock", "stock")}</td>
+              <td data-label="Featured">${productBadge(product.featured ? "Yes" : "No", product.featured)}</td>
+              <td data-label="Best seller">${productBadge(product.bestSeller ? "Yes" : "No", product.bestSeller)}</td>
+              <td data-label="Visibility">${productBadge(productVisibilityLabel(product), !product.hidden, product.hidden ? "hidden" : "visible")}</td>
+              <td data-label="Actions">
+                <div class="row-actions">
+                  <button class="button secondary" type="button" data-product-edit="${escapeHtml(product.id)}">Edit</button>
+                  <button class="button secondary" type="button" data-product-hide="${escapeHtml(product.id)}">${product.hidden ? "Show" : "Hide"}</button>
+                  <button class="button danger" type="button" data-product-delete="${escapeHtml(product.id)}">Delete</button>
+                </div>
+              </td>
+            </tr>`).join("")}
+        </tbody>
+      </table>
+    </div>`;
+};
+
+const renderProductEditor = (product) => `
+  <article class="editor-card product-editor ${product.hidden ? "is-hidden" : ""}" data-id="${escapeHtml(product.id)}" data-collection="products">
+    <div class="product-editor-header">
+      <button class="button secondary" type="button" data-product-back>Back to Products</button>
+      <div>
+        <p class="eyebrow">${escapeHtml(product.brand || "Product")}</p>
+        <h3>${escapeHtml(product.name || "New product")}</h3>
+      </div>
+    </div>
+    <div class="product-editor-grid">
+      <section class="editor-section">
+        <h4>General</h4>
+        <div class="form-grid">
+          ${field("Product name", product.name, "name")}
+          ${field("Product ID / slug", product.id, "id")}
+          ${select("Brand", product.brand || "Kalahari", "brand", ["Kalahari", "VitaDerm", "Mesoestetic"])}
+          ${field("Category", product.category || "", "category")}
+          ${field("SKU", product.sku || "", "sku")}
+          ${field("Size", product.size || "", "size")}
+        </div>
+      </section>
+      <section class="editor-section">
+        <h4>Pricing</h4>
+        <div class="form-grid">
+          ${field("Price", product.price || 0, "price", "number")}
+          ${select("Stock status", product.stockStatus || "In stock", "stockStatus", STOCK_STATUSES)}
+        </div>
+      </section>
+      <section class="editor-section">
+        <h4>Image</h4>
+        <div class="product-image-editor">
+          <img class="product-editor-thumb" src="${escapeHtml(product.image || "lullubelle-logo.jpg")}" alt="">
+          <div class="form-grid">
+            ${field("Image URL", product.image || "", "image", "text", "wide")}
+            ${field("Image alt text", product.imageAlt || "", "imageAlt", "text", "wide")}
+            <label class="wide">Upload/change product image <input type="file" accept="image/*" data-upload="image"></label>
+          </div>
+        </div>
+      </section>
+      <section class="editor-section">
+        <h4>Description</h4>
+        <div class="form-grid">
+          ${field("Short benefit", product.benefit || "", "benefit", "textarea", "wide")}
+          ${field("Full description", product.description || "", "description", "textarea", "wide")}
+          ${field("Directions for use", product.directions || "", "directions", "textarea", "wide")}
+          ${field("Ingredients", product.ingredients || "", "ingredients", "textarea", "wide")}
+          ${field("Suitable skin type", product.suitable || "", "suitable", "textarea", "wide")}
+          ${field("Skin type / concern tags", Array.isArray(product.tags) ? product.tags.join(", ") : product.tags || "", "tags", "text", "wide")}
+          ${field("Related products", Array.isArray(product.relatedProducts) ? product.relatedProducts.join(", ") : product.relatedProducts || "", "relatedProducts", "text", "wide")}
+        </div>
+      </section>
+      <section class="editor-section">
+        <h4>SEO</h4>
+        <div class="form-grid">
+          ${field("SEO title", product.seoTitle || "", "seoTitle", "text", "wide")}
+          ${field("SEO meta description", product.seoDescription || product.metaDescription || "", "seoDescription", "textarea", "wide")}
+        </div>
+      </section>
+      <section class="editor-section">
+        <h4>Visibility / Badges</h4>
+        <div class="form-grid compact-checks">
+          ${checkbox("Featured product", product.featured, "featured")}
+          ${checkbox("Best seller", product.bestSeller, "bestSeller")}
+          ${checkbox("Hidden from public shop", product.hidden, "hidden")}
+        </div>
+      </section>
+    </div>
+    <div class="sticky-editor-actions">
+      <button class="button primary" type="button" data-save>Save changes</button>
+      <button class="button secondary" type="button" data-product-back>Cancel</button>
+    </div>
+  </article>`;
+
 const cardShell = (item, collection, title, body, imageKey = "image") => `
   <article class="editor-card ${item.hidden ? "is-hidden" : ""}" data-id="${escapeHtml(item.id)}" data-collection="${escapeHtml(collection)}">
     <div class="panel-heading">
@@ -123,19 +342,23 @@ const cardShell = (item, collection, title, body, imageKey = "image") => `
   </article>`;
 
 const renderProducts = () => {
-  $("[data-list='products']").innerHTML = state.content.products.map((item) => cardShell(item, "products", item.name || "New product", `
-    ${field("Product name", item.name, "name")}
-    ${select("Brand", item.brand || "Kalahari", "brand", ["Kalahari", "VitaDerm", "Mesoestetic"])}
-    ${field("Category", item.category || "", "category")}
-    ${field("Price", item.price || 0, "price", "number")}
-    ${select("Stock status", item.stockStatus || "In stock", "stockStatus", ["In stock", "Out of stock", "Coming soon"])}
-    ${checkbox("Featured product", item.featured, "featured")}
-    ${checkbox("Best seller", item.bestSeller, "bestSeller")}
-    ${field("Short benefit", item.benefit || "", "benefit", "textarea", "wide")}
-    ${field("Description", item.description || "", "description", "textarea", "wide")}
-    ${field("Image URL", item.image || "", "image", "text", "wide")}
-    <label class="wide">Upload/change image <input type="file" accept="image/*" data-upload="image"></label>
-  `)).join("") || `<p>No products were found in the shared website catalogue.</p>`;
+  const list = $("[data-list='products']");
+  const editingProduct = getProductById(state.productUi.editingId);
+  if (state.productUi.mode === "edit" && editingProduct) {
+    list.innerHTML = renderProductEditor(editingProduct);
+    return;
+  }
+
+  state.productUi.mode = "list";
+  state.productUi.editingId = "";
+  const filteredProducts = getFilteredProducts();
+  list.innerHTML = `
+    ${productFilterControls(state.content.products)}
+    <div class="product-list-summary">
+      <strong>${filteredProducts.length}</strong> of ${state.content.products.length} products shown
+    </div>
+    ${renderProductRows(filteredProducts)}
+  `;
 };
 
 const renderTreatments = () => {
@@ -246,14 +469,47 @@ const showLogin = () => {
 
 const addItem = (collection) => {
   const defaults = {
-    products: { id: uid("product"), brand: "Kalahari", category: "Needs review", name: "New product", price: 0, stockStatus: "In stock", hidden: false },
+    products: { id: uid("product"), brand: "Kalahari", category: "Needs review", name: "New product", price: 1, stockStatus: "In stock", image: "lullubelle-logo.jpg", hidden: false },
     treatments: { id: uid("treatment"), category: "General", name: "New treatment", price: "", duration: "", hidden: false },
     gallery: { id: uid("gallery"), title: "New result", category: "Microneedling", categories: "microneedling", hidden: false },
     vouchers: { id: uid("voucher"), name: "Gift Voucher", amount: 250, hidden: false },
   };
   state.content[collection].unshift(defaults[collection]);
+  if (collection === "products") {
+    state.productUi.mode = "edit";
+    state.productUi.editingId = defaults.products.id;
+    state.productUi.selectedIds.clear();
+  }
   setDirty();
   render();
+};
+
+const applyProductBulkAction = (action) => {
+  const selected = state.content.products.filter((product) => state.productUi.selectedIds.has(product.id));
+  if (!selected.length) {
+    setStatus("Select at least one product first.", "error");
+    return;
+  }
+  const labels = {
+    hide: "hide",
+    show: "show",
+    feature: "mark as featured",
+    unfeature: "remove featured from",
+    bestseller: "mark as best seller",
+    unbestseller: "remove best seller from",
+  };
+  if (!confirm(`Are you sure you want to ${labels[action]} ${selected.length} selected product(s)?`)) return;
+  selected.forEach((product) => {
+    if (action === "hide") product.hidden = true;
+    if (action === "show") product.hidden = false;
+    if (action === "feature") product.featured = true;
+    if (action === "unfeature") product.featured = false;
+    if (action === "bestseller") product.bestSeller = true;
+    if (action === "unbestseller") product.bestSeller = false;
+  });
+  setDirty();
+  renderProducts();
+  setStatus(`${selected.length} product(s) updated. Remember to save changes.`, "success");
 };
 
 const validateProductsBeforeSave = () => {
@@ -292,6 +548,13 @@ const updateRecord = (card, key, value) => {
   if (!item) return;
 
   if (key === "price" || key === "amount" || key === "total") item[key] = Number(value) || 0;
+  else if (key === "tags" || key === "relatedProducts") {
+    item[key] = String(value || "").split(",").map((entry) => entry.trim()).filter(Boolean);
+  } else if (key === "id") {
+    item.id = String(value || "").trim();
+    card.dataset.id = item.id;
+    if (collection === "products") state.productUi.editingId = item.id;
+  }
   else if (key === "customerText") {
     try { item.customer = JSON.parse(value || "{}"); } catch { item.customer = {}; }
   } else if (key === "productsText") {
@@ -301,11 +564,9 @@ const updateRecord = (card, key, value) => {
   if (collection) setDirty();
 };
 
-document.addEventListener("input", async (event) => {
-  const input = event.target;
+const handleUploadInput = async (input) => {
   const card = input.closest?.(".editor-card");
-  if (!card) return;
-
+  if (!card || !input.files?.[0]) return false;
   if (input.matches("[data-upload]") && input.files?.[0]) {
     setStatus("Uploading image…");
     try {
@@ -317,12 +578,62 @@ document.addEventListener("input", async (event) => {
     } catch (error) {
       setStatus(error.message, "error");
     }
+    return true;
+  }
+  return false;
+};
+
+document.addEventListener("input", async (event) => {
+  const input = event.target;
+
+  if (input.matches("[data-product-search]")) {
+    state.productUi.search = input.value;
+    state.productUi.selectedIds.clear();
+    renderProducts();
+    const searchInput = $("[data-product-search]");
+    searchInput?.focus();
+    searchInput?.setSelectionRange?.(state.productUi.search.length, state.productUi.search.length);
     return;
   }
+
+  const card = input.closest?.(".editor-card");
+  if (!card) return;
+  if (await handleUploadInput(input)) return;
 
   const key = input.dataset.key;
   if (!key) return;
   updateRecord(card, key, input.type === "checkbox" ? input.checked : input.value);
+});
+
+document.addEventListener("change", async (event) => {
+  const input = event.target;
+  if (input.matches("[data-product-filter]")) {
+    state.productUi[input.dataset.productFilter] = input.value;
+    state.productUi.selectedIds.clear();
+    renderProducts();
+    return;
+  }
+
+  if (input.matches("[data-product-select]")) {
+    if (input.checked) state.productUi.selectedIds.add(input.dataset.productSelect);
+    else state.productUi.selectedIds.delete(input.dataset.productSelect);
+    renderProducts();
+    return;
+  }
+
+  if (input.matches("[data-product-select-all]")) {
+    const filteredProducts = getFilteredProducts();
+    filteredProducts.forEach((product) => {
+      if (input.checked) state.productUi.selectedIds.add(product.id);
+      else state.productUi.selectedIds.delete(product.id);
+    });
+    renderProducts();
+    return;
+  }
+
+  if (input.matches("[data-upload]")) {
+    await handleUploadInput(input);
+  }
 });
 
 document.addEventListener("click", async (event) => {
@@ -334,6 +645,39 @@ document.addEventListener("click", async (event) => {
   }
 
   if (target.matches("[data-add]")) addItem(target.dataset.add);
+
+  if (target.matches("[data-product-back]")) {
+    state.productUi.mode = "list";
+    state.productUi.editingId = "";
+    renderProducts();
+  }
+
+  if (target.matches("[data-product-edit]")) {
+    state.productUi.mode = "edit";
+    state.productUi.editingId = target.dataset.productEdit;
+    renderProducts();
+  }
+
+  if (target.matches("[data-product-hide]")) {
+    const item = getProductById(target.dataset.productHide);
+    if (item && confirm(`${item.hidden ? "Show" : "Hide"} this product?`)) {
+      item.hidden = !item.hidden;
+      setDirty();
+      renderProducts();
+    }
+  }
+
+  if (target.matches("[data-product-delete]")) {
+    const item = getProductById(target.dataset.productDelete);
+    if (item && confirm(`Delete ${item.name || "this product"} permanently?`)) {
+      state.content.products = state.content.products.filter((product) => product.id !== item.id);
+      state.productUi.selectedIds.delete(item.id);
+      setDirty();
+      renderProducts();
+    }
+  }
+
+  if (target.matches("[data-product-bulk]")) applyProductBulkAction(target.dataset.productBulk);
 
   const card = target.closest?.(".editor-card");
   if (card?.dataset.collection && target.matches("[data-hide]")) {

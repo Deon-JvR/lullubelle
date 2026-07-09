@@ -41,6 +41,37 @@ const safeProviderBody = (data) => {
   ]));
 };
 
+const maskedIkhokhaHeaders = () => ({
+  Accept: "application/json",
+  "Content-Type": "application/json",
+  Authorization: "[masked Basic credentials]",
+});
+
+const providerErrorMessage = (data, fallback) => {
+  const base = data?.message || data?.error || fallback;
+  const validation = data?.validationErrors || data?.errors || data?.details;
+  if (!validation) return base;
+  if (Array.isArray(validation)) {
+    const detail = validation
+      .map((item) => {
+        if (typeof item === "string") return item;
+        const field = item.field || item.path || item.property || item.name || "request";
+        const message = item.message || item.error || item.reason || JSON.stringify(item);
+        return `${field}: ${message}`;
+      })
+      .join("; ");
+    return detail ? `${base}: ${detail}` : base;
+  }
+  if (typeof validation === "object") return `${base}: ${JSON.stringify(validation)}`;
+  return `${base}: ${String(validation)}`;
+};
+
+const logIkhokhaDiagnostic = (level, message, diagnostic) => {
+  const rendered = JSON.stringify(diagnostic, null, 2);
+  if (level === "error") console.error(`${message}\n${rendered}`);
+  else console.info(`${message}\n${rendered}`);
+};
+
 const orderNumber = () => `LUL-${Date.now()}`;
 
 const extractPaymentUrl = (payload) => {
@@ -172,6 +203,14 @@ const callIkhokha = async ({ event, order, testMode }) => {
 
   const credentials = Buffer.from(`${process.env.IKHOKHA_API_KEY}:${process.env.IKHOKHA_API_SECRET}`).toString("base64");
   const requestUrl = `${ikhokhaBaseUrl()}${checkoutEndpoint()}`;
+  const requestLog = {
+    requestUrl,
+    method: "POST",
+    headers: maskedIkhokhaHeaders(),
+    body: payload,
+  };
+  logIkhokhaDiagnostic("info", "Creating iKhokha hosted checkout.", requestLog);
+
   let response;
   try {
     response = await fetch(requestUrl, {
@@ -186,12 +225,11 @@ const callIkhokha = async ({ event, order, testMode }) => {
   } catch (error) {
     const diagnostic = {
       step: "Function outbound request to iKhokha",
-      requestUrl,
-      method: "POST",
+      ...requestLog,
       testMode,
       error: error.message || "Network request to iKhokha failed.",
     };
-    console.error("iKhokha network request failed.", diagnostic);
+    logIkhokhaDiagnostic("error", "iKhokha network request failed.", diagnostic);
     const detail = new Error(`Unable to reach iKhokha API at ${requestUrl}: ${diagnostic.error}`);
     detail.diagnostic = diagnostic;
     throw detail;
@@ -208,15 +246,14 @@ const callIkhokha = async ({ event, order, testMode }) => {
   if (!response.ok) {
     const diagnostic = {
       step: "iKhokha rejected checkout request",
-      requestUrl,
-      method: "POST",
+      ...requestLog,
       testMode,
       status: response.status,
       statusText: response.statusText,
       responseBody: safeProviderBody(data),
     };
-    console.error("iKhokha checkout request rejected.", diagnostic);
-    const message = data?.message || data?.error || `iKhokha checkout failed with status ${response.status}.`;
+    logIkhokhaDiagnostic("error", "iKhokha checkout request rejected.", diagnostic);
+    const message = providerErrorMessage(data, `iKhokha checkout failed with status ${response.status}.`);
     const detail = new Error(message);
     detail.diagnostic = diagnostic;
     throw detail;
@@ -226,13 +263,12 @@ const callIkhokha = async ({ event, order, testMode }) => {
   if (!paymentUrl) {
     const diagnostic = {
       step: "iKhokha response missing payment URL",
-      requestUrl,
-      method: "POST",
+      ...requestLog,
       testMode,
       status: response.status,
       responseBody: safeProviderBody(data),
     };
-    console.error("iKhokha did not return a hosted payment URL.", diagnostic);
+    logIkhokhaDiagnostic("error", "iKhokha did not return a hosted payment URL.", diagnostic);
     const detail = new Error("iKhokha did not return a hosted payment URL.");
     detail.diagnostic = diagnostic;
     throw detail;
