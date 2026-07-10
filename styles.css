@@ -78,8 +78,10 @@ body {
 .results-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
+  gap: clamp(14px, 2vw, 20px);
   align-items: stretch;
+  width: 100%;
+  min-width: 0;
 }
 
 .result-card {
@@ -122,8 +124,9 @@ body {
 .result-card-content {
   display: grid;
   grid-template-rows: auto 1fr auto auto;
-  gap: 12px;
-  padding: 22px;
+  min-width: 0;
+  gap: 9px;
+  padding: 16px;
 }
 
 .result-card-content h2,
@@ -131,14 +134,21 @@ body {
   margin: 0;
   color: var(--leaf-dark);
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 1.5rem;
-  line-height: 1.2;
+  max-width: 100%;
+  font-size: clamp(1.35rem, 2vw, 1.8rem);
+  line-height: 1.16;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  hyphens: auto;
 }
 
 .result-card-content p {
+  max-width: 100%;
   margin: 0;
   color: var(--muted);
-  line-height: 1.6;
+  font-size: 0.94rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .result-card-content strong {
@@ -213,9 +223,7 @@ body {
     grid-column: 1 / -1;
   }
 
-  .result-card-content {
-    padding: 20px;
-  }
+  .result-card-content { padding: 14px; }
 
   .results-cta {
     display: grid;
@@ -3958,24 +3966,11 @@ input,textarea,select,button {
   }
 }
 
-/* Epilfree before-and-after feature and lightbox */
-.epilfree-result-card {
-  grid-column: 1 / -1;
-  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
-  grid-template-rows: 1fr;
-}
-
-.microneedling-result-card,
-.advanced-facial-result-card,
-.cosmelan-result-card {
-  grid-column: 1 / -1;
-  grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
-  grid-template-rows: 1fr;
-}
+/* Before-and-after media and lightbox */
 
 .result-feature-media {
   min-width: 0;
-  padding: 18px;
+  padding: 10px;
   background: var(--paper);
 }
 
@@ -3989,6 +3984,7 @@ input,textarea,select,button {
 }
 
 .result-feature-media .result-lightbox-trigger {
+  aspect-ratio: 4 / 3;
   height: auto;
   border-radius: calc(var(--radius-card) - 6px);
 }
@@ -3996,7 +3992,9 @@ input,textarea,select,button {
 .result-feature-media img {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
   transition: transform 260ms ease;
 }
 
@@ -4117,15 +4115,6 @@ input,textarea,select,button {
   line-height: 1;
 }
 
-@media (max-width: 860px) {
-  .epilfree-result-card,
-  .microneedling-result-card,
-  .advanced-facial-result-card,
-  .cosmelan-result-card {
-    grid-template-columns: 1fr;
-  }
-}
-
 @media (max-width: 520px) {
   .epilfree-comparison {
     grid-template-columns: 1fr;
@@ -4151,12 +4140,17 @@ input,textarea,select,button {
 .conversion-dock .button {
   flex: 0 1 320px;
   width: min(100%, 320px);
-  min-height: 48px;
+  min-height: 44px;
+  padding-block: 10px;
+}
+
+.before-after-page {
+  padding-bottom: 118px;
 }
 
 @media (max-width: 520px) {
-  body {
-    padding-bottom: calc(76px + env(safe-area-inset-bottom));
+  .before-after-page {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
   }
 
   .conversion-dock {
@@ -4167,8 +4161,8 @@ input,textarea,select,button {
   .conversion-dock .button {
     flex-basis: 360px;
     width: min(100%, 360px);
-    min-height: 48px;
-    padding-block: 10px;
+    min-height: 44px;
+    padding-block: 8px;
   }
 }
 

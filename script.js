@@ -542,11 +542,11 @@ const applyManagedGallery = (gallery = []) => {
           </button>
           ${item.featured ? '<span class="result-badge">Featured result</span>' : ""}
         </div>
-        <div>
+        <div class="result-card-content">
           <p class="eyebrow">${escapeHtml(category)}</p>
           <h2>${escapeHtml(title)}</h2>
           <p>${escapeHtml(description)}</p>
-          ${item.treatments ? `<p><strong>${escapeHtml(item.treatments)} treatment${String(item.treatments) === "1" ? "" : "s"}</strong></p>` : ""}
+          ${item.treatments ? `<p><strong>${escapeHtml(item.treatments)}</strong></p>` : ""}
         </div>
       </article>`;
   }).join("");
