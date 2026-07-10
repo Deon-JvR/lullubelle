@@ -762,6 +762,8 @@ document.addEventListener("change", async (event) => {
 
 document.addEventListener("click", async (event) => {
   const target = event.target;
+  if (target.closest?.("[data-product-quick]")) return;
+
   if (target.matches("[data-tab]")) {
     if (state.dirty && !confirm("You have unsaved changes. Switch sections anyway?")) return;
     $$(".tabs button").forEach((button) => button.classList.toggle("is-active", button === target));
@@ -815,6 +817,7 @@ document.addEventListener("click", async (event) => {
       setDirty();
       updateProductRow(item);
     }
+    return;
   }
 
   const card = target.closest?.(".editor-card");
