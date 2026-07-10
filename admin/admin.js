@@ -9,8 +9,6 @@ const state = {
     mode: "list",
     editingId: "",
     selectedIds: new Set(),
-    lastQuickEditAt: 0,
-    lastQuickEditId: "",
     search: "",
     brand: "all",
     stock: "all",
@@ -46,12 +44,6 @@ const escapeHtml = (value = "") => String(value)
 const cssEscape = (value = "") => window.CSS?.escape
   ? CSS.escape(String(value))
   : String(value).replace(/["\\]/g, "\\$&");
-const ADMIN_SCROLL_DEBUG = new URLSearchParams(window.location.search).has("debugAdminScroll")
-  || window.localStorage?.getItem("debugAdminScroll") === "true";
-const debugAdminScroll = (label, details = {}) => {
-  if (!ADMIN_SCROLL_DEBUG) return;
-  console.debug(`[admin-scroll] ${label}`, details);
-};
 
 const setStatus = (message, type = "") => {
   const node = $("[data-admin-status]");
@@ -267,7 +259,7 @@ const renderProductRows = (products) => {
         </thead>
         <tbody>
           ${products.map((product) => `
-            <tr class="clickable-product-row ${product.hidden ? "is-hidden" : ""}" data-product-row="${escapeHtml(product.id)}" tabindex="0" aria-label="Edit ${escapeHtml(product.name || "product")}">
+            <tr class="${product.hidden ? "is-hidden" : ""}" data-product-row="${escapeHtml(product.id)}">
               <td data-label="Select"><input type="checkbox" data-product-select="${escapeHtml(product.id)}" ${state.productUi.selectedIds.has(product.id) ? "checked" : ""}></td>
               <td data-label="Image"><button class="image-button" type="button" data-product-edit="${escapeHtml(product.id)}"><img class="product-list-thumb" src="${escapeHtml(adminImageSrc(product.image))}" alt="${escapeHtml(product.imageAlt || product.name || "Product image")}" loading="lazy"></button></td>
               <td data-label="Product">
@@ -419,53 +411,6 @@ const renderProducts = () => {
   `;
 };
 
-const captureAdminPosition = () => {
-  const active = document.activeElement;
-  return {
-    scrollY: window.scrollY,
-    activeTab: $(".tabs .is-active")?.dataset.tab || "",
-    activeProductId: active?.dataset?.productId || active?.dataset?.productQuick || "",
-    activeName: active?.name || "",
-    activeProductKey: active?.dataset?.productKey || "",
-    selectionStart: typeof active?.selectionStart === "number" ? active.selectionStart : null,
-    selectionEnd: typeof active?.selectionEnd === "number" ? active.selectionEnd : null,
-  };
-};
-
-const restoreAdminPosition = (snapshot, label = "restore") => {
-  requestAnimationFrame(() => {
-    window.scrollTo(0, snapshot.scrollY);
-    const selectors = [
-      snapshot.activeName ? `[name="${cssEscape(snapshot.activeName)}"]` : "",
-      snapshot.activeProductId && snapshot.activeProductKey
-        ? `[data-product-id="${cssEscape(snapshot.activeProductId)}"][data-product-key="${cssEscape(snapshot.activeProductKey)}"]`
-        : "",
-      snapshot.activeProductId ? `[data-product-id="${cssEscape(snapshot.activeProductId)}"]` : "",
-    ].filter(Boolean);
-    const focusTarget = selectors.map((selector) => $(selector)).find(Boolean);
-    focusTarget?.focus?.({ preventScroll: true });
-    if (focusTarget && snapshot.selectionStart !== null && typeof focusTarget.setSelectionRange === "function") {
-      const end = snapshot.selectionEnd ?? snapshot.selectionStart;
-      focusTarget.setSelectionRange(snapshot.selectionStart, end);
-    }
-    debugAdminScroll(label, {
-      before: snapshot.scrollY,
-      after: window.scrollY,
-      activeTab: snapshot.activeTab,
-      activeProductId: snapshot.activeProductId,
-      activeName: snapshot.activeName,
-    });
-  });
-};
-
-const preserveAdminPosition = (label, callback) => {
-  const snapshot = captureAdminPosition();
-  debugAdminScroll(`${label}:capture`, snapshot);
-  const result = callback();
-  restoreAdminPosition(snapshot, `${label}:restore`);
-  return result;
-};
-
 const updateProductSelectionSummary = () => {
   const selectedCount = state.productUi.selectedIds.size;
   const bulkActions = $(".bulk-actions");
@@ -487,7 +432,6 @@ const updateProductRow = (product) => {
   const row = $(`[data-product-row="${productId}"]`);
   if (!row) return;
   row.classList.toggle("is-hidden", Boolean(product.hidden));
-  row.setAttribute("aria-label", `Edit ${product.name || "product"}`);
   const name = row.querySelector(`[data-product-name="${productId}"]`);
   if (name) name.textContent = product.name || "Unnamed product";
   const slug = row.querySelector(`[data-product-slug="${productId}"]`);
@@ -513,19 +457,11 @@ const updateProductQuickControl = (input) => {
   const item = getProductById(input.dataset.productQuick);
   if (!item) return;
   const key = input.dataset.productKey;
-  state.productUi.lastQuickEditAt = Date.now();
-  state.productUi.lastQuickEditId = item.id;
   if (key === "price") item.price = Number(input.value) || 0;
   else if (key === "hidden") item.hidden = input.value === "true";
   else item[key] = input.value;
   setDirty();
   updateProductRow(item);
-  debugAdminScroll("quick edit updated without render", {
-    productId: item.id,
-    key,
-    scrollY: window.scrollY,
-    activeName: document.activeElement?.name || "",
-  });
 };
 
 const renderTreatments = () => {
@@ -881,24 +817,6 @@ document.addEventListener("click", async (event) => {
     }
   }
 
-  const productRow = target.closest?.("[data-product-row]");
-  const isInteractive = target.closest?.("button, input, select, textarea, a, label");
-  const clickAfterQuickEdit = productRow
-    && productRow.dataset.productRow === state.productUi.lastQuickEditId
-    && Date.now() - state.productUi.lastQuickEditAt < 600;
-  if (clickAfterQuickEdit) {
-    debugAdminScroll("suppressed row click after quick edit", {
-      productId: productRow.dataset.productRow,
-      scrollY: window.scrollY,
-    });
-    return;
-  }
-  if (productRow && !isInteractive) {
-    state.productUi.mode = "edit";
-    state.productUi.editingId = productRow.dataset.productRow;
-    preserveAdminPosition("open product editor from row click", renderProducts);
-  }
-
   const card = target.closest?.(".editor-card");
   if (card?.dataset.collection && target.matches("[data-hide]")) {
     const collection = card.dataset.collection;
@@ -930,7 +848,7 @@ document.addEventListener("click", async (event) => {
     try {
       state.content = await request("content", { method: "PUT", body: JSON.stringify(state.content) });
       setDirty(false);
-      preserveAdminPosition("save content render", render);
+      render();
       setStatus("Website content saved.", "success");
     } catch (error) {
       setStatus(error.message, "error");
@@ -961,16 +879,6 @@ document.addEventListener("click", async (event) => {
       showLogin();
     }
   }
-});
-
-document.addEventListener("keydown", (event) => {
-  if (!["Enter", " "].includes(event.key)) return;
-  const row = event.target.closest?.("[data-product-row]");
-  if (!row || event.target.closest?.("button, input, select, textarea, a, label")) return;
-  event.preventDefault();
-  state.productUi.mode = "edit";
-  state.productUi.editingId = row.dataset.productRow;
-  renderProducts();
 });
 
 $("[data-login-form]").addEventListener("submit", async (event) => {
