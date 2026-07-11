@@ -215,11 +215,6 @@ const setupShopCatalogue = (content) => {
     if (!grid) return;
 
     const brandProducts = products.filter((product) => product.brand.toLowerCase() === brand.toLowerCase());
-    const brandFilter = Array.from(document.querySelectorAll("[data-brand-filter]"))
-      .find((button) => button.dataset.brandFilter === brand);
-    const optionalEmptyBrand = brand === "Soopa" && !brandProducts.length;
-    if (brandFilter) brandFilter.hidden = optionalEmptyBrand;
-    if (optionalEmptyBrand) panel.hidden = true;
     if (!brandProducts.length) {
       grid.innerHTML = `<p>No ${escapeHtml(brand)} products are currently listed in the shared website catalogue.</p>`;
       return;

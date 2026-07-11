@@ -2497,7 +2497,9 @@ input,textarea,select,button {
   }
 
   .shop-page .supplier-tabs {
+    flex-wrap: wrap;
     gap: 8px;
+    overflow-x: visible;
   }
 
   .shop-page .supplier-tab {
