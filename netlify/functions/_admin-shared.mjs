@@ -33,8 +33,11 @@ export const parseJson = (event) => {
   }
 };
 
+const isNetlifyRuntime = () => Boolean(process.env.NETLIFY || process.env.CONTEXT || process.env.NETLIFY_BLOBS_CONTEXT);
+
 const getConfiguredStore = (name) => {
-  const siteID = process.env.NETLIFY_BLOBS_SITE_ID || process.env.SITE_ID;
+  if (isNetlifyRuntime()) return getStore({ name });
+  const siteID = process.env.NETLIFY_BLOBS_SITE_ID;
   const token = process.env.NETLIFY_BLOBS_TOKEN;
   if (siteID && token) return getStore({ name, siteID, token });
   return getStore({ name });
@@ -44,7 +47,6 @@ export const contentStore = () => getConfiguredStore("lullubelle-admin");
 export const assetStore = () => getConfiguredStore("lullubelle-admin-assets");
 
 const localLists = new Map();
-const isNetlifyRuntime = () => Boolean(process.env.NETLIFY || process.env.CONTEXT || process.env.NETLIFY_BLOBS_CONTEXT);
 
 export const defaultContent = () => ({
   brands: [],
