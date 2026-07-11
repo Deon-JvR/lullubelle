@@ -1,6 +1,25 @@
 import { randomBytes } from "node:crypto";
 import { assetStore, contentStore, json } from "./_admin-shared.mjs";
 
+const runtimeSummary = () => {
+  const encoded = process.env.NETLIFY_BLOBS_CONTEXT;
+  if (!encoded) return { contextPresent: false };
+
+  try {
+    const context = JSON.parse(Buffer.from(encoded, "base64").toString("utf8"));
+    return {
+      contextPresent: true,
+      fields: Object.keys(context).filter((key) => key !== "token").sort(),
+      tokenPresent: Boolean(context.token),
+      siteMatches: !process.env.SITE_ID || context.siteID === process.env.SITE_ID,
+      deployMatches: !process.env.DEPLOY_ID || context.deployID === process.env.DEPLOY_ID,
+      edgeHost: context.edgeURL ? new URL(context.edgeURL).hostname : null,
+    };
+  } catch {
+    return { contextPresent: true, contextValid: false };
+  }
+};
+
 const probeStore = async (name, createStore) => {
   const key = `health/${Date.now()}-${randomBytes(6).toString("hex")}`;
   const value = `lullubelle-storage-health:${key}`;
@@ -39,6 +58,7 @@ export const handler = async (event) => {
     ok,
     service: "netlify-blobs",
     checks,
+    runtime: runtimeSummary(),
     checkedAt: new Date().toISOString(),
   });
 };
