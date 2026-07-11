@@ -166,7 +166,7 @@ const syncProductSchemas = (scope = document) => {
       brand: { "@type": "Brand", name: brand },
       offers: {
         "@type": "Offer",
-        url: `${window.location.origin}/shop?product=${encodeURIComponent(id)}`,
+        url: `${window.location.origin}${productDetailUrl(id)}`,
         priceCurrency: "ZAR",
         price: Number(button.dataset.productPrice) || 0,
         availability: "https://schema.org/InStock",
@@ -215,6 +215,11 @@ const setupShopCatalogue = (content) => {
     if (!grid) return;
 
     const brandProducts = products.filter((product) => product.brand.toLowerCase() === brand.toLowerCase());
+    const brandFilter = Array.from(document.querySelectorAll("[data-brand-filter]"))
+      .find((button) => button.dataset.brandFilter === brand);
+    const optionalEmptyBrand = brand === "Soopa" && !brandProducts.length;
+    if (brandFilter) brandFilter.hidden = optionalEmptyBrand;
+    if (optionalEmptyBrand) panel.hidden = true;
     if (!brandProducts.length) {
       grid.innerHTML = `<p>No ${escapeHtml(brand)} products are currently listed in the shared website catalogue.</p>`;
       return;
@@ -263,15 +268,7 @@ const setupFeaturedProducts = (content) => {
   if (!grid) return;
 
   const products = getVisibleManagedItems(content?.products).map(normaliseManagedProduct);
-  const brandOrder = ["Kalahari", "VitaDerm", "Mesoestetic", "SunSkin"];
-  const featured = [];
-
-  brandOrder.forEach((brand) => {
-    products
-      .filter((product) => product.brand === brand && (product.bestSeller || product.featured))
-      .slice(0, 2)
-      .forEach((product) => featured.push(product));
-  });
+  const featured = selectFeaturedProducts(products);
 
   if (!featured.length) {
     grid.innerHTML = '<p>Featured products are temporarily unavailable. <a class="text-link" href="shop.html">Browse the full shop</a>.</p>';
@@ -469,49 +466,6 @@ const renderManagedProductCard = (product) => {
     </article>`;
 };
 
-const applyManagedProducts = (products = []) => {
-  const visible = getVisibleManagedItems(products).map(normaliseManagedProduct);
-  if (!visible.length) return;
-
-  document.querySelectorAll("[data-brand-panel]").forEach((panel) => {
-    const brand = panel.dataset.brandPanel;
-    const brandProducts = visible.filter((product) => product.brand.toLowerCase() === brand.toLowerCase());
-    const grid = panel.querySelector(".kalahari-grid");
-    if (!grid) return;
-    if (!brandProducts.length) {
-      grid.innerHTML = `<p>No ${escapeHtml(brand)} products have been added yet.</p>`;
-      return;
-    }
-    grid.innerHTML = brandProducts.map(renderManagedProductCard).join("");
-    bindProductButtons(grid);
-    syncProductSchemas(grid);
-  });
-
-  const featuredGrid = document.querySelector("[data-featured-products]");
-  const featured = visible.filter((product) => product.featured || product.bestSeller).slice(0, 8);
-  if (featuredGrid && featured.length) {
-    featuredGrid.innerHTML = featured.map((product) => `
-      <article class="featured-product-card home-product-card">
-        <a class="featured-product-image" href="${escapeHtml(productDetailUrl(product.id))}" aria-label="View ${escapeHtml(product.brand)} ${escapeHtml(product.name)}">
-          ${product.bestSeller ? '<span class="product-status-badge">Best Seller</span>' : product.featured ? '<span class="product-status-badge">Featured</span>' : ""}
-          <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" width="650" height="650" decoding="async" loading="lazy">
-        </a>
-        <div>
-          <span class="product-brand-badge" data-brand="${escapeHtml(product.brand.toLowerCase())}">${escapeHtml(product.brand)}</span>
-          <h3>${escapeHtml(product.name)}</h3>
-          <strong>${formatCurrency(product.price)}</strong>
-          <p class="product-description">${escapeHtml(product.benefit)}</p>
-          <div class="featured-product-actions">
-            <button class="button secondary" type="button" data-managed-cart-add data-product-id="${escapeHtml(product.id)}" data-product-name="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" data-product-price="${Number(product.price)}" data-product-image="${escapeHtml(product.image)}"${isPurchasable(product) ? "" : " disabled"}>${isPurchasable(product) ? "Add to Cart" : escapeHtml(stockLabel(product.stockStatus))}</button>
-            <a class="text-link" href="${escapeHtml(productDetailUrl(product.id))}">View Product</a>
-          </div>
-        </div>
-      </article>`).join("");
-    bindProductButtons(featuredGrid);
-    syncProductSchemas(featuredGrid);
-  }
-};
-
 const applyManagedVouchers = (vouchers = []) => {
   const visible = getVisibleManagedItems(vouchers);
   const grid = document.querySelector(".voucher-grid");
@@ -658,7 +612,14 @@ const sendAdminRecord = (endpoint, payload) => {
   }).catch(() => {});
 };
 
-const productDetailUrl = (id) => `product.html?product=${encodeURIComponent(id)}`;
+const PRODUCT_BRAND_ORDER = ["Kalahari", "VitaDerm", "Mesoestetic", "SunSkin", "Soopa"];
+const selectFeaturedProducts = (products) => {
+  const featured = products.filter((product) => product.featured || product.bestSeller);
+  const selected = PRODUCT_BRAND_ORDER.flatMap((brand) => featured.filter((product) => product.brand === brand).slice(0, 2));
+  const selectedIds = new Set(selected.map((product) => product.id));
+  return [...selected, ...featured.filter((product) => !selectedIds.has(product.id))].slice(0, 8);
+};
+const productDetailUrl = (id) => `/product?product=${encodeURIComponent(id)}`;
 
 const getAllShopProducts = async () => {
   const managedContent = await loadManagedContent();
@@ -809,7 +770,7 @@ const injectFooterTrustSection = () => {
     </div>
     <div class="trust-grid">
       <div><span>10+</span><p><strong>10+ Years Experience</strong><small>Personal, expert care</small></p></div>
-      <div><span>✦</span><p><strong>Professional Brands</strong><small>Kalahari, VitaDerm, Mesoestetic &amp; SunSkin</small></p></div>
+      <div><span>✦</span><p><strong>Professional Brands</strong><small>Kalahari, VitaDerm, Mesoestetic, SunSkin &amp; Soopa</small></p></div>
       <div><span>✓</span><p><strong>Qualified Skin Therapist</strong><small>Consultation-led treatments</small></p></div>
       <div><span>🔒</span><p><strong>Secure Online Shopping</strong><small>Shop with confidence</small></p></div>
       <div><span>◷</span><p><strong>Private Studio</strong><small>Appointment-only care</small></p></div>
@@ -1357,7 +1318,7 @@ document.addEventListener("click", (event) => {
       enquiryText = href;
     }
 
-    if (/product|stock|Kalahari|VitaDerm|Mesoestetic|SunSkin|nail|lash|body care/i.test(enquiryText)) {
+    if (/product|stock|Kalahari|VitaDerm|Mesoestetic|SunSkin|Soopa|nail|lash|body care/i.test(enquiryText)) {
       trackEvent("product_enquiry", {
         ...parameters,
         enquiry_text: enquiryText.slice(0, 120),

@@ -25,7 +25,7 @@ const $$ = (selector, scope = document) => Array.from(scope.querySelectorAll(sel
 
 const uid = (prefix) => `${prefix}_${Date.now().toString(36)}_${Math.random().toString(16).slice(2, 8)}`;
 const money = (value) => Number(value || 0);
-const PRODUCT_BRANDS = ["Kalahari", "VitaDerm", "Mesoestetic", "SunSkin"];
+const PRODUCT_BRANDS = ["Kalahari", "VitaDerm", "Mesoestetic", "SunSkin", "Soopa"];
 const REQUIRED_PRODUCT_BRANDS = ["Kalahari", "VitaDerm", "Mesoestetic"];
 const STOCK_STATUSES = ["In stock", "Out of stock", "Coming soon"];
 const PRODUCT_SORTS = [

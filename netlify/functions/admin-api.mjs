@@ -33,7 +33,7 @@ const missingAdminEnv = () => ["ADMIN_USERNAME", "ADMIN_PASSWORD_HASH", "ADMIN_S
   .filter((name) => !process.env[name]);
 
 const REQUIRED_PRODUCT_BRANDS = ["Kalahari", "VitaDerm", "Mesoestetic"];
-const SUPPORTED_PRODUCT_BRANDS = [...REQUIRED_PRODUCT_BRANDS, "SunSkin"];
+const SUPPORTED_PRODUCT_BRANDS = [...REQUIRED_PRODUCT_BRANDS, "SunSkin", "Soopa"];
 
 const validateProductCatalogue = (content) => {
   const products = Array.isArray(content?.products) ? content.products : [];
