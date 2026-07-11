@@ -3011,7 +3011,7 @@ input,textarea,select,button {
 .home-product-card {
   display: flex;
   flex-direction: column;
-  height: auto;
+  height: 100%;
   align-self: stretch;
 }
 
@@ -3032,6 +3032,16 @@ input,textarea,select,button {
 
 .home-product-card .featured-product-actions {
   margin-top: auto;
+}
+
+.home-products .home-product-card .product-description {
+  display: -webkit-box;
+  max-height: calc(1.45em * 2);
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .featured-products .section-actions,
@@ -3159,7 +3169,12 @@ input,textarea,select,button {
 }
 
 .home-storefront .section.home-results-section {
+  padding-top: clamp(36px, 4vw, 52px);
   padding-bottom: 88px;
+}
+
+.home-results-section .section-heading {
+  margin-bottom: 24px;
 }
 
 .home-storefront .result-comparison img {
@@ -3177,7 +3192,7 @@ input,textarea,select,button {
 
 .home-result-image {
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 10;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3212,20 +3227,11 @@ input,textarea,select,button {
   margin: 0;
   overflow: hidden;
   overflow-wrap: anywhere;
-  font-size: clamp(1.4rem, 2vw, 2.2rem);
+  font-size: clamp(1.35rem, 1.8vw, 2rem);
   line-height: 1.05;
   min-height: 2.1em;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
-}
-
-.home-result-card .home-result-summary {
-  display: -webkit-box;
-  margin: 0;
-  overflow: hidden;
-  overflow-wrap: anywhere;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
 }
 
 @media (max-width: 860px) {
@@ -4976,5 +4982,31 @@ input,textarea,select,button {
 
   .cart-checkout-actions .button {
     min-height: 48px;
+  }
+}
+
+/* Final homepage sizing overrides: keep floating actions clear of compact cards. */
+.home-storefront {
+  padding-bottom: 110px;
+}
+
+@media (min-width: 521px) {
+  .home-storefront .conversion-dock {
+    bottom: 12px;
+    width: min(340px, calc(100% - 32px));
+    padding: 5px;
+  }
+
+  .home-storefront .conversion-dock .button {
+    flex-basis: 280px;
+    width: min(100%, 280px);
+    min-height: 40px;
+    padding-block: 8px;
+  }
+}
+
+@media (max-width: 520px) {
+  .home-storefront {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
   }
 }
