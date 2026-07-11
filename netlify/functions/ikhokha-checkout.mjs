@@ -1,5 +1,6 @@
 import {
   ORDERS_KEY,
+  connectBlobContext,
   json,
   newId,
   parseJson,
@@ -451,6 +452,7 @@ const wantsJson = (event) => {
 };
 
 export const handler = async (event) => {
+  connectBlobContext(event);
   if (event.queryStringParameters?.action === "confirm") {
     return handleConfirmation(event);
   }

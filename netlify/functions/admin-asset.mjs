@@ -1,6 +1,7 @@
-import { assetStore } from "./_admin-shared.mjs";
+import { assetStore, connectBlobContext } from "./_admin-shared.mjs";
 
 export const handler = async (event) => {
+  connectBlobContext(event);
   const key = event.queryStringParameters?.key || "";
   if (!key) return { statusCode: 404, body: "Not found" };
 

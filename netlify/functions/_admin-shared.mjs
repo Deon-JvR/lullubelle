@@ -1,4 +1,4 @@
-import { getStore } from "@netlify/blobs";
+import { connectLambda, getStore } from "@netlify/blobs";
 import {
   createHmac,
   pbkdf2Sync,
@@ -31,6 +31,10 @@ export const parseJson = (event) => {
   } catch {
     return {};
   }
+};
+
+export const connectBlobContext = (event) => {
+  if (event?.blobs) connectLambda(event);
 };
 
 const isNetlifyRuntime = () => Boolean(process.env.NETLIFY || process.env.CONTEXT || process.env.NETLIFY_BLOBS_CONTEXT);

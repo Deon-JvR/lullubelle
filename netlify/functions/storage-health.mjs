@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import { assetStore, contentStore, json } from "./_admin-shared.mjs";
+import { assetStore, connectBlobContext, contentStore, json } from "./_admin-shared.mjs";
 
 const runtimeSummary = () => {
   const encoded = process.env.NETLIFY_BLOBS_CONTEXT;
@@ -44,6 +44,7 @@ const probeStore = async (name, createStore) => {
 };
 
 export const handler = async (event) => {
+  connectBlobContext(event);
   if (event.httpMethod !== "GET") {
     return json(405, { ok: false, error: "Method not allowed." }, { Allow: "GET" });
   }

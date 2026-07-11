@@ -1,4 +1,4 @@
-import { readContent } from "./_admin-shared.mjs";
+import { connectBlobContext, readContent } from "./_admin-shared.mjs";
 
 const SITE_URL = "https://www.lullubelle.co.za";
 const PAGE_PATHS = [
@@ -29,7 +29,8 @@ const escapeXml = (value) => String(value)
   .replace(/"/g, "&quot;")
   .replace(/'/g, "&apos;");
 
-export const handler = async () => {
+export const handler = async (event) => {
+  connectBlobContext(event);
   const content = await readContent();
   const productPaths = (content.products || [])
     .filter((product) => product?.id && product.hidden !== true)

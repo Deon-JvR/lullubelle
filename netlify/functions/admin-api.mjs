@@ -3,6 +3,7 @@ import {
   ORDERS_KEY,
   assetStore,
   clearSessionCookie,
+  connectBlobContext,
   createSessionCookie,
   json,
   newId,
@@ -92,6 +93,7 @@ const saveUpload = async ({ filename, mimeType, base64 }) => {
 };
 
 export const handler = async (event) => {
+  connectBlobContext(event);
   const method = event.httpMethod;
   const action = event.queryStringParameters?.action || "";
 

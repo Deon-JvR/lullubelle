@@ -1,6 +1,7 @@
-import { ORDERS_KEY, json, newId, parseJson, readList, writeList } from "./_admin-shared.mjs";
+import { ORDERS_KEY, connectBlobContext, json, newId, parseJson, readList, writeList } from "./_admin-shared.mjs";
 
 export const handler = async (event) => {
+  connectBlobContext(event);
   if (event.httpMethod !== "POST") return json(405, { error: "Method not allowed." });
 
   const body = parseJson(event);
