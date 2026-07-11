@@ -73,10 +73,34 @@ const seedContent = async () => {
 };
 
 const hasItems = (value) => Array.isArray(value) && value.length > 0;
-const hasRequiredProductBrands = (value) => {
-  if (!Array.isArray(value) || !value.length) return false;
-  const brands = new Set(value.map((product) => product?.brand).filter(Boolean));
-  return ["Kalahari", "VitaDerm", "Mesoestetic"].every((brand) => brands.has(brand));
+const mergeProductCatalogue = (seedProducts, storedProducts) => {
+  if (!Array.isArray(storedProducts)) return seedProducts;
+  const storedIds = new Set(storedProducts.map((product) => product?.id).filter(Boolean));
+  if (storedProducts.length < seedProducts.length || !seedProducts.every((product) => storedIds.has(product.id))) {
+    return seedProducts;
+  }
+  const merged = new Map(seedProducts.map((product) => [product.id, product]));
+  storedProducts.forEach((product) => {
+    if (product?.id) merged.set(product.id, product);
+  });
+  return [...merged.values()];
+};
+const obsoleteGalleryTitle = /hydration facial|pigmentation care|blemish-focused care|age-supportive facial|skin texture plan/i;
+const isRealGalleryItem = (item) => {
+  const image = String(item?.image || "").trim();
+  return Boolean(image)
+    && !/lullubelle-logo|placeholder|data:image/i.test(image)
+    && !obsoleteGalleryTitle.test(String(item?.title || ""));
+};
+const mergeGallery = (seedGallery, storedGallery) => {
+  const seedIds = new Set(seedGallery.map((item) => item.id));
+  const merged = new Map(seedGallery.filter(isRealGalleryItem).map((item) => [item.id, item]));
+  if (!Array.isArray(storedGallery)) return [...merged.values()];
+  storedGallery.filter(isRealGalleryItem).forEach((item) => {
+    const uploadedImage = String(item.image).startsWith("/.netlify/functions/admin-asset");
+    if (seedIds.has(item.id) || uploadedImage) merged.set(item.id, item);
+  });
+  return [...merged.values()];
 };
 
 export const readContent = async () => {
@@ -91,9 +115,9 @@ export const readContent = async () => {
   return {
     ...seed,
     ...stored,
-    products: hasRequiredProductBrands(stored.products) ? stored.products : seed.products,
+    products: mergeProductCatalogue(seed.products, stored.products),
     treatments: hasItems(stored.treatments) ? stored.treatments : seed.treatments,
-    gallery: hasItems(stored.gallery) ? stored.gallery : seed.gallery,
+    gallery: mergeGallery(seed.gallery, stored.gallery),
     vouchers: hasItems(stored.vouchers) ? stored.vouchers : seed.vouchers,
     updatedAt: stored.updatedAt || seed.updatedAt,
   };

@@ -1,6 +1,26 @@
 [[redirects]]
+  from = "/"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
   from = "/admin"
   to = "/admin/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/"
+  to = "/admin/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/before-after"
+  to = "/before-after/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/before-after/"
+  to = "/before-after/index.html"
   status = 200
 
 [functions]

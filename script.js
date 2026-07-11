@@ -340,15 +340,21 @@ const escapeHtml = (value = "") => String(value)
 
 let managedContentPromise;
 
-const loadStaticProductCatalogue = async () => {
-  try {
-    const response = await fetch("/data/products.json", { headers: { Accept: "application/json" } });
-    if (!response.ok) return null;
-    const products = await response.json();
-    return Array.isArray(products) ? { products } : null;
-  } catch {
-    return null;
-  }
+const loadStaticContent = async () => {
+  const readItems = async (name) => {
+    try {
+      const response = await fetch(`/data/${name}.json`, { headers: { Accept: "application/json" } });
+      if (!response.ok) return [];
+      const items = await response.json();
+      return Array.isArray(items) ? items : [];
+    } catch {
+      return [];
+    }
+  };
+  const [products, treatments, gallery, vouchers] = await Promise.all(
+    ["products", "treatments", "gallery", "vouchers"].map(readItems),
+  );
+  return { products, treatments, gallery, vouchers };
 };
 
 const loadManagedContent = async () => {
@@ -356,23 +362,20 @@ const loadManagedContent = async () => {
     managedContentPromise = fetch("/.netlify/functions/admin-content", { headers: { Accept: "application/json" } })
       .then((response) => response.ok ? response.json() : null)
       .then(async (content) => {
-        const fallback = await loadStaticProductCatalogue();
-        if (hasRequiredProductBrands(content?.products)) return content;
+        const fallback = await loadStaticContent();
+        if (hasCompleteProductCatalogue(content?.products, fallback.products)) return content;
         return {
-          products: fallback?.products || [],
+          products: fallback.products,
           treatments: content?.treatments || [],
-          gallery: content?.gallery || [],
+          gallery: content?.gallery?.length ? content.gallery : fallback.gallery,
           vouchers: content?.vouchers || [],
           updatedAt: content?.updatedAt || new Date().toISOString(),
         };
       })
       .catch(async () => {
-        const fallback = await loadStaticProductCatalogue();
+        const fallback = await loadStaticContent();
         return {
-          products: fallback?.products || [],
-          treatments: [],
-          gallery: [],
-          vouchers: [],
+          ...fallback,
           updatedAt: new Date().toISOString(),
         };
       });
@@ -384,10 +387,13 @@ const getVisibleManagedItems = (items) => Array.isArray(items)
   ? items.filter((item) => item && item.hidden !== true)
   : [];
 
-const hasRequiredProductBrands = (items) => {
+const hasCompleteProductCatalogue = (items, fallbackItems = []) => {
   if (!Array.isArray(items) || !items.length) return false;
   const brands = new Set(items.map((product) => product?.brand).filter(Boolean));
-  return ["Kalahari", "VitaDerm", "Mesoestetic"].every((brand) => brands.has(brand));
+  const ids = new Set(items.map((product) => product?.id).filter(Boolean));
+  return items.length >= fallbackItems.length
+    && fallbackItems.every((product) => ids.has(product.id))
+    && ["Kalahari", "VitaDerm", "Mesoestetic"].every((brand) => brands.has(brand));
 };
 
 const slugify = (value = "item") => String(value)
@@ -529,7 +535,7 @@ const applyManagedVouchers = (vouchers = []) => {
 };
 
 const applyManagedGallery = (gallery = []) => {
-  const visible = getVisibleManagedItems(gallery);
+  const visible = getVisibleManagedItems(gallery).filter((item) => item.image && !/lullubelle-logo|placeholder|data:image/i.test(item.image));
   const grid = document.querySelector(".results-gallery-section .results-grid");
   if (!grid || !visible.length) return;
 
@@ -551,9 +557,30 @@ const applyManagedGallery = (gallery = []) => {
           <h2>${escapeHtml(title)}</h2>
           <p>${escapeHtml(description)}</p>
           ${item.treatments ? `<p><strong>${escapeHtml(item.treatments)}</strong></p>` : ""}
+          <a class="button primary" href="/book-appointment">Book Appointment</a>
         </div>
       </article>`;
   }).join("");
+};
+
+const applyHomepageGallery = (gallery = []) => {
+  const grid = document.querySelector(".home-results-grid");
+  if (!grid) return;
+  const featured = getVisibleManagedItems(gallery)
+    .filter((item) => item.featured && item.image && !/lullubelle-logo|placeholder|data:image/i.test(item.image))
+    .slice(0, 3);
+  if (!featured.length) {
+    grid.innerHTML = "<p>Before &amp; After results are temporarily unavailable.</p>";
+    return;
+  }
+  grid.innerHTML = featured.map((item) => `
+    <a class="result-card home-result-card" href="/before-after/">
+      <div class="home-result-image"><img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title || "Before and after treatment result")}" width="1200" height="750" loading="lazy" decoding="async"></div>
+      <div class="result-card-content">
+        <p class="eyebrow">${escapeHtml(item.category || "Treatment result")}</p>
+        <h3>${escapeHtml(item.title || "Before & After")}</h3>
+      </div>
+    </a>`).join("");
 };
 
 const applyManagedTreatments = (treatments = []) => {
@@ -613,6 +640,7 @@ const applyManagedContent = (content) => {
   setupFeaturedProducts(content);
   applyManagedVouchers(content.vouchers);
   applyManagedGallery(content.gallery);
+  applyHomepageGallery(content.gallery);
   applyManagedTreatments(content.treatments);
 };
 
