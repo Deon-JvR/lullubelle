@@ -9,6 +9,6 @@
     "admin:hash-password": "node tools/hash-admin-password.mjs"
   },
   "dependencies": {
-    "@netlify/blobs": "^8.2.0"
+    "@netlify/blobs": "^10.7.9"
   }
 }

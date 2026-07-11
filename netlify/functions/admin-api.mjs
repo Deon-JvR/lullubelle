@@ -68,15 +68,26 @@ const validateProductCatalogue = (content) => {
 
 const saveUpload = async ({ filename, mimeType, base64 }) => {
   if (!base64) throw new Error("No image supplied");
+  if (!String(mimeType || "").startsWith("image/")) throw new Error("Only image uploads are supported.");
+  const encoded = String(base64).replace(/^data:[^,]+,/, "");
+  if (encoded.length > 5 * 1024 * 1024) throw new Error("The optimised image is too large. Please upload a smaller image.");
   const extension = (filename || "image.webp").split(".").pop()?.replace(/[^a-z0-9]/gi, "").toLowerCase() || "webp";
   const key = `${Date.now()}-${newId("asset")}.${extension}`;
-  const buffer = Buffer.from(base64.replace(/^data:[^,]+,/, ""), "base64");
-  await assetStore().set(key, buffer, {
-    metadata: {
-      contentType: mimeType || "application/octet-stream",
-      originalFilename: filename || key,
-    },
-  });
+  const buffer = Buffer.from(encoded, "base64");
+  if (!buffer.length) throw new Error("The uploaded image was empty or invalid.");
+  try {
+    await assetStore().set(key, buffer, {
+      metadata: {
+        contentType: mimeType || "application/octet-stream",
+        originalFilename: filename || key,
+      },
+    });
+  } catch (error) {
+    console.error("Admin asset storage failed", { key, message: error?.message });
+    const storageError = new Error("Image storage is unavailable. Please try again.");
+    storageError.code = "ASSET_STORAGE_UNAVAILABLE";
+    throw storageError;
+  }
   return `/.netlify/functions/admin-asset?key=${encodeURIComponent(key)}`;
 };
 
@@ -124,8 +135,13 @@ export const handler = async (event) => {
 
   if (method === "PUT" && action === "content") {
     const validationError = validateProductCatalogue(body);
-    if (validationError) return json(400, { error: validationError });
-    return json(200, await writeContent(body));
+    if (validationError) return json(400, { error: `Validation failed: ${validationError}`, code: "VALIDATION_FAILED" });
+    try {
+      return json(200, await writeContent(body));
+    } catch (error) {
+      console.error("Admin content storage failed", { message: error?.message });
+      return json(500, { error: "Product could not be saved because storage is unavailable. Please try again.", code: "CONTENT_STORAGE_UNAVAILABLE" });
+    }
   }
 
   if (method === "POST" && action === "upload") {
@@ -133,7 +149,8 @@ export const handler = async (event) => {
       const url = await saveUpload(body);
       return json(200, { ok: true, url });
     } catch (error) {
-      return json(400, { error: error.message || "Upload failed." });
+      const storageFailure = error.code === "ASSET_STORAGE_UNAVAILABLE";
+      return json(storageFailure ? 500 : 400, { error: error.message || "Image upload failed.", code: error.code || "IMAGE_UPLOAD_FAILED" });
     }
   }
 

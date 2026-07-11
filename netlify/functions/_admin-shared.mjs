@@ -33,8 +33,15 @@ export const parseJson = (event) => {
   }
 };
 
-export const contentStore = () => getStore("lullubelle-admin");
-export const assetStore = () => getStore("lullubelle-admin-assets");
+const getConfiguredStore = (name) => {
+  const siteID = process.env.NETLIFY_BLOBS_SITE_ID || process.env.SITE_ID;
+  const token = process.env.NETLIFY_BLOBS_TOKEN;
+  if (siteID && token) return getStore({ name, siteID, token });
+  return getStore({ name });
+};
+
+export const contentStore = () => getConfiguredStore("lullubelle-admin");
+export const assetStore = () => getConfiguredStore("lullubelle-admin-assets");
 
 const localLists = new Map();
 const isNetlifyRuntime = () => Boolean(process.env.NETLIFY || process.env.CONTEXT || process.env.NETLIFY_BLOBS_CONTEXT);
@@ -115,7 +122,8 @@ export const readContent = async () => {
   let stored = null;
   try {
     stored = await contentStore().get(CONTENT_KEY, { type: "json" });
-  } catch {
+  } catch (error) {
+    console.error("Admin content read failed; using static fallback", { message: error?.message });
     stored = null;
   }
   if (!stored) return seed;

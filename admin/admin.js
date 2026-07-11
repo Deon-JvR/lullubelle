@@ -81,13 +81,40 @@ const setDirty = (dirty = true) => {
 };
 
 const request = async (action, options = {}) => {
-  const response = await fetch(`${API}?action=${encodeURIComponent(action)}`, {
-    credentials: "same-origin",
-    headers: { "Content-Type": "application/json", ...(options.headers || {}) },
-    ...options,
-  });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error || "Request failed");
+  let response;
+  try {
+    response = await fetch(`${API}?action=${encodeURIComponent(action)}`, {
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+      ...options,
+    });
+  } catch (cause) {
+    console.error(`[Admin API] ${action} network failure`, cause);
+    throw new Error("Could not reach the server. Check your connection and try again.");
+  }
+
+  const responseText = await response.text().catch(() => "");
+  let data = {};
+  try { data = responseText ? JSON.parse(responseText) : {}; } catch { data = {}; }
+  if (!response.ok) {
+    const statusMessages = {
+      400: "Validation failed. Check the required product fields.",
+      401: "Session expired. Sign in again and retry.",
+      403: "You do not have permission to perform this action.",
+      404: "The Admin API could not be found.",
+      409: "The product or brand conflicts with an existing record.",
+      413: "Image upload failed because the file is too large.",
+      500: action === "upload" ? "Image storage is unavailable. Please try again." : "Product could not be saved because storage is unavailable.",
+      502: "Storage service configuration failed. Please contact the site administrator.",
+      503: action === "upload" ? "Image storage is unavailable. Please try again." : "Product storage is temporarily unavailable.",
+    };
+    const message = data.error || statusMessages[response.status] || `Admin request failed (HTTP ${response.status}).`;
+    console.error(`[Admin API] ${action} failed`, { status: response.status, message, response: responseText.slice(0, 1000) });
+    const error = new Error(message);
+    error.status = response.status;
+    error.code = data.code || "ADMIN_REQUEST_FAILED";
+    throw error;
+  }
   return data;
 };
 
@@ -98,29 +125,50 @@ const blobToDataUrl = (blob) => new Promise((resolve, reject) => {
   reader.readAsDataURL(blob);
 });
 
+const decodeImage = async (file) => {
+  if (typeof createImageBitmap === "function") {
+    const bitmap = await createImageBitmap(file).catch(() => null);
+    if (bitmap) return { image: bitmap, width: bitmap.width, height: bitmap.height, close: () => bitmap.close?.() };
+  }
+  const url = URL.createObjectURL(file);
+  try {
+    const image = new Image();
+    await new Promise((resolve, reject) => {
+      image.onload = resolve;
+      image.onerror = () => reject(new Error("This image format could not be decoded. Please use JPEG, PNG or WebP."));
+      image.src = url;
+    });
+    return { image, width: image.naturalWidth, height: image.naturalHeight, close: () => URL.revokeObjectURL(url) };
+  } catch (error) {
+    URL.revokeObjectURL(url);
+    throw error;
+  }
+};
+
 const convertImageToWebP = async (file) => {
   if (!file.type.startsWith("image/") || file.type === "image/svg+xml") return null;
-
-  const image = await createImageBitmap(file).catch(() => null);
-  if (!image) return null;
-
-  const maxSize = 1800;
-  const scale = Math.min(1, maxSize / Math.max(image.width, image.height));
-  const width = Math.max(1, Math.round(image.width * scale));
-  const height = Math.max(1, Math.round(image.height * scale));
+  const decoded = await decodeImage(file);
+  const maxSize = 1400;
+  const scale = Math.min(1, maxSize / Math.max(decoded.width, decoded.height));
+  const width = Math.max(1, Math.round(decoded.width * scale));
+  const height = Math.max(1, Math.round(decoded.height * scale));
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
-  canvas.getContext("2d").drawImage(image, 0, 0, width, height);
+  canvas.getContext("2d").drawImage(decoded.image, 0, 0, width, height);
 
-  const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/webp", 0.88));
-  image.close?.();
+  const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/webp", 0.82));
+  decoded.close();
+  if (!blob) throw new Error("Image conversion failed. Please use JPEG, PNG or WebP.");
   return blob;
 };
 
 const uploadImage = async (file) => {
+  if (!file?.type?.startsWith("image/")) throw new Error("Image upload failed: select a valid image file.");
+  if (file.size > 20 * 1024 * 1024) throw new Error("Image upload failed: the source file must be smaller than 20 MB.");
   const webp = await convertImageToWebP(file);
   const uploadFile = webp || file;
+  if (uploadFile.size > 3.5 * 1024 * 1024) throw new Error("Image upload failed: the optimised file is still too large. Please use a smaller image.");
   const filename = webp ? `${file.name.replace(/\.[^.]+$/, "")}.webp` : file.name;
   const mimeType = webp ? "image/webp" : file.type;
   const dataUrl = await blobToDataUrl(uploadFile);
@@ -744,6 +792,8 @@ const handleUploadInput = async (input) => {
   const card = input.closest?.(".editor-card");
   if (!card || !input.files?.[0]) return false;
   if (input.matches("[data-upload]") && input.files?.[0]) {
+    if (input.dataset.uploading === "true") return true;
+    input.dataset.uploading = "true";
     setStatus("Uploading image…");
     try {
       const url = await uploadImage(input.files[0]);
@@ -752,7 +802,9 @@ const handleUploadInput = async (input) => {
       setStatus("Image uploaded.", "success");
       render();
     } catch (error) {
-      setStatus(error.message, "error");
+      console.error("[Admin image upload] Product image upload failed", error);
+      setStatus(error.message || "Image upload failed.", "error");
+      input.dataset.uploading = "false";
     }
     return true;
   }
@@ -761,6 +813,8 @@ const handleUploadInput = async (input) => {
 
 document.addEventListener("input", async (event) => {
   const input = event.target;
+
+  if (input.type === "file") return;
 
   if (input.matches("[data-product-quick]")) {
     updateProductQuickControl(input);
