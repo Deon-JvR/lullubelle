@@ -1,6 +1,7 @@
 [
   {
     "id": "soopa-hocl-rescue-mist-daily",
+    "brandId": "soopa",
     "brand": "Soopa",
     "category": "HOCl Collection",
     "name": "HOCl Rescue Mist Daily",
@@ -24,6 +25,7 @@
   },
   {
     "id": "soopa-hocl-rescue-mist-intense",
+    "brandId": "soopa",
     "brand": "Soopa",
     "category": "HOCl Collection",
     "name": "HOCl Rescue Mist Intense",
@@ -47,6 +49,7 @@
   },
   {
     "id": "soopa-rescue-restore-omega-tissue-oil",
+    "brandId": "soopa",
     "brand": "Soopa",
     "category": "Rescue + Restore",
     "name": "Rescue + Restore Omega Tissue Oil",
@@ -69,6 +72,7 @@
   },
   {
     "id": "soopa-rescue-restore-gel-cream",
+    "brandId": "soopa",
     "brand": "Soopa",
     "category": "Rescue + Restore",
     "name": "Rescue + Restore Gel-Cream",
@@ -91,6 +95,7 @@
   },
   {
     "id": "kalahari-facial-cleanser",
+    "brandId": "kalahari",
     "brand": "Kalahari",
     "name": "Facial Cleanser",
     "price": 278,
@@ -106,6 +111,7 @@
   },
   {
     "id": "kalahari-gentle-cleansing-milk",
+    "brandId": "kalahari",
     "brand": "Kalahari",
     "name": "Gentle Cleansing Milk",
     "price": 291,
@@ -119,6 +125,7 @@
   },
   {
     "id": "kalahari-toning-lotion",
+    "brandId": "kalahari",
     "brand": "Kalahari",
     "name": "Toning Lotion",
     "price": 347,
@@ -132,6 +139,7 @@
   },
   {
     "id": "kalahari-enzyme-face-buff",
+    "brandId": "kalahari",
     "brand": "Kalahari",
     "name": "Enzyme Face Buff",
     "price": 362,
@@ -145,6 +153,7 @@
   },
   {
     "id": "kalahari-essential-daily-moisturiser",
+    "brandId": "kalahari",
     "brand": "Kalahari",
     "name": "Essential Daily Moisturiser",
     "price": 405,
@@ -159,6 +168,7 @@
   },
   {
     "id": "kalahari-hydralite-moisturiser",
+    "brandId": "kalahari",
     "brand": "Kalahari",
     "name": "Hydralite Moisturiser",
     "price": 442,
@@ -172,6 +182,7 @@
   },
   {
     "id": "kalahari-evening-moisturiser",
+    "brandId": "kalahari",
     "brand": "Kalahari",
     "name": "Evening Moisturiser",
     "price": 431,
@@ -185,6 +196,7 @@
   },
   {
     "id": "kalahari-phyto-rich-moisturiser",
+    "brandId": "kalahari",
     "brand": "Kalahari",
     "name": "Phyto Rich Moisturiser",
     "price": 597,
@@ -198,6 +210,7 @@
   },
   {
     "id": "kalahari-spf-40-sun-protection",
+    "brandId": "kalahari",
     "brand": "Kalahari",
     "name": "SPF 40 Sun Protection",
     "price": 457,
@@ -211,6 +224,7 @@
   },
   {
     "id": "kalahari-solar-defence-fluid-50",
+    "brandId": "kalahari",
     "brand": "Kalahari",
     "name": "Solar Defence Fluid 50",
     "price": 581,
@@ -224,6 +238,7 @@
   },
   {
     "id": "kalahari-nourishing-eye-balm",
+    "brandId": "kalahari",
     "brand": "Kalahari",
     "name": "Nourishing Eye Balm Tube",
     "price": 291,
@@ -237,6 +252,7 @@
   },
   {
     "id": "kalahari-hydrating-collagen-eye-patches",
+    "brandId": "kalahari",
     "brand": "Kalahari",
     "name": "Hydrating Collagen Eye Patches",
     "price": 72,
@@ -250,6 +266,7 @@
   },
   {
     "id": "mesoestetic-hydra-vital-light",
+    "brandId": "mesoestetic",
     "brand": "Mesoestetic",
     "name": "Hydra-Vital Light",
     "price": 2135,
@@ -264,6 +281,7 @@
   },
   {
     "id": "mesoestetic-fast-skin-repair",
+    "brandId": "mesoestetic",
     "brand": "Mesoestetic",
     "name": "Fast Skin Repair",
     "price": 1889,
@@ -277,6 +295,7 @@
   },
   {
     "id": "mesoestetic-skin-balance",
+    "brandId": "mesoestetic",
     "brand": "Mesoestetic",
     "name": "Skin Balance",
     "price": 2759,
@@ -291,6 +310,7 @@
   },
   {
     "id": "vitaderm-gentle-eye-make-up-remover",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Gentle Eye Make-Up Remover",
     "price": 158,
@@ -308,6 +328,7 @@
   },
   {
     "id": "vitaderm-pre-cleanse",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Pre-Cleanse",
     "price": 310,
@@ -325,6 +346,7 @@
   },
   {
     "id": "vitaderm-gentle-cream-cleanser",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Gentle Cream Cleanser",
     "price": 410,
@@ -342,6 +364,7 @@
   },
   {
     "id": "vitaderm-mild-gel-cleanser",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Mild Gel Cleanser",
     "price": 378,
@@ -359,6 +382,7 @@
   },
   {
     "id": "vitaderm-purifying-cleanser",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Purifying Cleanser",
     "price": 310,
@@ -376,6 +400,7 @@
   },
   {
     "id": "vitaderm-nourishing-cream-cleanser",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Nourishing Cream Cleanser",
     "price": 315,
@@ -393,6 +418,7 @@
   },
   {
     "id": "vitaderm-conditioning-toner",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Conditioning Toner",
     "price": 404,
@@ -410,6 +436,7 @@
   },
   {
     "id": "vitaderm-regulating-toner",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Regulating Toner",
     "price": 404,
@@ -427,6 +454,7 @@
   },
   {
     "id": "vitaderm-antiseptic-toner",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Antiseptic Toner",
     "price": 373,
@@ -444,6 +472,7 @@
   },
   {
     "id": "vitaderm-pore-minimising-gel",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Pore Minimising Gel",
     "price": 473,
@@ -461,6 +490,7 @@
   },
   {
     "id": "vitaderm-ultra-light-moisture-cream",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Ultra-Light Moisture Cream",
     "price": 520,
@@ -478,6 +508,7 @@
   },
   {
     "id": "vitaderm-anti-oxidant-cream",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Anti-Oxidant Cream",
     "price": 520,
@@ -495,6 +526,7 @@
   },
   {
     "id": "vitaderm-protective-cream",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Protective Cream",
     "price": 578,
@@ -512,6 +544,7 @@
   },
   {
     "id": "vitaderm-desensitising-cream",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Desensitising Cream",
     "price": 415,
@@ -529,6 +562,7 @@
   },
   {
     "id": "vitaderm-enzymatic-exfoliator",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Enzymatic Exfoliator",
     "price": 551,
@@ -546,6 +580,7 @@
   },
   {
     "id": "vitaderm-salicylic-powder-exfoliator",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Salicylic Powder Exfoliator",
     "price": 730,
@@ -563,6 +598,7 @@
   },
   {
     "id": "vitaderm-skin-polishing-cream",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Skin Polishing Cream",
     "price": 536,
@@ -580,6 +616,7 @@
   },
   {
     "id": "vitaderm-skin-renewal-gel",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Skin Renewal Gel",
     "price": 525,
@@ -597,6 +634,7 @@
   },
   {
     "id": "vitaderm-vitality-booster-masque",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Vitality Booster Masque",
     "price": 525,
@@ -614,6 +652,7 @@
   },
   {
     "id": "vitaderm-lipid-complex",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Lipid Complex",
     "price": 525,
@@ -631,6 +670,7 @@
   },
   {
     "id": "vitaderm-tissue-repair-complex",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Tissue Repair Complex",
     "price": 525,
@@ -648,6 +688,7 @@
   },
   {
     "id": "vitaderm-aromatic-complex",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Aromatic Complex",
     "price": 525,
@@ -665,6 +706,7 @@
   },
   {
     "id": "vitaderm-nutrient-complex",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Nutrient Complex",
     "price": 525,
@@ -682,6 +724,7 @@
   },
   {
     "id": "vitaderm-soothing-balm",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Soothing Balm",
     "price": 394,
@@ -699,6 +742,7 @@
   },
   {
     "id": "vitaderm-intensive-hydrating-serum",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Intensive Hydrating Serum",
     "price": 730,
@@ -716,6 +760,7 @@
   },
   {
     "id": "vitaderm-radian-c-serum",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Radian-C Serum",
     "price": 730,
@@ -733,6 +778,7 @@
   },
   {
     "id": "vitaderm-rapid-hydration-serum",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Rapid Hydration Serum",
     "price": 515,
@@ -750,6 +796,7 @@
   },
   {
     "id": "vitaderm-retinol-serum",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Retinol Serum",
     "price": 882,
@@ -767,6 +814,7 @@
   },
   {
     "id": "vitaderm-hydroxy-acid-serum",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Hydroxy Acid Serum",
     "price": 730,
@@ -784,6 +832,7 @@
   },
   {
     "id": "vitaderm-illuminating-lifting-gel",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Illuminating Lifting Gel",
     "price": 725,
@@ -801,6 +850,7 @@
   },
   {
     "id": "vitaderm-hydrating-treatment-cream",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Hydrating Treatment Cream",
     "price": 719,
@@ -818,6 +868,7 @@
   },
   {
     "id": "vitaderm-anti-ageing-treatment-cream",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Anti-Ageing Treatment Cream",
     "price": 840,
@@ -835,6 +886,7 @@
   },
   {
     "id": "vitaderm-ceramide-treatment-cream",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Ceramide Treatment Cream",
     "price": 840,
@@ -852,6 +904,7 @@
   },
   {
     "id": "vitaderm-purifying-treatment-cream",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Purifying Treatment Cream",
     "price": 683,
@@ -869,6 +922,7 @@
   },
   {
     "id": "vitaderm-brightening-treatment-cream",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Brightening Treatment Cream",
     "price": 683,
@@ -886,6 +940,7 @@
   },
   {
     "id": "vitaderm-multi-vitamin-treatment-cream",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Multi-Vitamin Treatment Cream",
     "price": 840,
@@ -903,6 +958,7 @@
   },
   {
     "id": "vitaderm-firming-treatment-cream",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Firming Treatment Cream",
     "price": 746,
@@ -920,6 +976,7 @@
   },
   {
     "id": "vitaderm-nourish-revitalise-pack",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Nourish & Revitalise Pack",
     "price": 912,
@@ -937,6 +994,7 @@
   },
   {
     "id": "vitaderm-anti-ageing-eye-cream",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Anti-Ageing Eye Cream",
     "price": 614,
@@ -954,6 +1012,7 @@
   },
   {
     "id": "vitaderm-eye-lip-repair",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Eye & Lip Repair",
     "price": 788,
@@ -971,6 +1030,7 @@
   },
   {
     "id": "vitaderm-eye-lift-gel",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Eye Lift Gel",
     "price": 609,
@@ -988,6 +1048,7 @@
   },
   {
     "id": "vitaderm-salicylic-spot-treatment",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Salicylic Spot Treatment",
     "price": 347,
@@ -1005,6 +1066,7 @@
   },
   {
     "id": "vitaderm-invisible-photo-defence-spf50",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Invisible Photo Defence SPF50 100ml",
     "price": 578,
@@ -1022,6 +1084,7 @@
   },
   {
     "id": "vitaderm-reflective-sunbarrier-spf25",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Reflective Sunbarrier SPF25+",
     "price": 520,
@@ -1039,6 +1102,7 @@
   },
   {
     "id": "vitaderm-rejuvenate-restore-skin-capsules",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Rejuvenate & Restore Skin Capsules",
     "price": 767,
@@ -1056,6 +1120,7 @@
   },
   {
     "id": "vitaderm-retin-glow-skin-capsules",
+    "brandId": "vitaderm",
     "brand": "VitaDerm",
     "name": "Retin-Glow Skin Capsules",
     "price": 830,

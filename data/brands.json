@@ -1,0 +1,7 @@
+[
+  { "id": "kalahari", "name": "Kalahari", "order": 1, "active": true, "logo": "brand-logos/kalahari-logo.svg", "hideWhenEmpty": true },
+  { "id": "vitaderm", "name": "VitaDerm", "order": 2, "active": true, "logo": "", "hideWhenEmpty": true },
+  { "id": "mesoestetic", "name": "Mesoestetic", "order": 3, "active": true, "logo": "brand-logos/mesoestetic-wordmark.webp", "hideWhenEmpty": true },
+  { "id": "sunskin", "name": "SunSkin", "order": 4, "active": true, "logo": "", "hideWhenEmpty": false },
+  { "id": "soopa", "name": "Soopa", "order": 5, "active": true, "logo": "", "hideWhenEmpty": true }
+]

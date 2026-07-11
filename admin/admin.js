@@ -1,7 +1,7 @@
 const API = "/.netlify/functions/admin-api";
 
 const state = {
-  content: { products: [], treatments: [], gallery: [], vouchers: [] },
+  content: { brands: [], products: [], treatments: [], gallery: [], vouchers: [] },
   bookings: [],
   orders: [],
   dirty: false,
@@ -25,8 +25,6 @@ const $$ = (selector, scope = document) => Array.from(scope.querySelectorAll(sel
 
 const uid = (prefix) => `${prefix}_${Date.now().toString(36)}_${Math.random().toString(16).slice(2, 8)}`;
 const money = (value) => Number(value || 0);
-const PRODUCT_BRANDS = ["Kalahari", "VitaDerm", "Mesoestetic", "SunSkin", "Soopa"];
-const REQUIRED_PRODUCT_BRANDS = ["Kalahari", "VitaDerm", "Mesoestetic"];
 const STOCK_STATUSES = ["In stock", "Out of stock", "Coming soon"];
 const PRODUCT_SORTS = [
   ["name-az", "Product name A-Z"],
@@ -45,6 +43,23 @@ const escapeHtml = (value = "") => String(value)
 const cssEscape = (value = "") => window.CSS?.escape
   ? CSS.escape(String(value))
   : String(value).replace(/["\\]/g, "\\$&");
+const slugify = (value = "brand") => String(value).toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "brand";
+const sortedBrands = () => [...(state.content.brands || [])].sort((a, b) => Number(a.order) - Number(b.order) || a.name.localeCompare(b.name));
+const activeBrands = () => sortedBrands().filter((brand) => brand.active !== false);
+const productEditorBrands = (product) => {
+  const active = activeBrands();
+  const current = brandForProduct(product);
+  return current && !active.some((brand) => brand.id === current.id) ? [...active, current] : active;
+};
+const brandForProduct = (product) => state.content.brands.find((brand) => brand.id === product.brandId)
+  || state.content.brands.find((brand) => brand.name.toLowerCase() === String(product.brand || "").toLowerCase());
+const syncProductBrands = () => state.content.products.forEach((product) => {
+  const brand = brandForProduct(product);
+  if (brand) {
+    product.brandId = brand.id;
+    product.brand = brand.name;
+  }
+});
 
 const setStatus = (message, type = "") => {
   const node = $("[data-admin-status]");
@@ -156,7 +171,7 @@ const getFilteredProducts = () => {
   return [...state.content.products]
     .filter((product) => {
       const name = String(product.name || "").toLowerCase();
-      const brand = String(product.brand || "");
+      const brandId = brandForProduct(product)?.id || "";
       const stock = String(product.stockStatus || "In stock");
       const visibleMatch = ui.visibility === "all"
         || (ui.visibility === "visible" && !product.hidden)
@@ -168,7 +183,7 @@ const getFilteredProducts = () => {
         || (ui.bestSeller === "yes" && product.bestSeller === true)
         || (ui.bestSeller === "no" && product.bestSeller !== true);
       return (!search || name.includes(search))
-        && (ui.brand === "all" || brand === ui.brand)
+        && (ui.brand === "all" || brandId === ui.brand)
         && (ui.stock === "all" || stock === ui.stock)
         && visibleMatch
         && featuredMatch
@@ -185,8 +200,8 @@ const getFilteredProducts = () => {
 };
 
 const productFilterControls = (products) => {
-  const brands = [...new Set([...PRODUCT_BRANDS, ...products.map((product) => product.brand).filter(Boolean)])];
-  const activeAdvancedFilters = ["brand", "stock", "visibility", "featured", "bestSeller"]
+  const brands = sortedBrands();
+  const activeAdvancedFilters = ["stock", "visibility", "featured", "bestSeller"]
     .filter((key) => state.productUi[key] !== "all").length;
   const filterSelect = (label, key, value, options) => `
     <label>${escapeHtml(label)}
@@ -196,6 +211,10 @@ const productFilterControls = (products) => {
     </label>`;
 
   return `
+    <nav class="brand-tabs" aria-label="Filter products by brand">
+      <button type="button" class="${state.productUi.brand === "all" ? "is-active" : ""}" data-product-brand-tab="all">All Brands (${products.length})</button>
+      ${brands.map((brand) => `<button type="button" class="${state.productUi.brand === brand.id ? "is-active" : ""}" data-product-brand-tab="${escapeHtml(brand.id)}">${escapeHtml(brand.name)} (${products.filter((product) => brandForProduct(product)?.id === brand.id).length})</button>`).join("")}
+    </nav>
     <div class="product-tools">
       <div class="product-tools-main">
         <label class="product-search">Search products
@@ -205,7 +224,6 @@ const productFilterControls = (products) => {
         <button class="button secondary compact-button" type="button" data-product-filters-toggle aria-expanded="${state.productUi.filtersOpen ? "true" : "false"}">More Filters${activeAdvancedFilters ? ` (${activeAdvancedFilters})` : ""}</button>
       </div>
       <div class="product-tools-drawer" ${state.productUi.filtersOpen ? "" : "hidden"}>
-        ${filterSelect("Brand", "brand", state.productUi.brand, [["all", "All brands"], ...brands.map((brand) => [brand, brand])])}
         ${filterSelect("Stock", "stock", state.productUi.stock, [["all", "All stock"], ...STOCK_STATUSES.map((status) => [status, status])])}
         ${filterSelect("Visibility", "visibility", state.productUi.visibility, [["all", "All"], ["visible", "Visible"], ["hidden", "Hidden"]])}
         ${filterSelect("Featured", "featured", state.productUi.featured, [["all", "All"], ["yes", "Featured"], ["no", "Not featured"]])}
@@ -319,7 +337,12 @@ const renderProductEditor = (product) => `
         <div class="form-grid">
           ${field("Product name", product.name, "name")}
           ${field("Product ID / slug", product.id, "id")}
-          ${select("Brand", product.brand || "Kalahari", "brand", PRODUCT_BRANDS)}
+          <label>Brand
+            <select data-key="brandId" required>
+              ${productEditorBrands(product).map((brand) => `<option value="${escapeHtml(brand.id)}" ${brand.id === product.brandId ? "selected" : ""}>${escapeHtml(brand.name)}${brand.active === false ? " (inactive)" : ""}</option>`).join("")}
+              <option value="__add_brand__">＋ Add new brand…</option>
+            </select>
+          </label>
           ${field("Category", product.category || "", "category")}
           ${field("SKU", product.sku || "", "sku")}
           ${field("Size", product.size || "", "size")}
@@ -534,6 +557,39 @@ const renderOrders = () => {
     </article>`).join("") || `<p>No orders have been captured yet.</p>`;
 };
 
+const renderBrandManager = () => {
+  const list = $("[data-brand-manager-list]");
+  if (!list) return;
+  list.innerHTML = `<div class="brand-manager-list">${sortedBrands().map((brand) => {
+    const count = state.content.products.filter((product) => brandForProduct(product)?.id === brand.id).length;
+    return `<article class="brand-row" data-brand-row="${escapeHtml(brand.id)}">
+      <div class="brand-logo-preview">${brand.logo ? `<img src="${escapeHtml(adminImageSrc(brand.logo))}" alt="${escapeHtml(brand.name)} logo">` : `<span aria-hidden="true">${escapeHtml(brand.name.slice(0, 1))}</span>`}</div>
+      <label>Brand name<input required data-brand-key="name" value="${escapeHtml(brand.name)}"></label>
+      <label>Brand ID<input value="${escapeHtml(brand.id)}" disabled></label>
+      <label>Display order<input type="number" min="1" step="1" data-brand-key="order" value="${Number(brand.order) || 1}"></label>
+      <label class="check-row"><input type="checkbox" data-brand-key="active" ${brand.active !== false ? "checked" : ""}> Active</label>
+      <label class="check-row"><input type="checkbox" data-brand-key="hideWhenEmpty" ${brand.hideWhenEmpty !== false ? "checked" : ""}> Hide when empty</label>
+      <label>Logo (optional)<input type="file" accept="image/*" data-brand-logo></label>
+      <div class="brand-row-actions"><small>${count} product${count === 1 ? "" : "s"}</small><button class="button danger" type="button" data-brand-delete="${escapeHtml(brand.id)}" ${count ? "disabled title=\"Move or delete this brand's products first\"" : ""}>Delete</button></div>
+    </article>`;
+  }).join("")}</div>`;
+};
+
+const openBrandManager = () => {
+  renderBrandManager();
+  const dialog = $("[data-brand-manager]");
+  if (dialog?.showModal) dialog.showModal();
+  else dialog?.setAttribute("open", "");
+};
+
+const closeBrandManager = () => {
+  const dialog = $("[data-brand-manager]");
+  if (dialog?.close) dialog.close();
+  else dialog?.removeAttribute("open");
+  syncProductBrands();
+  renderProducts();
+};
+
 const render = () => {
   renderProducts();
   renderTreatments();
@@ -545,6 +601,7 @@ const render = () => {
 
 const loadAll = async () => {
   state.content = await request("content");
+  syncProductBrands();
   state.bookings = await request("bookings");
   state.orders = await request("orders");
   setDirty(false);
@@ -577,8 +634,9 @@ const showLogin = () => {
 };
 
 const addItem = (collection) => {
+  const defaultBrand = activeBrands()[0];
   const defaults = {
-    products: { id: uid("product"), brand: "Kalahari", category: "Needs review", name: "New product", price: 1, stockStatus: "In stock", image: "lullubelle-logo.jpg", hidden: false },
+    products: { id: uid("product"), brandId: defaultBrand?.id || "", brand: defaultBrand?.name || "", category: "Needs review", name: "New product", price: 1, stockStatus: "In stock", image: "lullubelle-logo.jpg", hidden: false },
     treatments: { id: uid("treatment"), category: "General", name: "New treatment", price: "", duration: "", hidden: false },
     gallery: { id: uid("gallery"), title: "New result", category: "Microneedling", categories: "microneedling", hidden: false },
     vouchers: { id: uid("voucher"), name: "Gift Voucher", amount: 250, hidden: false },
@@ -628,16 +686,18 @@ const validateProductsBeforeSave = () => {
     return "The product catalogue must contain all 65 products before saving.";
   }
 
-  const brands = new Set(products.map((product) => product.brand).filter(Boolean));
-  const missingBrands = REQUIRED_PRODUCT_BRANDS.filter((brand) => !brands.has(brand));
-  if (missingBrands.length) {
-    return `The product catalogue is missing required brand(s): ${missingBrands.join(", ")}.`;
-  }
+  const brands = state.content.brands || [];
+  const names = brands.map((brand) => String(brand.name || "").trim().toLowerCase());
+  const ids = brands.map((brand) => String(brand.id || "").trim().toLowerCase());
+  if (!brands.length) return "Add at least one brand before saving.";
+  if (new Set(names).size !== brands.length || new Set(ids).size !== brands.length) return "Brand names and IDs must be unique.";
+  const brandIds = new Set(brands.map((brand) => brand.id));
 
   const invalid = products.find((product) => {
     const price = Number(product.price);
     return !product.name?.trim()
       || !product.brand?.trim()
+      || !brandIds.has(product.brandId)
       || !product.image?.trim()
       || !Number.isFinite(price)
       || price <= 0;
@@ -669,6 +729,12 @@ const updateRecord = (card, key, value) => {
     try { item.customer = JSON.parse(value || "{}"); } catch { item.customer = {}; }
   } else if (key === "productsText") {
     try { item.products = JSON.parse(value || "[]"); } catch { item.products = []; }
+  } else if (collection === "products" && key === "brandId") {
+    const brand = state.content.brands.find((entry) => entry.id === value);
+    if (brand) {
+      item.brandId = brand.id;
+      item.brand = brand.name;
+    }
   } else item[key] = value;
 
   if (collection) setDirty();
@@ -722,6 +788,46 @@ document.addEventListener("input", async (event) => {
 
 document.addEventListener("change", async (event) => {
   const input = event.target;
+  if (input.matches("[data-brand-key]")) {
+    const row = input.closest("[data-brand-row]");
+    const brand = state.content.brands.find((item) => item.id === row?.dataset.brandRow);
+    if (!brand) return;
+    const key = input.dataset.brandKey;
+    const value = input.type === "checkbox" ? input.checked : input.type === "number" ? Number(input.value) || 1 : input.value.trim();
+    if (key === "name") {
+      if (!value || state.content.brands.some((item) => item.id !== brand.id && item.name.toLowerCase() === value.toLowerCase())) {
+        setStatus("Brand names must be present and unique.", "error");
+        input.value = brand.name;
+        return;
+      }
+      brand.name = value;
+      state.content.products.filter((product) => product.brandId === brand.id).forEach((product) => { product.brand = value; });
+    } else brand[key] = value;
+    setDirty();
+    renderBrandManager();
+    return;
+  }
+
+  if (input.matches("[data-brand-logo]") && input.files?.[0]) {
+    const brand = state.content.brands.find((item) => item.id === input.closest("[data-brand-row]")?.dataset.brandRow);
+    if (!brand) return;
+    setStatus("Uploading brand logo…");
+    try {
+      brand.logo = await uploadImage(input.files[0]);
+      setDirty();
+      renderBrandManager();
+      setStatus("Brand logo uploaded.", "success");
+    } catch (error) {
+      setStatus(error.message, "error");
+    }
+    return;
+  }
+
+  if (input.matches("[data-key='brandId']") && input.value === "__add_brand__") {
+    input.value = input.closest(".editor-card")?.dataset.id ? getProductById(input.closest(".editor-card").dataset.id)?.brandId || "" : "";
+    openBrandManager();
+    return;
+  }
   if (input.matches("[data-product-filter]")) {
     state.productUi[input.dataset.productFilter] = input.value;
     state.productUi.selectedIds.clear();
@@ -777,6 +883,40 @@ document.addEventListener("click", async (event) => {
   }
 
   if (target.matches("[data-add]")) addItem(target.dataset.add);
+
+  if (target.matches("[data-product-brand-tab]")) {
+    state.productUi.brand = target.dataset.productBrandTab;
+    state.productUi.selectedIds.clear();
+    renderProducts({ preserveScroll: true });
+  }
+
+  if (target.matches("[data-manage-brands]")) openBrandManager();
+  if (target.matches("[data-brand-manager-close]")) closeBrandManager();
+  if (target.matches("[data-brand-add]")) {
+    let baseName = "New Brand";
+    let name = baseName;
+    let suffix = 2;
+    while (state.content.brands.some((brand) => brand.name.toLowerCase() === name.toLowerCase())) name = `${baseName} ${suffix++}`;
+    let id = slugify(name);
+    suffix = 2;
+    while (state.content.brands.some((brand) => brand.id === id)) id = `${slugify(name)}-${suffix++}`;
+    state.content.brands.push({ id, name, order: state.content.brands.length + 1, active: true, logo: "", hideWhenEmpty: true });
+    setDirty();
+    renderBrandManager();
+  }
+  if (target.matches("[data-brand-delete]")) {
+    const brand = state.content.brands.find((item) => item.id === target.dataset.brandDelete);
+    const count = state.content.products.filter((product) => product.brandId === brand?.id).length;
+    if (!brand || count) {
+      setStatus("Brands with products cannot be deleted.", "error");
+      return;
+    }
+    if (confirm(`Delete ${brand.name}?`)) {
+      state.content.brands = state.content.brands.filter((item) => item.id !== brand.id);
+      setDirty();
+      renderBrandManager();
+    }
+  }
 
   if (target.matches("[data-product-filters-toggle]")) {
     state.productUi.filtersOpen = !state.productUi.filtersOpen;
@@ -880,7 +1020,7 @@ document.addEventListener("click", async (event) => {
     try {
       await request("logout", { method: "POST", body: "{}" });
     } finally {
-      state.content = { products: [], treatments: [], gallery: [], vouchers: [] };
+      state.content = { brands: [], products: [], treatments: [], gallery: [], vouchers: [] };
       state.bookings = [];
       state.orders = [];
       state.dirty = false;

@@ -32,30 +32,29 @@ const parseRequestBody = (event) => {
 const missingAdminEnv = () => ["ADMIN_USERNAME", "ADMIN_PASSWORD_HASH", "ADMIN_SESSION_SECRET"]
   .filter((name) => !process.env[name]);
 
-const REQUIRED_PRODUCT_BRANDS = ["Kalahari", "VitaDerm", "Mesoestetic"];
-const SUPPORTED_PRODUCT_BRANDS = [...REQUIRED_PRODUCT_BRANDS, "SunSkin", "Soopa"];
-
 const validateProductCatalogue = (content) => {
   const products = Array.isArray(content?.products) ? content.products : [];
+  const brands = Array.isArray(content?.brands) ? content.brands : [];
   if (products.length < 65) {
     return "The product catalogue must contain all 65 products before saving.";
   }
 
-  const brands = new Set(products.map((product) => product?.brand).filter(Boolean));
-  const missingBrands = REQUIRED_PRODUCT_BRANDS.filter((brand) => !brands.has(brand));
-  if (missingBrands.length) {
-    return `The product catalogue is missing required brand(s): ${missingBrands.join(", ")}.`;
+  if (!brands.length) return "At least one brand is required.";
+  const normalisedNames = brands.map((brand) => String(brand?.name || "").trim().toLowerCase());
+  const normalisedIds = brands.map((brand) => String(brand?.id || "").trim().toLowerCase());
+  if (new Set(normalisedNames).size !== brands.length || new Set(normalisedIds).size !== brands.length) {
+    return "Brand names and IDs must be unique.";
   }
-
-  const unsupportedProduct = products.find((product) => !SUPPORTED_PRODUCT_BRANDS.includes(product?.brand));
-  if (unsupportedProduct) {
-    return `Unsupported product brand: ${unsupportedProduct.brand || "Missing brand"}.`;
+  if (brands.some((brand) => !brand?.name?.trim() || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(brand?.id || ""))) {
+    return "Every brand requires a name and a valid lowercase ID.";
   }
+  const brandIds = new Set(brands.map((brand) => brand.id));
 
   const invalidProduct = products.find((product) => {
     const price = Number(product?.price);
     return !product?.name?.trim()
       || !product?.brand?.trim()
+      || !brandIds.has(product?.brandId)
       || !product?.image?.trim()
       || !Number.isFinite(price)
       || price <= 0;

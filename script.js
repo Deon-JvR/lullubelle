@@ -72,7 +72,7 @@ const setupBrandFilters = () => {
 
   const requestedBrand = new URLSearchParams(window.location.search).get("brand");
   const requestedFilter = requestedBrand
-    ? Array.from(filters).find((filter) => filter.dataset.brandFilter.toLowerCase() === requestedBrand.toLowerCase())
+    ? Array.from(filters).find((filter) => filter.dataset.brandFilter.toLowerCase() === requestedBrand.toLowerCase() || filter.textContent.trim().toLowerCase() === requestedBrand.toLowerCase())
     : null;
   if (requestedFilter) {
     setActiveBrand(requestedFilter.dataset.brandFilter);
@@ -205,25 +205,33 @@ const setupPageStructuredData = () => {
 };
 
 const setupShopCatalogue = (content) => {
-  const panels = document.querySelectorAll("[data-brand-panel]");
-  if (!panels.length) return;
-
   const products = getVisibleManagedItems(content?.products).map(normaliseManagedProduct);
-  panels.forEach((panel) => {
-    const brand = panel.dataset.brandPanel;
-    const grid = panel.querySelector(".kalahari-grid");
-    if (!grid) return;
+  const brands = (Array.isArray(content?.brands) ? content.brands : [])
+    .filter((brand) => brand?.active !== false)
+    .sort((a, b) => Number(a.order) - Number(b.order) || a.name.localeCompare(b.name))
+    .filter((brand) => {
+      const hasProducts = products.some((product) => (product.brandId && product.brandId === brand.id) || product.brand.toLowerCase() === brand.name.toLowerCase());
+      return hasProducts || brand.hideWhenEmpty === false;
+    });
+  const tabs = document.querySelector(".supplier-tabs");
+  const payments = document.querySelector(".payments-section");
+  if (!tabs || !payments || !brands.length) return;
 
-    const brandProducts = products.filter((product) => product.brand.toLowerCase() === brand.toLowerCase());
-    if (!brandProducts.length) {
-      grid.innerHTML = `<p>No ${escapeHtml(brand)} products are currently listed in the shared website catalogue.</p>`;
-      return;
-    }
-
-    grid.innerHTML = brandProducts.map(renderManagedProductCard).join("");
+  tabs.innerHTML = brands.map((brand, index) => `<button class="supplier-tab ${index === 0 ? "is-active" : ""}" type="button" data-brand-filter="${escapeHtml(brand.id)}" aria-pressed="${index === 0 ? "true" : "false"}">${escapeHtml(brand.name)}</button>`).join("");
+  document.querySelectorAll("[data-brand-panel]").forEach((panel) => panel.remove());
+  payments.insertAdjacentHTML("beforebegin", brands.map((brand, index) => {
+    const brandProducts = products.filter((product) => (product.brandId && product.brandId === brand.id) || product.brand.toLowerCase() === brand.name.toLowerCase());
+    return `<section class="section product-price-section" data-brand-panel="${escapeHtml(brand.id)}" ${index === 0 ? "" : "hidden"}>
+      <div class="section-heading"><p class="eyebrow">${escapeHtml(brand.name)}</p><h2>${escapeHtml(brand.name)} products</h2><p>Browse ${escapeHtml(brand.name)} products available through Lullubelle.</p></div>
+      <div class="kalahari-grid" aria-live="polite">${brandProducts.length ? brandProducts.map(renderManagedProductCard).join("") : `<p>No ${escapeHtml(brand.name)} products are currently listed.</p>`}</div>
+      <div class="stock-note"><p>Product availability can change. Lullubelle will confirm stock before completing your order.</p></div>
+    </section>`;
+  }).join(""));
+  document.querySelectorAll("[data-brand-panel] .kalahari-grid").forEach((grid) => {
     bindProductButtons(grid);
     syncProductSchemas(grid);
   });
+  setupBrandFilters();
 };
 
 const setupResultLightbox = () => {
@@ -263,7 +271,7 @@ const setupFeaturedProducts = (content) => {
   if (!grid) return;
 
   const products = getVisibleManagedItems(content?.products).map(normaliseManagedProduct);
-  const featured = selectFeaturedProducts(products);
+  const featured = selectFeaturedProducts(products, content?.brands);
 
   if (!featured.length) {
     grid.innerHTML = '<p>Featured products are temporarily unavailable. <a class="text-link" href="shop.html">Browse the full shop</a>.</p>';
@@ -343,10 +351,10 @@ const loadStaticContent = async () => {
       return [];
     }
   };
-  const [products, treatments, gallery, vouchers] = await Promise.all(
-    ["products", "treatments", "gallery", "vouchers"].map(readItems),
+  const [brands, products, treatments, gallery, vouchers] = await Promise.all(
+    ["brands", "products", "treatments", "gallery", "vouchers"].map(readItems),
   );
-  return { products, treatments, gallery, vouchers };
+  return { brands, products, treatments, gallery, vouchers };
 };
 
 const loadManagedContent = async () => {
@@ -358,6 +366,7 @@ const loadManagedContent = async () => {
         if (hasCompleteProductCatalogue(content?.products, fallback.products)) return content;
         return {
           products: fallback.products,
+          brands: content?.brands?.length ? content.brands : fallback.brands,
           treatments: content?.treatments || [],
           gallery: content?.gallery?.length ? content.gallery : fallback.gallery,
           vouchers: content?.vouchers || [],
@@ -399,6 +408,7 @@ const normaliseManagedProduct = (product) => {
   const name = product.name || "Product";
   return {
     id: product.id || `${slugify(brand)}-${slugify(name)}`,
+    brandId: product.brandId || slugify(brand),
     brand,
     name,
     price: Number(product.price) || 0,
@@ -613,10 +623,10 @@ const sendAdminRecord = (endpoint, payload) => {
   }).catch(() => {});
 };
 
-const PRODUCT_BRAND_ORDER = ["Kalahari", "VitaDerm", "Mesoestetic", "SunSkin", "Soopa"];
-const selectFeaturedProducts = (products) => {
+const selectFeaturedProducts = (products, brands = []) => {
   const featured = products.filter((product) => product.featured || product.bestSeller);
-  const selected = PRODUCT_BRAND_ORDER.flatMap((brand) => featured.filter((product) => product.brand === brand).slice(0, 2));
+  const brandOrder = [...brands].sort((a, b) => Number(a.order) - Number(b.order)).map((brand) => brand.id);
+  const selected = brandOrder.flatMap((brandId) => featured.filter((product) => product.brandId === brandId).slice(0, 2));
   const selectedIds = new Set(selected.map((product) => product.id));
   return [...selected, ...featured.filter((product) => !selectedIds.has(product.id))].slice(0, 8);
 };
@@ -670,7 +680,7 @@ const renderProductDetailPage = async () => {
         <p class="lead">${escapeHtml(product.benefit || description)}</p>
         <div class="product-buy-actions">
           <button class="button primary" type="button" data-product-detail-cart data-product-id="${escapeHtml(product.id)}" data-product-name="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" data-product-price="${Number(product.price)}" data-product-image="${escapeHtml(product.image)}">Add to Cart</button>
-          <a class="button secondary" href="shop?brand=${encodeURIComponent(product.brand)}">Back to ${escapeHtml(product.brand)}</a>
+          <a class="button secondary" href="shop?brand=${encodeURIComponent(product.brandId)}">Back to ${escapeHtml(product.brand)}</a>
         </div>
       </div>
     </section>

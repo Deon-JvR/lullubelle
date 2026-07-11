@@ -131,6 +131,66 @@ textarea { min-height: 92px; resize: vertical; }
   background: var(--leaf-dark);
 }
 
+.brand-tabs {
+  display: flex;
+  gap: 8px;
+  max-width: 100%;
+  padding: 2px 0 10px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.brand-tabs button {
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--leaf-dark);
+  background: #fff;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.brand-tabs button.is-active {
+  color: #fff;
+  background: var(--leaf-dark);
+}
+
+.brand-manager {
+  width: min(1180px, calc(100% - 28px));
+  max-height: calc(100vh - 40px);
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  color: #111512;
+  background: var(--paper);
+  box-shadow: var(--shadow);
+}
+
+.brand-manager::backdrop { background: rgba(17, 21, 18, .52); }
+.brand-manager-header,
+.brand-manager-actions,
+.brand-row-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.brand-manager-list { display: grid; gap: 10px; margin: 18px 0; }
+.brand-row {
+  display: grid;
+  grid-template-columns: 64px minmax(150px, 1.3fr) minmax(130px, 1fr) 120px auto auto minmax(150px, 1fr) auto;
+  align-items: end;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+}
+.brand-logo-preview { width: 58px; height: 58px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 12px; background: #fff; color: var(--leaf); font: 700 1.5rem Georgia, serif; }
+.brand-logo-preview img { width: 52px; height: 52px; object-fit: contain; }
+.brand-row label { font-size: .8rem; }
+.brand-row .check-row { align-self: center; white-space: nowrap; }
+.brand-row-actions { align-self: center; flex-direction: column; }
+.brand-row-actions small { color: #5e6760; font-weight: 800; white-space: nowrap; }
+.brand-row-actions .button:disabled { opacity: .45; cursor: not-allowed; }
+
 .panel { display: none; }
 .panel.is-active { display: block; }
 
@@ -387,6 +447,7 @@ textarea { min-height: 92px; resize: vertical; }
 }
 
 @media (max-width: 1320px) {
+  .brand-row { grid-template-columns: 64px repeat(3, minmax(140px, 1fr)); }
   .product-tools-main {
     grid-template-columns: minmax(260px, 1fr) minmax(170px, 220px) auto;
   }
@@ -542,6 +603,12 @@ textarea { min-height: 92px; resize: vertical; }
 .hint { margin-top: -8px; font-size: .92rem; }
 
 @media (max-width: 760px) {
+  .brand-tabs { margin-inline: -4px; padding-inline: 4px; }
+  .brand-manager { padding: 16px; }
+  .brand-manager-header,
+  .brand-manager-actions { align-items: stretch; flex-direction: column; }
+  .brand-row { grid-template-columns: 58px minmax(0, 1fr); align-items: center; }
+  .brand-row > :not(.brand-logo-preview) { grid-column: 2; }
   .login-panel,
   .form-grid {
     grid-template-columns: 1fr;

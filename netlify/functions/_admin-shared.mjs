@@ -40,6 +40,7 @@ const localLists = new Map();
 const isNetlifyRuntime = () => Boolean(process.env.NETLIFY || process.env.CONTEXT || process.env.NETLIFY_BLOBS_CONTEXT);
 
 export const defaultContent = () => ({
+  brands: [],
   products: [],
   treatments: [],
   gallery: [],
@@ -56,7 +57,8 @@ const readJsonFile = async (path) => {
 };
 
 const seedContent = async () => {
-  const [products, treatments, gallery, vouchers] = await Promise.all([
+  const [brands, products, treatments, gallery, vouchers] = await Promise.all([
+    readJsonFile("data/brands.json"),
     readJsonFile("data/products.json"),
     readJsonFile("data/treatments.json"),
     readJsonFile("data/gallery.json"),
@@ -64,6 +66,7 @@ const seedContent = async () => {
   ]);
 
   return {
+    brands: Array.isArray(brands) ? brands : [],
     products: Array.isArray(products) ? products : [],
     treatments: Array.isArray(treatments) ? treatments : [],
     gallery: Array.isArray(gallery) ? gallery : [],
@@ -73,6 +76,10 @@ const seedContent = async () => {
 };
 
 const hasItems = (value) => Array.isArray(value) && value.length > 0;
+const mergeBrands = (seedBrands, storedBrands) => {
+  if (!Array.isArray(storedBrands) || !storedBrands.length) return seedBrands;
+  return storedBrands;
+};
 const mergeProductCatalogue = (seedProducts, storedProducts) => {
   if (!Array.isArray(storedProducts)) return seedProducts;
   const storedIds = new Set(storedProducts.map((product) => product?.id).filter(Boolean));
@@ -115,6 +122,7 @@ export const readContent = async () => {
   return {
     ...seed,
     ...stored,
+    brands: mergeBrands(seed.brands, stored.brands),
     products: mergeProductCatalogue(seed.products, stored.products),
     treatments: hasItems(stored.treatments) ? stored.treatments : seed.treatments,
     gallery: mergeGallery(seed.gallery, stored.gallery),

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
     <title>Lullubelle Admin</title>
-    <link rel="stylesheet" href="admin.css?v=20260711d">
+    <link rel="stylesheet" href="admin.css?v=20260711e">
   </head>
   <body>
     <main class="admin-shell">
@@ -49,7 +49,7 @@
         <p class="status" data-admin-status aria-live="polite"></p>
 
         <section class="panel is-active" data-panel="products">
-          <div class="panel-heading"><h2>Products</h2><button class="button secondary" type="button" data-add="products">Add product</button></div>
+          <div class="panel-heading"><h2>Products</h2><div class="row-actions"><button class="button secondary" type="button" data-manage-brands>Manage Brands</button><button class="button secondary" type="button" data-add="products">Add product</button></div></div>
           <div class="editor-list" data-list="products"></div>
         </section>
 
@@ -80,7 +80,13 @@
           <div class="editor-list" data-list="orders"></div>
         </section>
       </section>
+      <dialog class="brand-manager" data-brand-manager aria-labelledby="brand-manager-title">
+        <div class="brand-manager-header"><div><p class="eyebrow">Product catalogue</p><h2 id="brand-manager-title">Manage Brands</h2></div><button class="button secondary" type="button" data-brand-manager-close>Close</button></div>
+        <p>Add, rename, reorder, activate or deactivate storefront brands. A brand can only be deleted when it has no products.</p>
+        <div data-brand-manager-list></div>
+        <div class="brand-manager-actions"><button class="button secondary" type="button" data-brand-add>Add new brand</button><button class="button primary" type="button" data-brand-manager-close>Done</button></div>
+      </dialog>
     </main>
-    <script src="admin.js?v=20260711d" type="module"></script>
+    <script src="admin.js?v=20260711e" type="module"></script>
   </body>
 </html>
