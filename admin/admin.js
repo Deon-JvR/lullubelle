@@ -25,6 +25,7 @@ const $$ = (selector, scope = document) => Array.from(scope.querySelectorAll(sel
 
 const uid = (prefix) => `${prefix}_${Date.now().toString(36)}_${Math.random().toString(16).slice(2, 8)}`;
 const money = (value) => Number(value || 0);
+const PRODUCT_BRANDS = ["Kalahari", "VitaDerm", "Mesoestetic", "SunSkin"];
 const REQUIRED_PRODUCT_BRANDS = ["Kalahari", "VitaDerm", "Mesoestetic"];
 const STOCK_STATUSES = ["In stock", "Out of stock", "Coming soon"];
 const PRODUCT_SORTS = [
@@ -184,7 +185,7 @@ const getFilteredProducts = () => {
 };
 
 const productFilterControls = (products) => {
-  const brands = [...new Set(products.map((product) => product.brand).filter(Boolean))].sort();
+  const brands = [...new Set([...PRODUCT_BRANDS, ...products.map((product) => product.brand).filter(Boolean)])];
   const activeAdvancedFilters = ["brand", "stock", "visibility", "featured", "bestSeller"]
     .filter((key) => state.productUi[key] !== "all").length;
   const filterSelect = (label, key, value, options) => `
@@ -318,7 +319,7 @@ const renderProductEditor = (product) => `
         <div class="form-grid">
           ${field("Product name", product.name, "name")}
           ${field("Product ID / slug", product.id, "id")}
-          ${select("Brand", product.brand || "Kalahari", "brand", ["Kalahari", "VitaDerm", "Mesoestetic"])}
+          ${select("Brand", product.brand || "Kalahari", "brand", PRODUCT_BRANDS)}
           ${field("Category", product.category || "", "category")}
           ${field("SKU", product.sku || "", "sku")}
           ${field("Size", product.size || "", "size")}
@@ -391,8 +392,9 @@ const cardShell = (item, collection, title, body, imageKey = "image") => `
     <div class="form-grid">${body}</div>
   </article>`;
 
-const renderProducts = () => {
+const renderProducts = ({ preserveScroll = false } = {}) => {
   const list = $("[data-list='products']");
+  const productScrollTop = preserveScroll ? list.querySelector(".product-table-wrap")?.scrollTop || 0 : 0;
   const editingProduct = getProductById(state.productUi.editingId);
   if (state.productUi.mode === "edit" && editingProduct) {
     list.innerHTML = renderProductEditor(editingProduct);
@@ -409,6 +411,10 @@ const renderProducts = () => {
     </div>
     ${renderProductRows(filteredProducts)}
   `;
+  if (preserveScroll) {
+    const productTable = list.querySelector(".product-table-wrap");
+    if (productTable) productTable.scrollTop = productScrollTop;
+  }
 };
 
 const updateProductSelectionSummary = () => {
@@ -719,7 +725,7 @@ document.addEventListener("change", async (event) => {
   if (input.matches("[data-product-filter]")) {
     state.productUi[input.dataset.productFilter] = input.value;
     state.productUi.selectedIds.clear();
-    renderProducts();
+    renderProducts({ preserveScroll: true });
     return;
   }
 

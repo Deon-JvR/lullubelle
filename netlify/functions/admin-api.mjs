@@ -33,6 +33,7 @@ const missingAdminEnv = () => ["ADMIN_USERNAME", "ADMIN_PASSWORD_HASH", "ADMIN_S
   .filter((name) => !process.env[name]);
 
 const REQUIRED_PRODUCT_BRANDS = ["Kalahari", "VitaDerm", "Mesoestetic"];
+const SUPPORTED_PRODUCT_BRANDS = [...REQUIRED_PRODUCT_BRANDS, "SunSkin"];
 
 const validateProductCatalogue = (content) => {
   const products = Array.isArray(content?.products) ? content.products : [];
@@ -44,6 +45,11 @@ const validateProductCatalogue = (content) => {
   const missingBrands = REQUIRED_PRODUCT_BRANDS.filter((brand) => !brands.has(brand));
   if (missingBrands.length) {
     return `The product catalogue is missing required brand(s): ${missingBrands.join(", ")}.`;
+  }
+
+  const unsupportedProduct = products.find((product) => !SUPPORTED_PRODUCT_BRANDS.includes(product?.brand));
+  if (unsupportedProduct) {
+    return `Unsupported product brand: ${unsupportedProduct.brand || "Missing brand"}.`;
   }
 
   const invalidProduct = products.find((product) => {

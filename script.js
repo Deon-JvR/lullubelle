@@ -263,7 +263,7 @@ const setupFeaturedProducts = (content) => {
   if (!grid) return;
 
   const products = getVisibleManagedItems(content?.products).map(normaliseManagedProduct);
-  const brandOrder = ["Kalahari", "VitaDerm", "Mesoestetic"];
+  const brandOrder = ["Kalahari", "VitaDerm", "Mesoestetic", "SunSkin"];
   const featured = [];
 
   brandOrder.forEach((brand) => {
@@ -279,7 +279,7 @@ const setupFeaturedProducts = (content) => {
   }
 
   grid.innerHTML = featured.slice(0, 8).map((product) => `
-    <article class="featured-product-card">
+    <article class="featured-product-card home-product-card">
       <a class="featured-product-image" href="${escapeHtml(productDetailUrl(product.id))}" aria-label="View ${escapeHtml(product.brand)} ${escapeHtml(product.name)}">
         ${product.bestSeller ? '<span class="product-status-badge">Best Seller</span>' : product.featured ? '<span class="product-status-badge">Featured</span>' : ""}
         <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" width="650" height="650" decoding="async" loading="lazy">
@@ -288,7 +288,7 @@ const setupFeaturedProducts = (content) => {
         <span class="product-brand-badge" data-brand="${escapeHtml(product.brand.toLowerCase())}">${escapeHtml(product.brand)}</span>
         <h3>${escapeHtml(product.name)}</h3>
         <strong>${formatCurrency(product.price)}</strong>
-        <p>${escapeHtml(product.benefit)}</p>
+        <p class="product-description">${escapeHtml(product.benefit)}</p>
         <div class="featured-product-actions">
           <button class="button secondary" type="button" data-managed-cart-add data-product-id="${escapeHtml(product.id)}" data-product-name="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" data-product-price="${Number(product.price)}" data-product-image="${escapeHtml(product.image)}"${isPurchasable(product) ? "" : " disabled"}>${isPurchasable(product) ? "Add to Cart" : escapeHtml(stockLabel(product.stockStatus))}</button>
           <a class="text-link" href="${escapeHtml(productDetailUrl(product.id))}">View Product</a>
@@ -471,7 +471,11 @@ const applyManagedProducts = (products = []) => {
     const brand = panel.dataset.brandPanel;
     const brandProducts = visible.filter((product) => product.brand.toLowerCase() === brand.toLowerCase());
     const grid = panel.querySelector(".kalahari-grid");
-    if (!grid || !brandProducts.length) return;
+    if (!grid) return;
+    if (!brandProducts.length) {
+      grid.innerHTML = `<p>No ${escapeHtml(brand)} products have been added yet.</p>`;
+      return;
+    }
     grid.innerHTML = brandProducts.map(renderManagedProductCard).join("");
     bindProductButtons(grid);
     syncProductSchemas(grid);
@@ -481,7 +485,7 @@ const applyManagedProducts = (products = []) => {
   const featured = visible.filter((product) => product.featured || product.bestSeller).slice(0, 8);
   if (featuredGrid && featured.length) {
     featuredGrid.innerHTML = featured.map((product) => `
-      <article class="featured-product-card">
+      <article class="featured-product-card home-product-card">
         <a class="featured-product-image" href="${escapeHtml(productDetailUrl(product.id))}" aria-label="View ${escapeHtml(product.brand)} ${escapeHtml(product.name)}">
           ${product.bestSeller ? '<span class="product-status-badge">Best Seller</span>' : product.featured ? '<span class="product-status-badge">Featured</span>' : ""}
           <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" width="650" height="650" decoding="async" loading="lazy">
@@ -490,7 +494,7 @@ const applyManagedProducts = (products = []) => {
           <span class="product-brand-badge" data-brand="${escapeHtml(product.brand.toLowerCase())}">${escapeHtml(product.brand)}</span>
           <h3>${escapeHtml(product.name)}</h3>
           <strong>${formatCurrency(product.price)}</strong>
-          <p>${escapeHtml(product.benefit)}</p>
+          <p class="product-description">${escapeHtml(product.benefit)}</p>
           <div class="featured-product-actions">
             <button class="button secondary" type="button" data-managed-cart-add data-product-id="${escapeHtml(product.id)}" data-product-name="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" data-product-price="${Number(product.price)}" data-product-image="${escapeHtml(product.image)}"${isPurchasable(product) ? "" : " disabled"}>${isPurchasable(product) ? "Add to Cart" : escapeHtml(stockLabel(product.stockStatus))}</button>
             <a class="text-link" href="${escapeHtml(productDetailUrl(product.id))}">View Product</a>
@@ -526,7 +530,7 @@ const applyManagedVouchers = (vouchers = []) => {
 
 const applyManagedGallery = (gallery = []) => {
   const visible = getVisibleManagedItems(gallery);
-  const grid = document.querySelector(".results-grid");
+  const grid = document.querySelector(".results-gallery-section .results-grid");
   if (!grid || !visible.length) return;
 
   grid.innerHTML = visible.map((item) => {
@@ -777,7 +781,7 @@ const injectFooterTrustSection = () => {
     </div>
     <div class="trust-grid">
       <div><span>10+</span><p><strong>10+ Years Experience</strong><small>Personal, expert care</small></p></div>
-      <div><span>✦</span><p><strong>Professional Brands</strong><small>Kalahari, VitaDerm &amp; Mesoestetic</small></p></div>
+      <div><span>✦</span><p><strong>Professional Brands</strong><small>Kalahari, VitaDerm, Mesoestetic &amp; SunSkin</small></p></div>
       <div><span>✓</span><p><strong>Qualified Skin Therapist</strong><small>Consultation-led treatments</small></p></div>
       <div><span>🔒</span><p><strong>Secure Online Shopping</strong><small>Shop with confidence</small></p></div>
       <div><span>◷</span><p><strong>Private Studio</strong><small>Appointment-only care</small></p></div>
@@ -1325,7 +1329,7 @@ document.addEventListener("click", (event) => {
       enquiryText = href;
     }
 
-    if (/product|stock|Kalahari|VitaDerm|Mesoestetic|nail|lash|body care/i.test(enquiryText)) {
+    if (/product|stock|Kalahari|VitaDerm|Mesoestetic|SunSkin|nail|lash|body care/i.test(enquiryText)) {
       trackEvent("product_enquiry", {
         ...parameters,
         enquiry_text: enquiryText.slice(0, 120),
