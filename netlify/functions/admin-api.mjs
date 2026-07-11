@@ -37,8 +37,8 @@ const SUPPORTED_PRODUCT_BRANDS = [...REQUIRED_PRODUCT_BRANDS, "SunSkin", "Soopa"
 
 const validateProductCatalogue = (content) => {
   const products = Array.isArray(content?.products) ? content.products : [];
-  if (products.length < 61) {
-    return "The product catalogue must contain all 61 products before saving.";
+  if (products.length < 65) {
+    return "The product catalogue must contain all 65 products before saving.";
   }
 
   const brands = new Set(products.map((product) => product?.brand).filter(Boolean));

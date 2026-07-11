@@ -1,6 +1,6 @@
 {
   "productsPerBrand": 3,
-  "brandOrder": ["Kalahari", "VitaDerm", "Mesoestetic"],
+  "brandOrder": ["Kalahari", "VitaDerm", "Mesoestetic", "Soopa"],
   "products": [
     {"id":"kalahari-facial-cleanser","brand":"Kalahari","name":"Facial Cleanser","price":278,"benefit":"Gently refreshes skin without complicating your daily routine.","image":"products/kalahari-facial-cleanser.webp","shopUrl":"product.html?product=kalahari-facial-cleanser","available":true,"priority":1,"badge":"Best Seller"},
     {"id":"kalahari-essential-daily-moisturiser","brand":"Kalahari","name":"Essential Daily Moisturiser","price":405,"benefit":"Comforting daily hydration for soft, balanced-looking skin.","image":"products/kalahari-essential-daily-moisturiser.webp","shopUrl":"product.html?product=kalahari-essential-daily-moisturiser","available":true,"priority":2},
@@ -10,6 +10,8 @@
     {"id":"vitaderm-invisible-photo-defence-spf50","brand":"VitaDerm","name":"Invisible Photo Defence SPF50","price":578,"benefit":"High daily protection in a lightweight, invisible finish.","image":"products/vitaderm/invisible-photo-defence-spf50.webp","shopUrl":"product.html?product=vitaderm-invisible-photo-defence-spf50","available":true,"priority":3},
     {"id":"mesoestetic-hydra-vital-light","brand":"Mesoestetic","name":"Hydra-Vital Light","price":2135,"benefit":"Light gel-cream hydration for combination or oily skin.","image":"products/mesoestetic/hydra-vital-light.webp","shopUrl":"product.html?product=mesoestetic-hydra-vital-light","available":true,"priority":1,"badge":"New"},
     {"id":"mesoestetic-fast-skin-repair","brand":"Mesoestetic","name":"Fast Skin Repair","price":1889,"benefit":"Restorative comfort for sensitive or sensitised skin.","image":"products/mesoestetic/fast-skin-repair.webp","shopUrl":"product.html?product=mesoestetic-fast-skin-repair","available":true,"priority":2},
-    {"id":"mesoestetic-skin-balance","brand":"Mesoestetic","name":"Skin Balance","price":2759,"benefit":"Intensive calming care for reactive-looking skin.","image":"products/mesoestetic/skin-balance.webp","shopUrl":"product.html?product=mesoestetic-skin-balance","available":true,"priority":3}
+    {"id":"mesoestetic-skin-balance","brand":"Mesoestetic","name":"Skin Balance","price":2759,"benefit":"Intensive calming care for reactive-looking skin.","image":"products/mesoestetic/skin-balance.webp","shopUrl":"/products/mesoestetic-skin-balance","available":true,"priority":3},
+    {"id":"soopa-hocl-rescue-mist-daily","brand":"Soopa","name":"HOCl Rescue Mist Daily","price":435,"benefit":"Refreshing, balancing and hydrating daily rescue mist.","image":"products/soopa/hocl-rescue-mist-daily.webp","shopUrl":"/products/soopa-hocl-rescue-mist-daily","available":true,"priority":1,"badge":"New"},
+    {"id":"soopa-hocl-rescue-mist-intense","brand":"Soopa","name":"HOCl Rescue Mist Intense","price":285,"benefit":"Renewing, comforting and oxygenating rescue mist.","image":"products/soopa/hocl-rescue-mist-intense.webp","shopUrl":"/products/soopa-hocl-rescue-mist-intense","available":true,"priority":2,"badge":"New"}
   ]
 }

@@ -624,8 +624,8 @@ const applyProductBulkAction = (action) => {
 
 const validateProductsBeforeSave = () => {
   const products = Array.isArray(state.content.products) ? state.content.products : [];
-  if (products.length < 61) {
-    return "The product catalogue must contain all 61 products before saving.";
+  if (products.length < 65) {
+    return "The product catalogue must contain all 65 products before saving.";
   }
 
   const brands = new Set(products.map((product) => product.brand).filter(Boolean));

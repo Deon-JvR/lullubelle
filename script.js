@@ -413,6 +413,12 @@ const normaliseManagedProduct = (product) => {
     stockStatus: product.stockStatus || "In stock",
     featured: product.featured === true,
     bestSeller: product.bestSeller === true,
+    category: product.category || "",
+    benefits: Array.isArray(product.benefits) ? product.benefits : [],
+    storage: Array.isArray(product.storage) ? product.storage : [],
+    imageAlt: product.imageAlt || `${brand} ${name}`,
+    seoTitle: product.seoTitle || "",
+    seoDescription: product.seoDescription || product.metaDescription || "",
   };
 };
 
@@ -448,7 +454,7 @@ const renderManagedProductCard = (product) => {
   return `
     <article class="kalahari-item">
       ${badge ? `<span class="product-status-badge">${escapeHtml(badge)}</span>` : ""}
-      <div class="product-image-wrap"><img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" width="650" height="650" decoding="async" loading="lazy"></div>
+      <div class="product-image-wrap"><img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.imageAlt)}" width="650" height="650" decoding="async" loading="lazy"></div>
       <span class="product-brand-badge" data-brand="${escapeHtml(product.brand.toLowerCase())}">${escapeHtml(product.brand)}</span>
       <h3>${escapeHtml(product.name)}</h3>
       <strong>${formatCurrency(product.price)}</strong>
@@ -614,7 +620,7 @@ const selectFeaturedProducts = (products) => {
   const selectedIds = new Set(selected.map((product) => product.id));
   return [...selected, ...featured.filter((product) => !selectedIds.has(product.id))].slice(0, 8);
 };
-const productDetailUrl = (id) => `/product?product=${encodeURIComponent(id)}`;
+const productDetailUrl = (id) => `/products/${encodeURIComponent(id)}`;
 
 const getAllShopProducts = async () => {
   const managedContent = await loadManagedContent();
@@ -639,21 +645,22 @@ const renderProductDetailPage = async () => {
     return;
   }
 
-  const requestedId = new URLSearchParams(window.location.search).get("product");
+  const requestedId = new URLSearchParams(window.location.search).get("product")
+    || window.location.pathname.match(/^\/products\/([^/]+)\/?$/)?.[1];
   const product = products.find((item) => item.id === requestedId) || products[0];
   const related = products
     .filter((item) => item.id !== product.id && item.brand === product.brand)
     .slice(0, 3);
   const description = product.description || product.benefit || `${product.brand} ${product.name} is available through Lullubelle Beauty Specialist in Centurion.`;
 
-  document.title = `${product.brand} ${product.name} | Lullubelle Skincare Centurion`;
-  document.querySelector('meta[name="description"]')?.setAttribute("content", `${product.brand} ${product.name} from Lullubelle Beauty Specialist in Centurion. View benefits, directions, skin suitability and order online.`);
-  document.querySelector('link[rel="canonical"]')?.setAttribute("href", `https://www.lullubelle.co.za/product?product=${encodeURIComponent(product.id)}`);
+  document.title = product.seoTitle || `${product.brand} ${product.name} | Lullubelle Skincare Centurion`;
+  document.querySelector('meta[name="description"]')?.setAttribute("content", product.seoDescription || `${product.brand} ${product.name} from Lullubelle Beauty Specialist in Centurion. View benefits, directions, skin suitability and order online.`);
+  document.querySelector('link[rel="canonical"]')?.setAttribute("href", `https://www.lullubelle.co.za${productDetailUrl(product.id)}`);
 
   container.innerHTML = `
     <section class="section product-detail product-detail-page-hero">
       <div class="product-detail-media">
-        <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" width="900" height="900" decoding="async" loading="eager" fetchpriority="high">
+        <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.imageAlt)}" width="900" height="900" decoding="async" loading="eager" fetchpriority="high">
       </div>
       <div class="product-detail-copy">
         <p class="eyebrow">${escapeHtml(product.brand)} skincare</p>
@@ -677,7 +684,7 @@ const renderProductDetailPage = async () => {
         <article>
           <p class="eyebrow">Benefits</p>
           <h2>Why clients choose it</h2>
-          <p>${escapeHtml(product.benefit || description)}</p>
+          ${product.benefits.length ? `<ul class="simple-list">${product.benefits.map((benefit) => `<li>${escapeHtml(benefit)}</li>`).join("")}</ul>` : `<p>${escapeHtml(product.benefit || description)}</p>`}
         </article>
         <article>
           <p class="eyebrow">Directions</p>
@@ -690,6 +697,7 @@ const renderProductDetailPage = async () => {
           <p>${escapeHtml(product.suitable || "Selected skin routines after consultation.")}</p>
         </article>
       </div>
+      ${product.storage.length ? `<div class="stock-note"><h2>Storage</h2><ul class="simple-list">${product.storage.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></div>` : ""}
       <details class="ingredients-disclosure">
         <summary>Ingredients</summary>
         <p>${escapeHtml(product.ingredients || "Please confirm current ingredients with Lullubelle before purchase.")}</p>

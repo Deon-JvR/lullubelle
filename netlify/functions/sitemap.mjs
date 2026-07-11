@@ -33,7 +33,7 @@ export const handler = async () => {
   const content = await readContent();
   const productPaths = (content.products || [])
     .filter((product) => product?.id && product.hidden !== true)
-    .map((product) => `/product?product=${encodeURIComponent(product.id)}`);
+    .map((product) => `/products/${encodeURIComponent(product.id)}`);
   const urls = [...PAGE_PATHS, ...productPaths];
   const body = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls
     .map((path) => `  <url><loc>${escapeXml(`${SITE_URL}${path}`)}</loc></url>`)
