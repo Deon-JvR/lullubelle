@@ -8,6 +8,7 @@ import {
   readList,
   writeList,
 } from "./_admin-shared.mjs";
+import { releaseRedemption, reserveRedemption, validatePromo } from "./_discounts.mjs";
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 const toBoolean = (value) => /^(1|true|yes|on)$/i.test(String(value || ""));
@@ -187,6 +188,8 @@ const buildCatalog = async () => {
       name: `${product.brand ? `${product.brand} ` : ""}${product.name}`.trim(),
       price: Number(product.price) || 0,
       image: product.image || "lullubelle-logo.jpg",
+      brandId: product.brandId || "",
+      category: product.category || "",
     },
   ]);
   const voucherEntries = (content.vouchers || []).map((voucher) => [
@@ -228,7 +231,7 @@ const normaliseItems = async (items) => {
   });
 };
 
-const createPendingOrder = async ({ customer, delivery, address, notes, products, subtotal, deliveryFee, total, paymentReference }) => {
+const createPendingOrder = async ({ customer, delivery, address, notes, products, subtotal, originalSubtotal, discount, deliveryFee, total, paymentReference, reservationId }) => {
   const order = {
     id: newId("order"),
     orderNumber: paymentReference,
@@ -239,8 +242,14 @@ const createPendingOrder = async ({ customer, delivery, address, notes, products
     notes,
     products,
     subtotal,
+    originalSubtotal,
+    promoCode: discount?.discount?.code || "",
+    discountType: discount?.discount?.type || "",
+    discountAmount: discount?.discountAmount || 0,
+    discountSnapshot: discount?.discount ? { ...discount.discount } : null,
     deliveryFee,
     total,
+    discountReservationId: reservationId || "",
     paymentProvider: "iKhokha iK Pay",
     paymentStatus: "Pending",
     orderStatus: "New",
@@ -387,6 +396,8 @@ const markOrderCancelled = async (orderNumber, providerPayload) => {
   const index = orders.findIndex((order) => order.orderNumber === orderNumber);
   if (index === -1) return false;
 
+  await releaseRedemption(orders[index].discountReservationId);
+
   orders[index] = {
     ...orders[index],
     paymentStatus: "Unpaid",
@@ -461,11 +472,6 @@ export const handler = async (event) => {
     return json(405, { error: "Method not allowed." });
   }
 
-  const missing = ["IKHOKHA_API_KEY", "IKHOKHA_API_SECRET"].filter((key) => !process.env[key]);
-  if (missing.length) {
-    return json(500, { error: `Missing iKhokha environment variables: ${missing.join(", ")}` });
-  }
-
   const body = parseJson(event);
   const address = {
     streetAddress: String(body.address?.streetAddress || body.customer?.address?.streetAddress || "").trim(),
@@ -486,7 +492,7 @@ export const handler = async (event) => {
     : "collection";
   const delivery = {
     option: deliveryOption,
-    label: deliveryOption === "pudo" ? "Pudo Locker Delivery" : "Collect from Lullubelle",
+    label: deliveryOption === "pudo" ? "Pudo Locker Delivery" : "Collect from Lullubelle – Centurion",
     fee: deliveryOption === "pudo" ? PUDO_DELIVERY_FEE : 0,
   };
 
@@ -501,12 +507,21 @@ export const handler = async (event) => {
   try {
     const products = await normaliseItems(body.items || body.products);
     const subtotal = money(products.reduce((sum, item) => sum + Number(item.price) * Number(item.quantity), 0));
-    const deliveryFee = money(delivery.fee);
-    const total = money(subtotal + deliveryFee);
+    const originalDeliveryFee = money(delivery.fee);
+    const discount = body.promoCode ? await validatePromo({ code: body.promoCode, email: customer.email, products, subtotal, deliveryFee: originalDeliveryFee }) : null;
+    if (event.queryStringParameters?.action === "validate-promo") {
+      return json(200, { ok: true, promoCode: discount?.discount.code || "", discountAmount: discount?.discountAmount || 0, deliveryFee: discount?.deliveryFee ?? originalDeliveryFee, total: discount?.total ?? money(subtotal + originalDeliveryFee), message: discount ? `${discount.discount.code} applied.` : "Enter a promo code." });
+    }
+    const missing = ["IKHOKHA_API_KEY", "IKHOKHA_API_SECRET"].filter((key) => !process.env[key]);
+    if (missing.length) return json(500, { error: `Missing iKhokha environment variables: ${missing.join(", ")}` });
+    const deliveryFee = discount?.deliveryFee ?? originalDeliveryFee;
+    const total = Math.max(0, discount?.total ?? money(subtotal + deliveryFee));
     const submittedTotal = body.finalTotal ?? body.totalAmount ?? body.total;
     if (submittedTotal !== undefined && Math.abs(money(submittedTotal) - total) > 0.01) {
       return json(400, { error: "Order total mismatch. Please refresh your cart and try again." });
     }
+    const paymentReference = orderNumber();
+    const reservationId = discount ? await reserveRedemption({ discount: discount.discount, email: customer.email, orderNumber: paymentReference }) : "";
     const order = await createPendingOrder({
       customer,
       delivery,
@@ -514,12 +529,29 @@ export const handler = async (event) => {
       notes: customer.notes,
       products,
       subtotal,
+      originalSubtotal: subtotal,
+      discount,
       deliveryFee,
       total,
-      paymentReference: orderNumber(),
+      paymentReference,
+      reservationId,
     });
     const testMode = toBoolean(process.env.IKHOKHA_TEST_MODE);
-    const checkout = await callIkhokha({ event, order, testMode });
+    let checkout;
+    try {
+      checkout = await callIkhokha({ event, order, testMode });
+    } catch (error) {
+      await releaseRedemption(reservationId);
+      const orders = await readList(ORDERS_KEY);
+      const failed = orders.find((item) => item.orderNumber === order.orderNumber);
+      if (failed) {
+        failed.paymentStatus = "Failed";
+        failed.orderStatus = "Cancelled";
+        failed.checkoutError = error.message;
+        await writeList(ORDERS_KEY, orders);
+      }
+      throw error;
+    }
 
     if (!wantsJson(event)) {
       return {
@@ -539,7 +571,7 @@ export const handler = async (event) => {
       testMode,
     });
   } catch (error) {
-    return json(502, {
+    return json(error.diagnostic ? 502 : 400, {
       error: error.message || "Unable to start iKhokha checkout.",
       diagnostic: error.diagnostic || {
         step: "Checkout function",

@@ -15,6 +15,7 @@ import {
   writeContent,
   writeList,
 } from "./_admin-shared.mjs";
+import { DISCOUNTS_KEY, sanitiseDiscount, validateDiscountRecord } from "./_discounts.mjs";
 
 const requireAuth = (event) => {
   const session = requireSession(event);
@@ -172,6 +173,34 @@ export const handler = async (event) => {
   if (method === "PUT" && action === "orders") {
     await writeList(ORDERS_KEY, body.items || []);
     return json(200, { ok: true });
+  }
+
+  if (method === "GET" && action === "discounts") {
+    const discounts = await readList(DISCOUNTS_KEY);
+    const orders = await readList(ORDERS_KEY);
+    return json(200, discounts.map((discount) => ({
+      ...discount,
+      timesUsed: orders.filter((order) => order.promoCode === discount.code && order.paymentStatus === "Paid").length,
+    })));
+  }
+
+  if (method === "PUT" && action === "discounts") {
+    const current = await readList(DISCOUNTS_KEY);
+    const incoming = Array.isArray(body.items) ? body.items : [];
+    const next = incoming.map((item) => sanitiseDiscount(item, current.find((existing) => existing.id === item.id)));
+    for (const discount of next) {
+      const error = validateDiscountRecord(discount, next);
+      if (error) return json(400, { error });
+    }
+    const removed = current.filter((item) => !next.some((candidate) => candidate.id === item.id));
+    if (removed.length) {
+      const orders = await readList(ORDERS_KEY);
+      removed.forEach((item) => {
+        if (orders.some((order) => order.promoCode === item.code)) next.push({ ...item, active: false, archived: true, updatedAt: new Date().toISOString() });
+      });
+    }
+    await writeList(DISCOUNTS_KEY, next);
+    return json(200, { ok: true, items: next });
   }
 
   return json(404, { error: "Unknown admin action." });

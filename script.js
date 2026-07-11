@@ -321,8 +321,10 @@ const setupFeaturedProducts = (content) => {
 };
 
 const CART_KEY = "lullubelleCart";
+const PROMO_KEY = "lullubellePromoCode";
 const IKHOKHA_CHECKOUT_ENDPOINT = "/.netlify/functions/ikhokha-checkout";
 const PUDO_DELIVERY_FEE = 80;
+let appliedPromo = { code: localStorage.getItem(PROMO_KEY) || "", discountAmount: 0, deliveryFee: null, total: null };
 const currencyFormatter = new Intl.NumberFormat("en-ZA", {
   style: "currency",
   currency: "ZAR",
@@ -828,9 +830,43 @@ const getOrderTotals = (items = getCart()) => {
     quantity: cartTotals.quantity,
     subtotal: cartTotals.amount,
     deliveryOption,
-    deliveryFee,
-    finalTotal: cartTotals.amount + deliveryFee,
+    discountAmount: appliedPromo.discountAmount || 0,
+    deliveryFee: appliedPromo.deliveryFee == null ? deliveryFee : appliedPromo.deliveryFee,
+    finalTotal: appliedPromo.total == null ? cartTotals.amount + deliveryFee : appliedPromo.total,
   };
+};
+
+const validatePromoCode = async (code = document.querySelector("[data-promo-code]")?.value) => {
+  const status = document.querySelector("[data-promo-status]");
+  const normalised = String(code || "").trim().toUpperCase();
+  if (!normalised) { if (status) status.textContent = "Enter a promo code."; return; }
+  if (status) status.textContent = "Checking promo code…";
+  const details = document.querySelector("[data-checkout-details]");
+  const email = new FormData(details || undefined).get("email")?.toString().trim() || "";
+  const items = getCart();
+  try {
+    const response = await fetch(`${IKHOKHA_CHECKOUT_ENDPOINT}?action=validate-promo`, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ customer: { name: "Cart customer", email: email || "pending@customer.invalid", phone: "pending" }, items, deliveryOption: getSelectedDeliveryOption(), promoCode: normalised }) });
+    const data = await readCheckoutResponse(response);
+    if (!response.ok) throw new Error(data.error || "This promo code is not valid.");
+    appliedPromo = { code: data.promoCode, discountAmount: data.discountAmount, deliveryFee: data.deliveryFee, total: data.total };
+    localStorage.setItem(PROMO_KEY, data.promoCode);
+    if (status) status.textContent = data.message;
+  } catch (error) {
+    appliedPromo = { code: "", discountAmount: 0, deliveryFee: null, total: null };
+    localStorage.removeItem(PROMO_KEY);
+    if (status) status.textContent = error.message;
+  }
+  renderCart();
+};
+
+const removePromoCode = () => {
+  appliedPromo = { code: "", discountAmount: 0, deliveryFee: null, total: null };
+  localStorage.removeItem(PROMO_KEY);
+  const input = document.querySelector("[data-promo-code]");
+  if (input) input.value = "";
+  const status = document.querySelector("[data-promo-status]");
+  if (status) status.textContent = "Promo code removed.";
+  renderCart();
 };
 
 const updateCartCount = () => {
@@ -854,6 +890,7 @@ const addToCart = (product) => {
   saveCart(items);
   updateCartCount();
   renderCart();
+  if (appliedPromo.code) validatePromoCode(appliedPromo.code);
   trackEvent("add_to_cart", {
     item_id: product.id,
     item_name: product.name,
@@ -869,6 +906,7 @@ const updateCartItem = (productId, quantity) => {
   saveCart(items);
   updateCartCount();
   renderCart();
+  if (appliedPromo.code) validatePromoCode(appliedPromo.code);
 };
 
 const setCartCheckoutState = (items) => {
@@ -909,7 +947,7 @@ const getCheckoutDetails = () => {
   if (!detailsForm) {
     return {
       customer: {},
-      delivery: { option: "collection", label: "Collect from Lullubelle", fee: 0 },
+      delivery: { option: "collection", label: "Collect from Lullubelle – Centurion", fee: 0 },
       address: {},
       notes: "",
     };
@@ -939,7 +977,7 @@ const getCheckoutDetails = () => {
     },
     delivery: {
       option: deliveryOption,
-      label: deliveryOption === "pudo" ? "Pudo Locker Delivery" : "Collect from Lullubelle",
+      label: deliveryOption === "pudo" ? "Pudo Locker Delivery" : "Collect from Lullubelle – Centurion",
       fee: getDeliveryFee(deliveryOption),
     },
     address,
@@ -1038,6 +1076,7 @@ const startIkhokhaCheckout = async () => {
         address,
         notes,
         items,
+        promoCode: appliedPromo.code,
         subtotal: totals.subtotal,
         finalTotal: totals.finalTotal,
         total: totals.finalTotal,
@@ -1109,6 +1148,7 @@ const renderCart = () => {
   const summaryCount = document.querySelector("[data-cart-summary-count]");
   const summarySubtotal = document.querySelector("[data-cart-summary-subtotal]");
   const summaryDelivery = document.querySelector("[data-cart-summary-delivery]");
+  const summaryDiscount = document.querySelector("[data-cart-summary-discount]");
   const summaryTotal = document.querySelector("[data-cart-summary-total]");
 
   if (!container) {
@@ -1154,11 +1194,15 @@ const renderCart = () => {
   if (summaryDelivery) {
     summaryDelivery.textContent = formatCurrency(totals.deliveryFee);
   }
+  if (summaryDiscount) summaryDiscount.textContent = totals.discountAmount ? `-${formatCurrency(totals.discountAmount)}` : formatCurrency(0);
   if (summaryTotal) {
     summaryTotal.textContent = formatCurrency(totals.finalTotal);
   }
 
   setCartCheckoutState(items);
+  const promoInput = document.querySelector("[data-promo-code]");
+  if (promoInput && document.activeElement !== promoInput) promoInput.value = appliedPromo.code;
+  document.querySelector("[data-promo-remove]")?.toggleAttribute("hidden", !appliedPromo.code);
 };
 
 document.querySelector("[data-newsletter-form]")?.addEventListener("submit", (event) => {
@@ -1224,6 +1268,11 @@ document.addEventListener("click", (event) => {
   const removeButton = target?.closest("[data-cart-remove]");
   const clearButton = target?.closest("[data-cart-clear]");
   const disabledCheckout = target?.closest("[data-cart-ikhokha-checkout][aria-disabled='true']");
+  const promoApply = target?.closest("[data-promo-apply]");
+  const promoRemove = target?.closest("[data-promo-remove]");
+
+  if (promoApply) { validatePromoCode(); return; }
+  if (promoRemove) { removePromoCode(); return; }
 
   if (disabledCheckout) {
     event.preventDefault();
@@ -1244,8 +1293,8 @@ document.addEventListener("click", (event) => {
 
   if (clearButton) {
     saveCart([]);
+    removePromoCode();
     updateCartCount();
-    renderCart();
   }
 });
 
@@ -1256,11 +1305,13 @@ document.addEventListener("change", (event) => {
     if (status) status.textContent = "";
     updateDeliveryUi();
     renderCart();
+    if (appliedPromo.code) validatePromoCode(appliedPromo.code);
   }
 });
 
 updateCartCount();
 renderCart();
+if (appliedPromo.code && document.querySelector("[data-cart-page]")) validatePromoCode(appliedPromo.code);
 setupIkhokhaCheckoutWhenReady();
 
 navToggle?.addEventListener("click", () => {

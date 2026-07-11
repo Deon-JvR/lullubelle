@@ -199,6 +199,9 @@ textarea { min-height: 92px; resize: vertical; }
   gap: 14px;
 }
 
+.discount-tools { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(160px, 240px); gap: 10px; margin-bottom: 14px; }
+[data-record="discounts"] select[multiple] { min-height: 140px; }
+
 .editor-card {
   padding: 18px;
   border: 1px solid var(--line);

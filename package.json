@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node --check script.js && node --check admin/admin.js && node --check netlify/functions/_admin-shared.mjs && node --check netlify/functions/admin-api.mjs && node --check netlify/functions/admin-content.mjs && node --check netlify/functions/admin-booking.mjs && node --check netlify/functions/admin-order.mjs && node --check netlify/functions/admin-asset.mjs && node --check netlify/functions/storage-health.mjs && node --check netlify/functions/sitemap.mjs && node --check netlify/functions/ikhokha-checkout.mjs && node tools/test-ikhokha-signature.mjs",
+    "check": "node --check script.js && node --check admin/admin.js && node --check netlify/functions/_discounts.mjs && node --check netlify/functions/_admin-shared.mjs && node --check netlify/functions/admin-api.mjs && node --check netlify/functions/admin-content.mjs && node --check netlify/functions/admin-booking.mjs && node --check netlify/functions/admin-order.mjs && node --check netlify/functions/admin-asset.mjs && node --check netlify/functions/storage-health.mjs && node --check netlify/functions/sitemap.mjs && node --check netlify/functions/ikhokha-checkout.mjs && node tools/test-discounts.mjs && node tools/test-ikhokha-signature.mjs",
     "test:ikhokha-signature": "node tools/test-ikhokha-signature.mjs",
     "admin:hash-password": "node tools/hash-admin-password.mjs"
   },

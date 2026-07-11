@@ -1636,6 +1636,12 @@ h3 {
   margin: 0;
 }
 
+.promo-code-box { padding: 14px 0; border-bottom: 1px solid rgba(17, 21, 18, .13); }
+.promo-code-box label { display: block; margin-bottom: 7px; color: #17351f; font-weight: 800; }
+.promo-code-row { display: flex; align-items: center; gap: 8px; }
+.promo-code-row input { min-width: 0; flex: 1; text-transform: uppercase; }
+.promo-code-row .button { flex: 0 0 auto; }
+
 .cart-summary dl div {
   display: flex;
   justify-content: space-between;

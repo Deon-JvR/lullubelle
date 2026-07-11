@@ -87,9 +87,9 @@
                 <legend>Choose how you want to receive your order</legend>
                 <label>
                   <input type="radio" name="deliveryOption" value="collection" form="checkout-details-form" checked>
-                  <span>Collect from Lullubelle <strong>R0</strong></span>
+                  <span>Collect from Lullubelle – Centurion <strong>R0</strong></span>
                 </label>
-                <p class="checkout-option-note" data-delivery-note="collection">We will confirm collection details after payment.</p>
+                <p class="checkout-option-note" data-delivery-note="collection">We'll confirm your Centurion collection address and collection details after payment.</p>
                 <label>
                   <input type="radio" name="deliveryOption" value="pudo" form="checkout-details-form">
                   <span>Pudo Locker Delivery <strong>R80</strong></span>
@@ -146,6 +146,11 @@
             </div>
             <div class="checkout-card order-total-card">
               <h2>Order summary</h2>
+              <div class="promo-code-box">
+                <label for="promo-code">Promo code</label>
+                <div class="promo-code-row"><input id="promo-code" autocomplete="off" data-promo-code><button class="button secondary" type="button" data-promo-apply>Apply</button><button class="cart-remove" type="button" data-promo-remove hidden>Remove</button></div>
+                <p class="form-status" data-promo-status aria-live="polite"></p>
+              </div>
               <dl>
                 <div>
                   <dt>Items</dt>
@@ -156,11 +161,15 @@
                   <dd data-cart-summary-subtotal>R0</dd>
                 </div>
                 <div>
-                  <dt>Delivery fee</dt>
+                  <dt>Discount</dt>
+                  <dd data-cart-summary-discount>R0</dd>
+                </div>
+                <div>
+                  <dt>Delivery</dt>
                   <dd data-cart-summary-delivery>R0</dd>
                 </div>
                 <div class="cart-final-total">
-                  <dt>Final total</dt>
+                  <dt>Total</dt>
                   <dd data-cart-summary-total>R0</dd>
                 </div>
               </dl>

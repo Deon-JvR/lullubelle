@@ -4,6 +4,9 @@ const state = {
   content: { brands: [], products: [], treatments: [], gallery: [], vouchers: [] },
   bookings: [],
   orders: [],
+  discounts: [],
+  discountSearch: "",
+  discountFilter: "all",
   dirty: false,
   productUi: {
     mode: "list",
@@ -189,7 +192,7 @@ const field = (label, value, key, type = "text", extra = "") => `
 const select = (label, value, key, options) => `
   <label>${escapeHtml(label)}
     <select data-key="${escapeHtml(key)}">
-      ${options.map((option) => `<option value="${escapeHtml(option)}" ${option === value ? "selected" : ""}>${escapeHtml(option)}</option>`).join("")}
+      ${options.map((option) => { const pair = Array.isArray(option) ? option : [option, option]; return `<option value="${escapeHtml(pair[0])}" ${pair[0] === value ? "selected" : ""}>${escapeHtml(pair[1])}</option>`; }).join("")}
     </select>
   </label>`;
 
@@ -598,11 +601,45 @@ const renderOrders = () => {
         ${field("Order number", item.orderNumber || "", "orderNumber")}
         ${field("Customer details", JSON.stringify(item.customer || {}, null, 2), "customerText", "textarea")}
         ${field("Products", JSON.stringify(item.products || [], null, 2), "productsText", "textarea")}
+        ${field("Delivery / collection", item.delivery?.option === "collection" ? "Collect from Lullubelle – Centurion" : item.delivery?.label || "", "deliveryLabel")}
+        ${field("Promo code", item.promoCode || "", "promoCode")}
+        ${field("Original subtotal", item.originalSubtotal ?? item.subtotal ?? 0, "originalSubtotal", "number")}
+        ${field("Discount amount", item.discountAmount || 0, "discountAmount", "number")}
+        ${field("Delivery fee", item.deliveryFee || 0, "deliveryFee", "number")}
         ${field("Total", item.total || 0, "total", "number")}
         ${select("Payment status", item.paymentStatus || "Pending", "paymentStatus", ["Pending", "Paid", "Failed", "Refunded"])}
         ${select("Order status", item.orderStatus || "New", "orderStatus", ["New", "Processing", "Ready", "Completed", "Cancelled"])}
       </div>
     </article>`).join("") || `<p>No orders have been captured yet.</p>`;
+};
+
+const renderDiscounts = () => {
+  const now = new Date();
+  const query = state.discountSearch.toLowerCase();
+  const visible = state.discounts.filter((item) => {
+    const expired = item.expiresAt && new Date(item.expiresAt) <= now;
+    return (!query || `${item.code} ${item.name}`.toLowerCase().includes(query))
+      && (state.discountFilter === "all"
+        || (state.discountFilter === "active" && item.active && !item.archived && !expired)
+        || (state.discountFilter === "expired" && expired)
+        || (state.discountFilter === "archived" && item.archived));
+  });
+  const brandOptions = (selected = []) => sortedBrands().map((brand) => `<option value="${escapeHtml(brand.id)}" ${selected.includes(brand.id) ? "selected" : ""}>${escapeHtml(brand.name)}</option>`).join("");
+  const productOptions = (selected = []) => state.content.products.map((product) => `<option value="${escapeHtml(product.id)}" ${selected.includes(product.id) ? "selected" : ""}>${escapeHtml(`${product.brand} ${product.name}`)}</option>`).join("");
+  $("[data-list='discounts']").innerHTML = visible.map((item) => `
+    <article class="editor-card" data-id="${escapeHtml(item.id)}" data-record="discounts">
+      <div class="panel-heading"><div><h3>${escapeHtml(item.code || "New code")}<\/h3><small>${item.archived ? "Archived" : item.active ? "Active" : "Inactive"} · Used ${Number(item.timesUsed) || 0}${item.usageLimit ? ` / ${item.usageLimit}` : " times"}<\/small><\/div>
+      <div class="row-actions"><button class="button secondary" type="button" data-discount-duplicate>Duplicate<\/button><button class="button secondary" type="button" data-discount-toggle>${item.active ? "Deactivate" : "Activate"}<\/button><button class="button danger" type="button" data-discount-delete>${item.timesUsed ? "Archive" : "Delete"}<\/button><\/div><\/div>
+      <div class="form-grid">
+        ${field("Promo code", item.code || "", "code")}${field("Internal name", item.name || "", "name")}${select("Discount type", item.type || "percentage", "type", [["percentage", "Percentage"], ["fixed", "Fixed amount"]])}
+        ${field("Discount value", item.value || 0, "value", "number")}${checkbox("Active", item.active, "active")}${checkbox("Free delivery", item.freeDelivery, "freeDelivery")}
+        ${field("Start date and time", item.startsAt || "", "startsAt", "datetime-local")}${field("Expiry date and time", item.expiresAt || "", "expiresAt", "datetime-local")}${field("Minimum order amount", item.minimumOrderAmount || 0, "minimumOrderAmount", "number")}
+        ${field("Maximum discount amount", item.maximumDiscountAmount ?? "", "maximumDiscountAmount", "number")}${field("Total usage limit", item.usageLimit ?? "", "usageLimit", "number")}${field("Usage limit per customer", item.usageLimitPerCustomer ?? "", "usageLimitPerCustomer", "number")}
+        ${field("Customer email restriction", item.customerEmail || "", "customerEmail", "email")}${checkbox("First order only", item.firstOrderOnly, "firstOrderOnly")}${select("Applies to", item.scope || "order", "scope", [["order","Entire order"],["brands","Selected brands"],["products","Selected products"],["categories","Selected categories"]])}
+        <label>Selected brands<select multiple data-key="brandIds">${brandOptions(item.brandIds)}<\/select><\/label><label>Excluded brands<select multiple data-key="excludedBrandIds">${brandOptions(item.excludedBrandIds)}<\/select><\/label>
+        <label>Selected products<select multiple data-key="productIds">${productOptions(item.productIds)}<\/select><\/label><label>Excluded products<select multiple data-key="excludedProductIds">${productOptions(item.excludedProductIds)}<\/select><\/label>
+        ${field("Selected categories (comma-separated)", (item.categories || []).join(", "), "categoriesText", "text", "wide")}${field("Description", item.description || "", "description", "textarea", "wide")}
+      </div></article>`).join("") || "<p>No discounts match this view.</p>";
 };
 
 const renderBrandManager = () => {
@@ -645,6 +682,7 @@ const render = () => {
   renderVouchers();
   renderBookings();
   renderOrders();
+  renderDiscounts();
 };
 
 const loadAll = async () => {
@@ -652,6 +690,7 @@ const loadAll = async () => {
   syncProductBrands();
   state.bookings = await request("bookings");
   state.orders = await request("orders");
+  state.discounts = await request("discounts");
   setDirty(false);
   render();
 };
@@ -765,7 +804,9 @@ const updateRecord = (card, key, value) => {
   const item = source.find((entry) => entry.id === id);
   if (!item) return;
 
-  if (key === "price" || key === "amount" || key === "total") item[key] = Number(value) || 0;
+  if (["price", "amount", "total", "value", "minimumOrderAmount", "maximumDiscountAmount", "usageLimit", "usageLimitPerCustomer"].includes(key)) item[key] = value === "" ? null : Number(value) || 0;
+  else if (["brandIds", "productIds", "excludedBrandIds", "excludedProductIds"].includes(key)) item[key] = Array.isArray(value) ? value : [];
+  else if (key === "categoriesText") item.categories = String(value || "").split(",").map((entry) => entry.trim()).filter(Boolean);
   else if (key === "tags" || key === "relatedProducts") {
     item[key] = String(value || "").split(",").map((entry) => entry.trim()).filter(Boolean);
   } else if (key === "id") {
@@ -785,7 +826,7 @@ const updateRecord = (card, key, value) => {
     }
   } else item[key] = value;
 
-  if (collection) setDirty();
+  if (collection || recordType === "discounts") setDirty();
 };
 
 const handleUploadInput = async (input) => {
@@ -831,17 +872,31 @@ document.addEventListener("input", async (event) => {
     return;
   }
 
+  if (input.matches("[data-discount-search]")) {
+    state.discountSearch = input.value;
+    renderDiscounts();
+    const search = $("[data-discount-search]");
+    search?.focus();
+    search?.setSelectionRange?.(state.discountSearch.length, state.discountSearch.length);
+    return;
+  }
+
   const card = input.closest?.(".editor-card");
   if (!card) return;
   if (await handleUploadInput(input)) return;
 
   const key = input.dataset.key;
   if (!key) return;
-  updateRecord(card, key, input.type === "checkbox" ? input.checked : input.value);
+  updateRecord(card, key, input.multiple ? Array.from(input.selectedOptions, (option) => option.value) : input.type === "checkbox" ? input.checked : input.value);
 });
 
 document.addEventListener("change", async (event) => {
   const input = event.target;
+  if (input.matches("[data-discount-filter]")) {
+    state.discountFilter = input.value;
+    renderDiscounts();
+    return;
+  }
   if (input.matches("[data-brand-key]")) {
     const row = input.closest("[data-brand-row]");
     const brand = state.content.brands.find((item) => item.id === row?.dataset.brandRow);
@@ -937,6 +992,25 @@ document.addEventListener("click", async (event) => {
   }
 
   if (target.matches("[data-add]")) addItem(target.dataset.add);
+
+  if (target.matches("[data-add-discount]")) {
+    state.discounts.unshift({ id: uid("discount"), code: "", name: "New promotion", description: "", type: "percentage", value: 10, active: true, startsAt: "", expiresAt: "", minimumOrderAmount: 0, maximumDiscountAmount: null, usageLimit: null, usageLimitPerCustomer: null, customerEmail: "", firstOrderOnly: false, scope: "order", brandIds: [], productIds: [], categories: [], excludedBrandIds: [], excludedProductIds: [], freeDelivery: false, timesUsed: 0 });
+    setDirty();
+    renderDiscounts();
+  }
+
+  if (target.matches("[data-discount-duplicate], [data-discount-toggle], [data-discount-delete]")) {
+    const card = target.closest("[data-record='discounts']");
+    const item = state.discounts.find((discount) => discount.id === card?.dataset.id);
+    if (!item) return;
+    if (target.matches("[data-discount-duplicate]")) state.discounts.unshift({ ...item, id: uid("discount"), code: `${item.code}-COPY`, name: `${item.name} copy`, active: false, archived: false, timesUsed: 0 });
+    if (target.matches("[data-discount-toggle]")) item.active = !item.active;
+    if (target.matches("[data-discount-delete]") && confirm(`${item.timesUsed ? "Archive" : "Delete"} ${item.code || "this discount"}?`)) {
+      if (item.timesUsed) { item.archived = true; item.active = false; } else state.discounts = state.discounts.filter((discount) => discount.id !== item.id);
+    }
+    setDirty();
+    renderDiscounts();
+  }
 
   if (target.matches("[data-product-brand-tab]")) {
     state.productUi.brand = target.dataset.productBrandTab;
@@ -1066,6 +1140,16 @@ document.addEventListener("click", async (event) => {
   if (target.matches("[data-save-orders]")) {
     await request("orders", { method: "PUT", body: JSON.stringify({ items: state.orders }) });
     setStatus("Order statuses saved.", "success");
+  }
+
+  if (target.matches("[data-save-discounts]")) {
+    try {
+      const result = await request("discounts", { method: "PUT", body: JSON.stringify({ items: state.discounts }) });
+      state.discounts = result.items;
+      setDirty(false);
+      renderDiscounts();
+      setStatus("Discounts saved.", "success");
+    } catch (error) { setStatus(error.message, "error"); }
   }
 
   if (target.matches("[data-refresh]")) loadAll().catch((error) => setStatus(error.message, "error"));

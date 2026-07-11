@@ -42,6 +42,7 @@
           <button type="button" data-tab="treatments">Treatments</button>
           <button type="button" data-tab="gallery">Before &amp; After</button>
           <button type="button" data-tab="vouchers">Gift Vouchers</button>
+          <button type="button" data-tab="discounts">Discounts</button>
           <button type="button" data-tab="bookings">Bookings</button>
           <button type="button" data-tab="orders">Orders</button>
         </nav>
@@ -72,6 +73,12 @@
         <section class="panel" data-panel="bookings">
           <div class="panel-heading"><h2>Bookings</h2><button class="button primary" type="button" data-save-bookings>Save booking statuses</button></div>
           <div class="editor-list" data-list="bookings"></div>
+        </section>
+
+        <section class="panel" data-panel="discounts">
+          <div class="panel-heading"><h2>Discounts</h2><div class="row-actions"><button class="button secondary" type="button" data-add-discount>Add discount</button><button class="button primary" type="button" data-save-discounts>Save discounts</button></div></div>
+          <div class="discount-tools"><input type="search" placeholder="Search codes or names" data-discount-search><select data-discount-filter><option value="all">All discounts</option><option value="active">Active</option><option value="expired">Expired</option><option value="archived">Archived</option></select></div>
+          <div class="editor-list" data-list="discounts"></div>
         </section>
 
         <section class="panel" data-panel="orders">
