@@ -16,6 +16,7 @@ import {
   writeList,
 } from "./_admin-shared.mjs";
 import { DISCOUNTS_KEY, sanitiseDiscount, validateDiscountRecord } from "./_discounts.mjs";
+import { sanitiseDeliverySettings } from "./_delivery.mjs";
 
 const requireAuth = (event) => {
   const session = requireSession(event);
@@ -137,6 +138,7 @@ export const handler = async (event) => {
   }
 
   if (method === "PUT" && action === "content") {
+    body.deliverySettings = sanitiseDeliverySettings(body.deliverySettings);
     const validationError = validateProductCatalogue(body);
     if (validationError) return json(400, { error: `Validation failed: ${validationError}`, code: "VALIDATION_FAILED" });
     try {

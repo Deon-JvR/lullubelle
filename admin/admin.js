@@ -1,7 +1,7 @@
 const API = "/.netlify/functions/admin-api";
 
 const state = {
-  content: { brands: [], products: [], treatments: [], gallery: [], vouchers: [] },
+  content: { brands: [], products: [], treatments: [], gallery: [], vouchers: [], deliverySettings: { freeDeliveryThreshold: 1000, standardPudoFee: 80, collectionEnabled: true } },
   bookings: [],
   orders: [],
   discounts: [],
@@ -556,10 +556,12 @@ const renderTreatments = () => {
 };
 
 const renderGallery = () => {
+  state.content.gallery.sort((a, b) => (Number(a.order) || Number.MAX_SAFE_INTEGER) - (Number(b.order) || Number.MAX_SAFE_INTEGER) || String(a.title || "").localeCompare(String(b.title || "")));
   $("[data-list='gallery']").innerHTML = state.content.gallery.map((item) => cardShell(item, "gallery", item.title || "New gallery item", `
     ${field("Title", item.title, "title")}
     ${field("Treatment category", item.category || "microneedling", "category")}
     ${field("Filter keywords", item.categories || "", "categories")}
+    ${field("Display order", item.order ?? "", "order", "number")}
     ${field("Number of treatments", item.treatments || "", "treatments")}
     ${checkbox("Featured result", item.featured, "featured")}
     ${field("Description", item.description || "", "description", "textarea", "wide")}
@@ -606,6 +608,7 @@ const renderOrders = () => {
         ${field("Original subtotal", item.originalSubtotal ?? item.subtotal ?? 0, "originalSubtotal", "number")}
         ${field("Discount amount", item.discountAmount || 0, "discountAmount", "number")}
         ${field("Delivery fee", item.deliveryFee || 0, "deliveryFee", "number")}
+        ${field("Free delivery applied", item.freeDeliveryApplied ? "Yes" : "No", "freeDeliveryApplied")}
         ${field("Total", item.total || 0, "total", "number")}
         ${select("Payment status", item.paymentStatus || "Pending", "paymentStatus", ["Pending", "Paid", "Failed", "Refunded"])}
         ${select("Order status", item.orderStatus || "New", "orderStatus", ["New", "Processing", "Ready", "Completed", "Cancelled"])}
@@ -683,6 +686,13 @@ const render = () => {
   renderBookings();
   renderOrders();
   renderDiscounts();
+  const settings = state.content.deliverySettings || {};
+  const threshold = $("[data-delivery-setting='freeDeliveryThreshold']");
+  const fee = $("[data-delivery-setting='standardPudoFee']");
+  const collection = $("[data-delivery-setting='collectionEnabled']");
+  if (threshold) threshold.value = settings.freeDeliveryThreshold ?? 1000;
+  if (fee) fee.value = settings.standardPudoFee ?? 80;
+  if (collection) collection.checked = settings.collectionEnabled !== false;
 };
 
 const loadAll = async () => {
@@ -725,7 +735,7 @@ const addItem = (collection) => {
   const defaults = {
     products: { id: uid("product"), brandId: defaultBrand?.id || "", brand: defaultBrand?.name || "", category: "Needs review", name: "New product", price: 1, stockStatus: "In stock", image: "lullubelle-logo.jpg", hidden: false },
     treatments: { id: uid("treatment"), category: "General", name: "New treatment", price: "", duration: "", hidden: false },
-    gallery: { id: uid("gallery"), title: "New result", category: "Microneedling", categories: "microneedling", hidden: false },
+    gallery: { id: uid("gallery"), title: "New result", category: "Microneedling", categories: "microneedling", order: state.content.gallery.length + 1, featured: false, hidden: false },
     vouchers: { id: uid("voucher"), name: "Gift Voucher", amount: 250, hidden: false },
   };
   state.content[collection].unshift(defaults[collection]);
@@ -804,7 +814,7 @@ const updateRecord = (card, key, value) => {
   const item = source.find((entry) => entry.id === id);
   if (!item) return;
 
-  if (["price", "amount", "total", "value", "minimumOrderAmount", "maximumDiscountAmount", "usageLimit", "usageLimitPerCustomer"].includes(key)) item[key] = value === "" ? null : Number(value) || 0;
+  if (["price", "amount", "order", "total", "value", "minimumOrderAmount", "maximumDiscountAmount", "usageLimit", "usageLimitPerCustomer"].includes(key)) item[key] = value === "" ? null : Number(value) || 0;
   else if (["brandIds", "productIds", "excludedBrandIds", "excludedProductIds"].includes(key)) item[key] = Array.isArray(value) ? value : [];
   else if (key === "categoriesText") item.categories = String(value || "").split(",").map((entry) => entry.trim()).filter(Boolean);
   else if (key === "tags" || key === "relatedProducts") {
@@ -856,6 +866,13 @@ document.addEventListener("input", async (event) => {
   const input = event.target;
 
   if (input.type === "file") return;
+
+  if (input.matches("[data-delivery-setting]")) {
+    state.content.deliverySettings ||= { freeDeliveryThreshold: 1000, standardPudoFee: 80, collectionEnabled: true };
+    state.content.deliverySettings[input.dataset.deliverySetting] = input.type === "checkbox" ? input.checked : Math.max(0, Number(input.value) || 0);
+    setDirty();
+    return;
+  }
 
   if (input.matches("[data-product-quick]")) {
     updateProductQuickControl(input);
@@ -1152,13 +1169,22 @@ document.addEventListener("click", async (event) => {
     } catch (error) { setStatus(error.message, "error"); }
   }
 
+  if (target.matches("[data-save-delivery]")) {
+    try {
+      state.content = await request("content", { method: "PUT", body: JSON.stringify(state.content) });
+      setDirty(false);
+      render();
+      setStatus("Delivery settings saved.", "success");
+    } catch (error) { setStatus(error.message, "error"); }
+  }
+
   if (target.matches("[data-refresh]")) loadAll().catch((error) => setStatus(error.message, "error"));
 
   if (target.matches("[data-logout]")) {
     try {
       await request("logout", { method: "POST", body: "{}" });
     } finally {
-      state.content = { brands: [], products: [], treatments: [], gallery: [], vouchers: [] };
+      state.content = { brands: [], products: [], treatments: [], gallery: [], vouchers: [], deliverySettings: { freeDeliveryThreshold: 1000, standardPudoFee: 80, collectionEnabled: true } };
       state.bookings = [];
       state.orders = [];
       state.dirty = false;

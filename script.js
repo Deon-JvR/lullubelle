@@ -105,8 +105,7 @@ const setupResultsFilters = () => {
 
   if (status) status.textContent = `Showing ${cards.length} all results`;
 
-  filters.forEach((filter) => {
-    filter.addEventListener("click", () => {
+  const activateFilter = (filter) => {
       const category = filter.dataset.resultsFilter;
       let visibleCount = 0;
 
@@ -127,8 +126,15 @@ const setupResultsFilters = () => {
         const label = category === "all" ? "all results" : `${filter.textContent.trim()} results`;
         status.textContent = `Showing ${visibleCount} ${label}`;
       }
-    });
+  };
+
+  filters.forEach((filter) => {
+    filter.addEventListener("click", () => activateFilter(filter));
   });
+
+  const requested = new URLSearchParams(window.location.search).get("filter")?.toLowerCase();
+  const requestedFilter = requested && Array.from(filters).find((filter) => !filter.hidden && filter.dataset.resultsFilter.toLowerCase() === requested);
+  if (requestedFilter) activateFilter(requestedFilter);
 };
 
 const appendStructuredData = (key, data) => {
@@ -323,8 +329,9 @@ const setupFeaturedProducts = (content) => {
 const CART_KEY = "lullubelleCart";
 const PROMO_KEY = "lullubellePromoCode";
 const IKHOKHA_CHECKOUT_ENDPOINT = "/.netlify/functions/ikhokha-checkout";
-const PUDO_DELIVERY_FEE = 80;
-let appliedPromo = { code: localStorage.getItem(PROMO_KEY) || "", discountAmount: 0, deliveryFee: null, total: null };
+const DEFAULT_DELIVERY_SETTINGS = { freeDeliveryThreshold: 1000, standardPudoFee: 80, collectionEnabled: true };
+let deliverySettings = { ...DEFAULT_DELIVERY_SETTINGS };
+let appliedPromo = { code: localStorage.getItem(PROMO_KEY) || "", discountAmount: 0, productDiscount: 0, deliveryFee: null, total: null };
 const currencyFormatter = new Intl.NumberFormat("en-ZA", {
   style: "currency",
   currency: "ZAR",
@@ -361,7 +368,7 @@ const loadStaticContent = async () => {
 
 const loadManagedContent = async () => {
   if (!managedContentPromise) {
-    managedContentPromise = fetch("/.netlify/functions/admin-content", { headers: { Accept: "application/json" } })
+    managedContentPromise = fetch(`/.netlify/functions/admin-content?fresh=${Date.now()}`, { cache: "no-store", headers: { Accept: "application/json", "Cache-Control": "no-cache" } })
       .then((response) => response.ok ? response.json() : null)
       .then(async (content) => {
         const fallback = await loadStaticContent();
@@ -370,8 +377,9 @@ const loadManagedContent = async () => {
           products: fallback.products,
           brands: content?.brands?.length ? content.brands : fallback.brands,
           treatments: content?.treatments || [],
-          gallery: content?.gallery?.length ? content.gallery : fallback.gallery,
+          gallery: Array.isArray(content?.gallery) ? content.gallery : fallback.gallery,
           vouchers: content?.vouchers || [],
+          deliverySettings: content?.deliverySettings || { ...DEFAULT_DELIVERY_SETTINGS },
           updatedAt: content?.updatedAt || new Date().toISOString(),
         };
       })
@@ -379,6 +387,7 @@ const loadManagedContent = async () => {
         const fallback = await loadStaticContent();
         return {
           ...fallback,
+          deliverySettings: { ...DEFAULT_DELIVERY_SETTINGS },
           updatedAt: new Date().toISOString(),
         };
       });
@@ -389,6 +398,21 @@ const loadManagedContent = async () => {
 const getVisibleManagedItems = (items) => Array.isArray(items)
   ? items.filter((item) => item && item.hidden !== true)
   : [];
+
+const normaliseGalleryItems = (items = []) => {
+  const seen = new Set();
+  return (Array.isArray(items) ? items : []).flatMap((item, index) => {
+    const id = String(item?.id || "").trim();
+    let image = String(item?.image || "").trim();
+    if (/^\.\.\/before-after-images\//i.test(image)) image = `/${image.replace(/^\.\.\//, "")}`;
+    const validImage = /^(?:\/before-after-images\/|\/\.netlify\/functions\/admin-asset\?key=|https?:\/\/)/i.test(image)
+      && !/(?:^|\/)(?:lullubelle-logo|placeholder)(?:[.\-_\/]|$)|^data:image/i.test(image);
+    const published = item?.hidden !== true && item?.active !== false && item?.published !== false && !/^(draft|inactive|archived)$/i.test(String(item?.status || ""));
+    if (!id || seen.has(id) || !validImage || !published) return [];
+    seen.add(id);
+    return [{ ...item, id, image, order: Number.isFinite(Number(item.order)) ? Number(item.order) : index + 1 }];
+  }).sort((a, b) => a.order - b.order || String(a.title || "").localeCompare(String(b.title || "")) || a.id.localeCompare(b.id));
+};
 
 const hasCompleteProductCatalogue = (items, fallbackItems = []) => {
   if (!Array.isArray(items) || !items.length) return false;
@@ -502,9 +526,13 @@ const applyManagedVouchers = (vouchers = []) => {
 };
 
 const applyManagedGallery = (gallery = []) => {
-  const visible = getVisibleManagedItems(gallery).filter((item) => item.image && !/lullubelle-logo|placeholder|data:image/i.test(item.image));
+  const visible = normaliseGalleryItems(gallery);
   const grid = document.querySelector(".results-gallery-section .results-grid");
-  if (!grid || !visible.length) return;
+  if (!grid) return;
+  if (!visible.length) {
+    grid.innerHTML = "<p>Before &amp; After results are temporarily unavailable.</p>";
+    return;
+  }
 
   grid.innerHTML = visible.map((item) => {
     const title = item.title || "Lullubelle treatment result";
@@ -528,13 +556,28 @@ const applyManagedGallery = (gallery = []) => {
         </div>
       </article>`;
   }).join("");
+  grid.querySelectorAll("img").forEach((image) => image.addEventListener("error", () => image.closest("[data-results-card]")?.remove(), { once: true }));
+  appendStructuredData("managed-gallery", {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    itemListElement: visible.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      item: {
+        "@type": "ImageObject",
+        name: item.title || "Before and after treatment result",
+        caption: item.description || undefined,
+        contentUrl: new URL(item.image, window.location.origin).href,
+      },
+    })),
+  });
 };
 
 const applyHomepageGallery = (gallery = []) => {
   const grid = document.querySelector(".home-results-grid");
   if (!grid) return;
-  const featured = getVisibleManagedItems(gallery)
-    .filter((item) => item.featured && item.image && !/lullubelle-logo|placeholder|data:image/i.test(item.image))
+  const featured = normaliseGalleryItems(gallery)
+    .filter((item) => item.featured)
     .slice(0, 3);
   if (!featured.length) {
     grid.innerHTML = "<p>Before &amp; After results are temporarily unavailable.</p>";
@@ -548,6 +591,32 @@ const applyHomepageGallery = (gallery = []) => {
         <h3>${escapeHtml(item.title || "Before & After")}</h3>
       </div>
     </a>`).join("");
+  grid.querySelectorAll("img").forEach((image) => image.addEventListener("error", () => image.closest(".home-result-card")?.remove(), { once: true }));
+};
+
+const applyTreatmentGalleryPreviews = (gallery = []) => {
+  const visible = normaliseGalleryItems(gallery);
+  document.querySelectorAll("[data-managed-gallery-preview]").forEach((section) => {
+    const requested = String(section.dataset.managedGalleryPreview || "").split(/\s+/).filter(Boolean);
+    const item = visible.find((candidate) => {
+      const categories = `${candidate.categories || ""} ${slugify(candidate.category || "")}`.split(/\s+/);
+      return requested.some((category) => categories.includes(category));
+    });
+    if (!item) {
+      section.hidden = true;
+      return;
+    }
+    section.hidden = false;
+    const media = section.querySelector("[data-managed-gallery-media]");
+    const title = section.querySelector("[data-managed-gallery-title]");
+    const eyebrow = section.querySelector("[data-managed-gallery-category]");
+    if (title) title.textContent = item.title || "Before & After result";
+    if (eyebrow) eyebrow.textContent = item.category || "Client result";
+    if (media) {
+      media.innerHTML = `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title || "Before and after treatment result")}" width="1200" height="1200" loading="lazy" decoding="async">`;
+      media.querySelector("img")?.addEventListener("error", () => { section.hidden = true; }, { once: true });
+    }
+  });
 };
 
 const applyManagedTreatments = (treatments = []) => {
@@ -608,6 +677,7 @@ const applyManagedContent = (content) => {
   applyManagedVouchers(content.vouchers);
   applyManagedGallery(content.gallery);
   applyHomepageGallery(content.gallery);
+  applyTreatmentGalleryPreviews(content.gallery);
   applyManagedTreatments(content.treatments);
 };
 
@@ -820,18 +890,25 @@ const getSelectedDeliveryOption = () => {
   return selected === "pudo" ? "pudo" : "collection";
 };
 
-const getDeliveryFee = (deliveryOption = getSelectedDeliveryOption()) => deliveryOption === "pudo" ? PUDO_DELIVERY_FEE : 0;
+const qualifyingProductSubtotal = (subtotal) => Math.max(0, subtotal - (Number(appliedPromo.productDiscount) || 0));
+const qualifiesForFreeDelivery = (subtotal, deliveryOption = getSelectedDeliveryOption()) => deliveryOption === "pudo"
+  && qualifyingProductSubtotal(subtotal) >= deliverySettings.freeDeliveryThreshold;
+const getDeliveryFee = (deliveryOption = getSelectedDeliveryOption(), subtotal = getCartTotals().amount) => deliveryOption === "pudo" && !qualifiesForFreeDelivery(subtotal, deliveryOption)
+  ? deliverySettings.standardPudoFee
+  : 0;
 
 const getOrderTotals = (items = getCart()) => {
   const cartTotals = getCartTotals(items);
   const deliveryOption = getSelectedDeliveryOption();
-  const deliveryFee = getDeliveryFee(deliveryOption);
+  const deliveryFee = getDeliveryFee(deliveryOption, cartTotals.amount);
   return {
     quantity: cartTotals.quantity,
     subtotal: cartTotals.amount,
     deliveryOption,
     discountAmount: appliedPromo.discountAmount || 0,
     deliveryFee: appliedPromo.deliveryFee == null ? deliveryFee : appliedPromo.deliveryFee,
+    freeDeliveryApplied: qualifiesForFreeDelivery(cartTotals.amount, deliveryOption),
+    qualifyingSubtotal: qualifyingProductSubtotal(cartTotals.amount),
     finalTotal: appliedPromo.total == null ? cartTotals.amount + deliveryFee : appliedPromo.total,
   };
 };
@@ -848,11 +925,12 @@ const validatePromoCode = async (code = document.querySelector("[data-promo-code
     const response = await fetch(`${IKHOKHA_CHECKOUT_ENDPOINT}?action=validate-promo`, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ customer: { name: "Cart customer", email: email || "pending@customer.invalid", phone: "pending" }, items, deliveryOption: getSelectedDeliveryOption(), promoCode: normalised }) });
     const data = await readCheckoutResponse(response);
     if (!response.ok) throw new Error(data.error || "This promo code is not valid.");
-    appliedPromo = { code: data.promoCode, discountAmount: data.discountAmount, deliveryFee: data.deliveryFee, total: data.total };
+    if (data.deliverySettings) deliverySettings = { ...DEFAULT_DELIVERY_SETTINGS, ...data.deliverySettings };
+    appliedPromo = { code: data.promoCode, discountAmount: data.discountAmount, productDiscount: data.productDiscount || 0, deliveryFee: data.deliveryFee, total: data.total };
     localStorage.setItem(PROMO_KEY, data.promoCode);
     if (status) status.textContent = data.message;
   } catch (error) {
-    appliedPromo = { code: "", discountAmount: 0, deliveryFee: null, total: null };
+    appliedPromo = { code: "", discountAmount: 0, productDiscount: 0, deliveryFee: null, total: null };
     localStorage.removeItem(PROMO_KEY);
     if (status) status.textContent = error.message;
   }
@@ -860,7 +938,7 @@ const validatePromoCode = async (code = document.querySelector("[data-promo-code
 };
 
 const removePromoCode = () => {
-  appliedPromo = { code: "", discountAmount: 0, deliveryFee: null, total: null };
+  appliedPromo = { code: "", discountAmount: 0, productDiscount: 0, deliveryFee: null, total: null };
   localStorage.removeItem(PROMO_KEY);
   const input = document.querySelector("[data-promo-code]");
   if (input) input.value = "";
@@ -928,6 +1006,11 @@ const updateDeliveryUi = () => {
   const detailsForm = document.querySelector("[data-checkout-details]");
   if (!detailsForm) return;
 
+  const collectionInput = detailsForm.querySelector("input[name='deliveryOption'][value='collection']");
+  const pudoInput = detailsForm.querySelector("input[name='deliveryOption'][value='pudo']");
+  document.querySelector("[data-collection-option]")?.toggleAttribute("hidden", !deliverySettings.collectionEnabled);
+  document.querySelector("[data-delivery-note='collection']")?.toggleAttribute("hidden", !deliverySettings.collectionEnabled || getSelectedDeliveryOption() !== "collection");
+  if (!deliverySettings.collectionEnabled && collectionInput?.checked && pudoInput) pudoInput.checked = true;
   const deliveryOption = getSelectedDeliveryOption();
   detailsForm.querySelectorAll("[data-address-field]").forEach((field) => {
     field.required = deliveryOption === "pudo";
@@ -1150,6 +1233,7 @@ const renderCart = () => {
   const summaryDelivery = document.querySelector("[data-cart-summary-delivery]");
   const summaryDiscount = document.querySelector("[data-cart-summary-discount]");
   const summaryTotal = document.querySelector("[data-cart-summary-total]");
+  const freeDeliveryMessage = document.querySelector("[data-free-delivery-message]");
 
   if (!container) {
     return;
@@ -1192,11 +1276,19 @@ const renderCart = () => {
     summarySubtotal.textContent = formatCurrency(totals.subtotal);
   }
   if (summaryDelivery) {
-    summaryDelivery.textContent = formatCurrency(totals.deliveryFee);
+    summaryDelivery.textContent = totals.freeDeliveryApplied ? "FREE" : formatCurrency(totals.deliveryFee);
   }
   if (summaryDiscount) summaryDiscount.textContent = totals.discountAmount ? `-${formatCurrency(totals.discountAmount)}` : formatCurrency(0);
   if (summaryTotal) {
     summaryTotal.textContent = formatCurrency(totals.finalTotal);
+  }
+  const pudoFee = document.querySelector("[data-pudo-fee]");
+  if (pudoFee) pudoFee.textContent = totals.qualifyingSubtotal >= deliverySettings.freeDeliveryThreshold ? "FREE" : formatCurrency(deliverySettings.standardPudoFee);
+  if (freeDeliveryMessage) {
+    const remaining = Math.max(0, deliverySettings.freeDeliveryThreshold - totals.qualifyingSubtotal);
+    freeDeliveryMessage.textContent = totals.qualifyingSubtotal >= deliverySettings.freeDeliveryThreshold
+      ? "🎉 Your order qualifies for FREE PUDO delivery."
+      : `Spend ${formatCurrency(remaining)} more to qualify for FREE PUDO delivery.`;
   }
 
   setCartCheckoutState(items);
@@ -1311,6 +1403,13 @@ document.addEventListener("change", (event) => {
 
 updateCartCount();
 renderCart();
+if (document.querySelector("[data-cart-page]")) {
+  loadManagedContent().then((content) => {
+    deliverySettings = { ...DEFAULT_DELIVERY_SETTINGS, ...(content.deliverySettings || {}) };
+    updateDeliveryUi();
+    renderCart();
+  });
+}
 if (appliedPromo.code && document.querySelector("[data-cart-page]")) validatePromoCode(appliedPromo.code);
 setupIkhokhaCheckoutWhenReady();
 

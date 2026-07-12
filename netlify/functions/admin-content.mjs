@@ -4,6 +4,8 @@ export const handler = async (event) => {
   connectBlobContext(event);
   const content = await readContent();
   return json(200, content, {
-    "Cache-Control": "public, max-age=0, must-revalidate",
+    "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+    "Netlify-CDN-Cache-Control": "no-store",
+    Pragma: "no-cache",
   });
 };

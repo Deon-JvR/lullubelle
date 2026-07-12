@@ -43,6 +43,7 @@
           <button type="button" data-tab="gallery">Before &amp; After</button>
           <button type="button" data-tab="vouchers">Gift Vouchers</button>
           <button type="button" data-tab="discounts">Discounts</button>
+          <button type="button" data-tab="delivery">Delivery Settings</button>
           <button type="button" data-tab="bookings">Bookings</button>
           <button type="button" data-tab="orders">Orders</button>
         </nav>
@@ -81,6 +82,18 @@
           <div class="editor-list" data-list="discounts"></div>
         </section>
 
+        <section class="panel" data-panel="delivery">
+          <div class="panel-heading"><h2>Delivery Settings</h2><button class="button primary" type="button" data-save-delivery>Save delivery settings</button></div>
+          <p class="hint">Free delivery is calculated from the product subtotal after product discounts, before delivery charges.</p>
+          <div class="editor-card delivery-settings-card">
+            <div class="form-grid">
+              <label>Free delivery threshold (R)<input type="number" min="0" step="1" data-delivery-setting="freeDeliveryThreshold"></label>
+              <label>Standard PUDO delivery fee (R)<input type="number" min="0" step="1" data-delivery-setting="standardPudoFee"></label>
+              <label class="check-row"><input type="checkbox" data-delivery-setting="collectionEnabled"> Collection from Lullubelle (Centurion) available</label>
+            </div>
+          </div>
+        </section>
+
         <section class="panel" data-panel="orders">
           <div class="panel-heading"><h2>Orders</h2><button class="button primary" type="button" data-save-orders>Save order statuses</button></div>
           <p class="hint">Prepared for iKhokha order records. Payment integration can post orders to the order endpoint later.</p>
@@ -94,6 +107,6 @@
         <div class="brand-manager-actions"><button class="button secondary" type="button" data-brand-add>Add new brand</button><button class="button primary" type="button" data-brand-manager-close>Done</button></div>
       </dialog>
     </main>
-    <script src="admin.js?v=20260711f" type="module"></script>
+    <script src="admin.js?v=20260712b" type="module"></script>
   </body>
 </html>

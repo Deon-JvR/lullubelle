@@ -7,6 +7,8 @@ import {
 } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { sanitiseDeliverySettings } from "./_delivery.mjs";
+import { sanitiseGallery } from "./_gallery.mjs";
 
 export const SESSION_COOKIE = "lullubelle_admin";
 export const SESSION_MAX_AGE = 60 * 30;
@@ -61,6 +63,7 @@ export const defaultContent = () => ({
   treatments: [],
   gallery: [],
   vouchers: [],
+  deliverySettings: sanitiseDeliverySettings(),
   updatedAt: new Date().toISOString(),
 });
 
@@ -85,8 +88,9 @@ const seedContent = async () => {
     brands: Array.isArray(brands) ? brands : [],
     products: Array.isArray(products) ? products : [],
     treatments: Array.isArray(treatments) ? treatments : [],
-    gallery: Array.isArray(gallery) ? gallery : [],
+    gallery: sanitiseGallery(gallery),
     vouchers: Array.isArray(vouchers) ? vouchers : [],
+    deliverySettings: sanitiseDeliverySettings(),
     updatedAt: new Date().toISOString(),
   };
 };
@@ -108,24 +112,6 @@ const mergeProductCatalogue = (seedProducts, storedProducts) => {
   });
   return [...merged.values()];
 };
-const obsoleteGalleryTitle = /hydration facial|pigmentation care|blemish-focused care|age-supportive facial|skin texture plan/i;
-const isRealGalleryItem = (item) => {
-  const image = String(item?.image || "").trim();
-  return Boolean(image)
-    && !/lullubelle-logo|placeholder|data:image/i.test(image)
-    && !obsoleteGalleryTitle.test(String(item?.title || ""));
-};
-const mergeGallery = (seedGallery, storedGallery) => {
-  const seedIds = new Set(seedGallery.map((item) => item.id));
-  const merged = new Map(seedGallery.filter(isRealGalleryItem).map((item) => [item.id, item]));
-  if (!Array.isArray(storedGallery)) return [...merged.values()];
-  storedGallery.filter(isRealGalleryItem).forEach((item) => {
-    const uploadedImage = String(item.image).startsWith("/.netlify/functions/admin-asset");
-    if (seedIds.has(item.id) || uploadedImage) merged.set(item.id, item);
-  });
-  return [...merged.values()];
-};
-
 export const readContent = async () => {
   const seed = await seedContent();
   let stored = null;
@@ -142,8 +128,11 @@ export const readContent = async () => {
     brands: mergeBrands(seed.brands, stored.brands),
     products: mergeProductCatalogue(seed.products, stored.products),
     treatments: hasItems(stored.treatments) ? stored.treatments : seed.treatments,
-    gallery: mergeGallery(seed.gallery, stored.gallery),
+    // Once Blob content exists it is authoritative, including an intentionally empty gallery.
+    // The static gallery is used only when the content record itself cannot be read.
+    gallery: sanitiseGallery(Array.isArray(stored.gallery) ? stored.gallery : []),
     vouchers: hasItems(stored.vouchers) ? stored.vouchers : seed.vouchers,
+    deliverySettings: sanitiseDeliverySettings(stored.deliverySettings),
     updatedAt: stored.updatedAt || seed.updatedAt,
   };
 };
@@ -152,6 +141,8 @@ export const writeContent = async (content) => {
   const next = {
     ...defaultContent(),
     ...content,
+    deliverySettings: sanitiseDeliverySettings(content.deliverySettings),
+    gallery: sanitiseGallery(content.gallery),
     updatedAt: new Date().toISOString(),
   };
   await contentStore().setJSON(CONTENT_KEY, next);

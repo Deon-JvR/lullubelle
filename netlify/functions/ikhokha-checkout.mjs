@@ -8,7 +8,8 @@ import {
   readList,
   writeList,
 } from "./_admin-shared.mjs";
-import { releaseRedemption, reserveRedemption, validatePromo } from "./_discounts.mjs";
+import { calculateDiscount, releaseRedemption, reserveRedemption, validatePromo } from "./_discounts.mjs";
+import { calculateDelivery, sanitiseDeliverySettings } from "./_delivery.mjs";
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 const toBoolean = (value) => /^(1|true|yes|on)$/i.test(String(value || ""));
@@ -31,7 +32,6 @@ const checkoutEndpoint = () => {
 };
 
 const money = (value) => Math.round((Number(value) || 0) * 100) / 100;
-const PUDO_DELIVERY_FEE = 80;
 
 const safeProviderBody = (data) => {
   if (!data || typeof data !== "object") return data;
@@ -231,7 +231,7 @@ const normaliseItems = async (items) => {
   });
 };
 
-const createPendingOrder = async ({ customer, delivery, address, notes, products, subtotal, originalSubtotal, discount, deliveryFee, total, paymentReference, reservationId }) => {
+const createPendingOrder = async ({ customer, delivery, address, notes, products, subtotal, originalSubtotal, discount, deliveryFee, deliveryCalculation, total, paymentReference, reservationId }) => {
   const order = {
     id: newId("order"),
     orderNumber: paymentReference,
@@ -248,6 +248,12 @@ const createPendingOrder = async ({ customer, delivery, address, notes, products
     discountAmount: discount?.discountAmount || 0,
     discountSnapshot: discount?.discount ? { ...discount.discount } : null,
     deliveryFee,
+    freeDeliveryApplied: deliveryCalculation.freeDeliveryApplied,
+    deliverySettingsSnapshot: {
+      freeDeliveryThreshold: deliveryCalculation.freeDeliveryThreshold,
+      standardPudoFee: deliveryCalculation.standardPudoFee,
+      collectionEnabled: deliveryCalculation.collectionEnabled,
+    },
     total,
     discountReservationId: reservationId || "",
     paymentProvider: "iKhokha iK Pay",
@@ -490,10 +496,15 @@ export const handler = async (event) => {
   const deliveryOption = String(body.delivery?.option || body.deliveryOption || "collection").toLowerCase() === "pudo"
     ? "pudo"
     : "collection";
+  const content = await readContent();
+  const deliverySettings = sanitiseDeliverySettings(content.deliverySettings);
+  if (deliveryOption === "collection" && !deliverySettings.collectionEnabled) {
+    return json(400, { error: "Collection is currently unavailable. Please select Pudo Locker Delivery." });
+  }
   const delivery = {
     option: deliveryOption,
     label: deliveryOption === "pudo" ? "Pudo Locker Delivery" : "Collect from Lullubelle – Centurion",
-    fee: deliveryOption === "pudo" ? PUDO_DELIVERY_FEE : 0,
+    fee: deliveryOption === "pudo" ? deliverySettings.standardPudoFee : 0,
   };
 
   if (!customer.name || !customer.email || !customer.phone) {
@@ -507,10 +518,13 @@ export const handler = async (event) => {
   try {
     const products = await normaliseItems(body.items || body.products);
     const subtotal = money(products.reduce((sum, item) => sum + Number(item.price) * Number(item.quantity), 0));
-    const originalDeliveryFee = money(delivery.fee);
-    const discount = body.promoCode ? await validatePromo({ code: body.promoCode, email: customer.email, products, subtotal, deliveryFee: originalDeliveryFee }) : null;
+    const standardDeliveryFee = money(delivery.fee);
+    let discount = body.promoCode ? await validatePromo({ code: body.promoCode, email: customer.email, products, subtotal, deliveryFee: standardDeliveryFee }) : null;
+    const deliveryCalculation = calculateDelivery({ productSubtotal: subtotal, productDiscount: discount?.productDiscount || 0, deliveryOption, settings: deliverySettings });
+    if (discount) discount = { discount: discount.discount, ...calculateDiscount({ discount: discount.discount, products, subtotal, deliveryFee: deliveryCalculation.deliveryFee }) };
+    const originalDeliveryFee = deliveryCalculation.deliveryFee;
     if (event.queryStringParameters?.action === "validate-promo") {
-      return json(200, { ok: true, promoCode: discount?.discount.code || "", discountAmount: discount?.discountAmount || 0, deliveryFee: discount?.deliveryFee ?? originalDeliveryFee, total: discount?.total ?? money(subtotal + originalDeliveryFee), message: discount ? `${discount.discount.code} applied.` : "Enter a promo code." });
+      return json(200, { ok: true, promoCode: discount?.discount.code || "", discountAmount: discount?.discountAmount || 0, productDiscount: discount?.productDiscount || 0, deliveryFee: discount?.deliveryFee ?? originalDeliveryFee, total: discount?.total ?? money(subtotal + originalDeliveryFee), freeDeliveryApplied: deliveryCalculation.freeDeliveryApplied, qualifyingSubtotal: deliveryCalculation.qualifyingSubtotal, deliverySettings, message: discount ? `${discount.discount.code} applied.` : "Enter a promo code." });
     }
     const missing = ["IKHOKHA_API_KEY", "IKHOKHA_API_SECRET"].filter((key) => !process.env[key]);
     if (missing.length) return json(500, { error: `Missing iKhokha environment variables: ${missing.join(", ")}` });
@@ -524,7 +538,7 @@ export const handler = async (event) => {
     const reservationId = discount ? await reserveRedemption({ discount: discount.discount, email: customer.email, orderNumber: paymentReference }) : "";
     const order = await createPendingOrder({
       customer,
-      delivery,
+      delivery: { ...delivery, fee: deliveryFee, freeDeliveryApplied: deliveryCalculation.freeDeliveryApplied },
       address,
       notes: customer.notes,
       products,
@@ -532,6 +546,7 @@ export const handler = async (event) => {
       originalSubtotal: subtotal,
       discount,
       deliveryFee,
+      deliveryCalculation,
       total,
       paymentReference,
       reservationId,

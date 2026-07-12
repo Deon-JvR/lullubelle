@@ -85,17 +85,18 @@
               <h2>Delivery or collection</h2>
               <fieldset class="checkout-delivery-options" form="checkout-details-form">
                 <legend>Choose how you want to receive your order</legend>
-                <label>
+                <label data-collection-option>
                   <input type="radio" name="deliveryOption" value="collection" form="checkout-details-form" checked>
-                  <span>Collect from Lullubelle – Centurion <strong>R0</strong></span>
+                  <span>Collect from Lullubelle (Centurion) — <strong>R0</strong></span>
                 </label>
-                <p class="checkout-option-note" data-delivery-note="collection">We'll confirm your Centurion collection address and collection details after payment.</p>
-                <label>
+                <p class="checkout-option-note" data-delivery-note="collection">We'll confirm your Centurion collection details after payment.</p>
+                <label data-pudo-option>
                   <input type="radio" name="deliveryOption" value="pudo" form="checkout-details-form">
-                  <span>Pudo Locker Delivery <strong>R80</strong></span>
+                  <span>PUDO Locker Delivery — <strong data-pudo-fee>R80</strong></span>
                 </label>
-                <p class="checkout-option-note" data-delivery-note="pudo" hidden>Please enter your preferred Pudo locker details or delivery address in the notes field.</p>
+                <p class="checkout-option-note" data-delivery-note="pudo" hidden>Estimated delivery: 5–10 working days after payment confirmation.</p>
               </fieldset>
+              <p class="form-status" data-free-delivery-message aria-live="polite"></p>
             </div>
           </div>
           <aside class="cart-summary" data-cart-summary>
@@ -157,7 +158,7 @@
                   <dd data-cart-summary-count>0</dd>
                 </div>
                 <div>
-                  <dt>Subtotal</dt>
+                  <dt>Products subtotal</dt>
                   <dd data-cart-summary-subtotal>R0</dd>
                 </div>
                 <div>
@@ -198,6 +199,6 @@
     <aside class="conversion-dock" aria-label="Book with Lullubelle">
       <a class="button primary" href="/book-appointment" data-track-event="booking_dock_click">Book Appointment</a>
     </aside>
-    <script defer src="script.js?v=20260711e"></script>
+    <script defer src="script.js?v=20260712a"></script>
   </body>
 </html>
