@@ -781,8 +781,8 @@ const applyManagedTreatments = (treatments = []) => {
         ${groupItems.map((treatment) => {
           const showDuration = treatment.duration && treatment.duration !== treatment.name;
           return `<li data-service-id="${escapeHtml(treatment.id)}">
-            <span><strong>${escapeHtml(treatment.name || "Treatment")}</strong>${showDuration ? ` <small class="duration-badge">${escapeHtml(treatment.duration)}</small>` : ""}${treatment.description ? `<small>${escapeHtml(treatment.description)}</small>` : ""}</span>
-            <b>${escapeHtml(treatment.price || "Confirm")}</b>
+            <span class="treatment-copy"><strong>${escapeHtml(treatment.name || "Treatment")}</strong>${showDuration ? `<small class="treatment-duration">${escapeHtml(treatment.duration)}</small>` : ""}${treatment.description ? `<small class="treatment-description">${escapeHtml(treatment.description)}</small>` : ""}</span>
+            <b class="treatment-price">${escapeHtml(treatment.price || "Confirm")}</b>
           </li>`;
         }).join("")}
       </ul>`).join("");
@@ -797,7 +797,7 @@ const applyManagedTreatments = (treatments = []) => {
       return groups;
     }, new Map());
     menuGrid.innerHTML = Array.from(grouped.entries()).map(([category, items]) => `
-      <article class="treatment-menu-card" data-service-category="${escapeHtml(category)}">
+      <article class="treatment-menu-card${items.length >= 8 ? " treatment-menu-card--wide" : ""}" id="category-${slugify(category)}" data-service-category="${escapeHtml(category)}">
         <h2 class="treatment-heading">${escapeHtml(category)}</h2>
         ${renderTreatmentItems(items)}
       </article>`).join("");

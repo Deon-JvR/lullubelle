@@ -22,7 +22,7 @@
     <link rel="icon" href="favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
-    <link rel="stylesheet" href="styles.css?v=20260714a">
+    <link rel="stylesheet" href="styles.css?v=20260716a">
     <script type="application/ld+json" data-service-catalogue-schema>{"@context":"https://schema.org","@type":"OfferCatalog","@id":"https://www.lullubelle.co.za/pricelist#pricelist","name":"Lullubelle Beauty Specialist treatment pricelist","url":"https://www.lullubelle.co.za/pricelist","itemListElement":[]}</script>
     <script type="application/ld+json">
 {
@@ -64,7 +64,7 @@
 }
     </script>
   </head>
-  <body>
+  <body class="pricelist-page">
     <a class="skip-link" href="#main-content">Skip to main content</a>
     <header class="site-header" data-header>
       <a class="brand" href="index.html#home" aria-label="Lullubelle home">
@@ -94,34 +94,33 @@
     </header>
 
     <main id="main-content">
-      <section class="section treatment-menu-section standalone-section" aria-labelledby="treatment-menu-heading">
-        <div class="section-heading">
-          <p class="eyebrow">Treatment Menu</p>
-          <h1 id="treatment-menu-heading">Treatment pricelist</h1>
-          <p>Current treatment and beauty service prices. All services are offered by appointment only.</p>
-        </div>
-        <div class="treatment-menu-grid" aria-live="polite">
-          <p>Loading the current treatment pricelist…</p>
-        </div>
-        <div class="section-actions">
-          <a class="button primary" href="/book-appointment">Book a treatment</a>
-        </div>
-      </section>
-      <section class="section treatment-discovery-section" aria-labelledby="treatment-discovery-heading">
-        <div class="section-heading">
-          <p class="eyebrow">Treatment guidance</p>
-          <h2 id="treatment-discovery-heading">Explore focused skin treatment pages</h2>
-          <p>Learn more about the most requested Lullubelle treatments in Centurion before booking.</p>
-        </div>
-        <div class="treatment-feature-grid">
-          <article class="treatment-feature-card"><span aria-hidden="true">◌</span><h3><a href="microneedling-centurion">Microneedling Centurion</a></h3><p>Professional renewal support for tone and texture.</p></article>
-          <article class="treatment-feature-card"><span aria-hidden="true">✦</span><h3><a href="facial-treatments-centurion">Facial Treatments Centurion</a></h3><p>Personalised facial care for changing skin needs.</p></article>
-          <article class="treatment-feature-card"><span aria-hidden="true">◇</span><h3><a href="acne-treatment-centurion">Acne Treatment Centurion</a></h3><p>Clarifying care and home-care guidance.</p></article>
-          <article class="treatment-feature-card"><span aria-hidden="true">◈</span><h3><a href="pigmentation-treatment-centurion">Pigmentation Treatment Centurion</a></h3><p>Consultation-led support for uneven-looking tone.</p></article>
-          <article class="treatment-feature-card"><span aria-hidden="true">✺</span><h3><a href="chemical-peel-centurion">Chemical Peel Centurion</a></h3><p>Professional peel options selected for your skin.</p></article>
-          <article class="treatment-feature-card"><span aria-hidden="true">✧</span><h3><a href="dermaplaning-centurion">Dermaplaning Centurion</a></h3><p>Smooth, polished exfoliation support.</p></article>
-          <article class="treatment-feature-card"><span aria-hidden="true">☼</span><h3><a href="cosmelan-centurion">Cosmelan Centurion</a></h3><p>Professional pigmentation programme guidance.</p></article>
-          <article class="treatment-feature-card"><span aria-hidden="true">✓</span><h3><a href="skin-consultation-centurion">Skin Consultation Centurion</a></h3><p>Clear product and treatment planning with Luzelle.</p></article>
+      <section class="section treatment-menu-section standalone-section" aria-labelledby="treatment-menu-heading" data-managed-treatments>
+        <div class="pricelist-shell">
+          <div class="section-heading pricelist-heading">
+            <p class="eyebrow">Treatment Menu</p>
+            <h1 id="treatment-menu-heading">Treatments &amp; Pricing</h1>
+            <p>Explore our professional beauty and skin treatments, thoughtfully tailored to help you feel your best.</p>
+          </div>
+          <nav class="pricelist-category-nav" aria-label="Pricelist categories">
+            <a href="#category-booster-treatments">Facials</a>
+            <a href="#category-advanced-treatments-kalahari-chemi-peels">Peels</a>
+            <a href="#category-microneedling-dr-pen">Microneedling</a>
+            <a href="#category-massages">Massage</a>
+            <a href="#category-waxing">Waxing</a>
+            <a href="#category-tinting">Brows &amp; Lashes</a>
+            <a href="#category-gelit-overlay-hands">Nails</a>
+          </nav>
+          <div class="treatment-menu-grid" aria-live="polite">
+            <p>Loading the current treatment pricelist…</p>
+          </div>
+          <aside class="pricelist-booking-cta" aria-labelledby="pricelist-booking-heading">
+            <div>
+              <p class="eyebrow">Your time to glow</p>
+              <h2 id="pricelist-booking-heading">Ready to book your treatment?</h2>
+              <p>Choose your preferred treatment and send us your appointment request.</p>
+            </div>
+            <a class="button primary" href="/book-appointment">Book Appointment</a>
+          </aside>
         </div>
       </section>
     </main>
@@ -130,11 +129,6 @@
       <p>Lullubelle Beauty Specialist | Be your own kind of beautiful</p>
       <a href="index.html#home">Back to home</a>
     <nav class="footer-links" aria-label="Footer navigation"><a href="beauty-salon-centurion">About us</a><a href="gift-vouchers">Vouchers</a></nav></footer>
-
-
-    <aside class="conversion-dock" aria-label="Book with Lullubelle">
-      <a class="button primary" href="/book-appointment" data-track-event="booking_dock_click">Book Appointment</a>
-    </aside>
-    <script defer src="script.js?v=20260715a"></script>
+    <script defer src="script.js?v=20260716a"></script>
   </body>
 </html>
