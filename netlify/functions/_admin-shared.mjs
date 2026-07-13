@@ -9,6 +9,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { sanitiseDeliverySettings } from "./_delivery.mjs";
 import { sanitiseGallery } from "./_gallery.mjs";
+import { migrateServiceCatalogue, SERVICE_CATALOGUE_VERSION } from "./_services.mjs";
 import {
   CATALOGUE_SCHEMA_VERSION,
   mergeProductCatalogue,
@@ -65,6 +66,7 @@ const localLists = new Map();
 
 export const defaultContent = () => ({
   catalogueSchemaVersion: CATALOGUE_SCHEMA_VERSION,
+  serviceCatalogueVersion: SERVICE_CATALOGUE_VERSION,
   brands: [],
   products: [],
   treatments: [],
@@ -93,6 +95,7 @@ const seedContent = async () => {
 
   return {
     catalogueSchemaVersion: CATALOGUE_SCHEMA_VERSION,
+    serviceCatalogueVersion: SERVICE_CATALOGUE_VERSION,
     brands: Array.isArray(brands) ? brands : [],
     products: Array.isArray(products) ? products : [],
     treatments: Array.isArray(treatments) ? treatments : [],
@@ -118,15 +121,16 @@ export const readContent = async () => {
     stored = null;
   }
   if (!stored) return seed;
-  const migration = migrateCatalogueContent(stored, seed);
-  if (migration.changed) {
-    stored = migration.content;
+  const catalogueMigration = migrateCatalogueContent(stored, seed);
+  const serviceMigration = migrateServiceCatalogue(catalogueMigration.content, seed);
+  if (catalogueMigration.changed || serviceMigration.changed) {
+    stored = serviceMigration.content;
     try {
       await contentStore().setJSON(CONTENT_KEY, stored);
     } catch (error) {
       console.error("Admin catalogue migration could not be persisted", { message: error?.message });
     }
-  }
+  } else stored = serviceMigration.content;
   return {
     ...seed,
     ...stored,

@@ -18,6 +18,7 @@ import {
 import { DISCOUNTS_KEY, sanitiseDiscount, validateDiscountRecord } from "./_discounts.mjs";
 import { sanitiseDeliverySettings } from "./_delivery.mjs";
 import { validateProductCatalogue, verifyPersistedProducts } from "./_products.mjs";
+import { validateServiceCatalogue } from "./_services.mjs";
 
 const requireAuth = (event) => {
   const session = requireSession(event);
@@ -118,6 +119,8 @@ export const handler = async (event) => {
     body.deliverySettings = sanitiseDeliverySettings(body.deliverySettings);
     const validationError = validateProductCatalogue(body);
     if (validationError) return json(400, { error: `Validation failed: ${validationError}`, code: "VALIDATION_FAILED" });
+    const serviceValidationError = validateServiceCatalogue(body.treatments);
+    if (serviceValidationError) return json(400, { error: `Validation failed: ${serviceValidationError}`, code: "VALIDATION_FAILED" });
     try {
       const persisted = await writeContent(body);
       const verificationError = verifyPersistedProducts(body, persisted);

@@ -708,6 +708,26 @@ const applyManagedTreatments = (treatments = []) => {
   const visible = getVisibleManagedItems(treatments);
   if (!visible.length) return;
 
+  const renderTreatmentItems = (items) => {
+    const groups = items.reduce((map, treatment) => {
+      const group = String(treatment.group || "").trim();
+      if (!map.has(group)) map.set(group, []);
+      map.get(group).push(treatment);
+      return map;
+    }, new Map());
+    return Array.from(groups.entries()).map(([group, groupItems]) => `
+      ${group ? `<h3 class="treatment-subgroup">${escapeHtml(group)}</h3>` : ""}
+      <ul class="treatment-list simple-list">
+        ${groupItems.map((treatment) => {
+          const showDuration = treatment.duration && treatment.duration !== treatment.name;
+          return `<li data-service-id="${escapeHtml(treatment.id)}">
+            <span><strong>${escapeHtml(treatment.name || "Treatment")}</strong>${showDuration ? ` <small class="duration-badge">${escapeHtml(treatment.duration)}</small>` : ""}${treatment.description ? `<small>${escapeHtml(treatment.description)}</small>` : ""}</span>
+            <b>${escapeHtml(treatment.price || "Confirm")}</b>
+          </li>`;
+        }).join("")}
+      </ul>`).join("");
+  };
+
   const menuGrid = document.querySelector(".treatment-menu-grid");
   if (menuGrid) {
     const grouped = visible.reduce((groups, treatment) => {
@@ -717,16 +737,50 @@ const applyManagedTreatments = (treatments = []) => {
       return groups;
     }, new Map());
     menuGrid.innerHTML = Array.from(grouped.entries()).map(([category, items]) => `
-      <article class="treatment-menu-card">
+      <article class="treatment-menu-card" data-service-category="${escapeHtml(category)}">
         <h2 class="treatment-heading">${escapeHtml(category)}</h2>
-        <ul class="treatment-list simple-list">
-          ${items.map((treatment) => `
-            <li>
-              <span>${escapeHtml(treatment.name || "Treatment")}${treatment.duration ? ` <small>${escapeHtml(treatment.duration)}</small>` : ""}${treatment.description ? `<small>${escapeHtml(treatment.description)}</small>` : ""}</span>
-              <b>${escapeHtml(treatment.price || "Confirm")}</b>
-            </li>`).join("")}
-        </ul>
+        ${renderTreatmentItems(items)}
       </article>`).join("");
+  }
+
+  const bookingSelect = document.querySelector("[data-treatment-service-select]");
+  if (bookingSelect) {
+    const grouped = visible.reduce((groups, treatment) => {
+      const category = treatment.category || "Treatments";
+      if (!groups.has(category)) groups.set(category, []);
+      groups.get(category).push(treatment);
+      return groups;
+    }, new Map());
+    bookingSelect.innerHTML = `<option value="">Choose a service</option>${Array.from(grouped.entries()).map(([category, items]) => `
+      <optgroup label="${escapeHtml(category)}">${items.map((treatment) => {
+        const name = [treatment.group, treatment.name].filter(Boolean).join(" — ");
+        const label = `${category} — ${name} — ${treatment.price || "Confirm"}`;
+        return `<option value="${escapeHtml(label)}">${escapeHtml(name)} — ${escapeHtml(treatment.price || "Confirm")}</option>`;
+      }).join("")}</optgroup>`).join("")}<optgroup label="Other"><option>Product Advice</option><option>Gift Voucher</option><option>Other</option></optgroup>`;
+  }
+
+  const catalogueSchema = document.querySelector("[data-service-catalogue-schema]");
+  if (catalogueSchema) {
+    const offers = visible.filter((treatment) => treatment.pdfSource !== false).map((treatment) => ({
+      "@type": "Offer",
+      name: [treatment.category, treatment.group, treatment.name].filter(Boolean).join(" — "),
+      priceCurrency: "ZAR",
+      price: String(treatment.price || "").replace(/\D/g, ""),
+      itemOffered: {
+        "@type": "Service",
+        name: [treatment.group, treatment.name].filter(Boolean).join(" — "),
+        ...(treatment.duration ? { duration: treatment.duration } : {}),
+      },
+    }));
+    catalogueSchema.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "OfferCatalog",
+      "@id": "https://www.lullubelle.co.za/pricelist#pricelist",
+      name: "Lullubelle Beauty Specialist treatment pricelist",
+      url: "https://www.lullubelle.co.za/pricelist",
+      provider: { "@id": "https://www.lullubelle.co.za/#business" },
+      itemListElement: offers,
+    });
   }
 
   const menu = document.querySelector(".treatment-menu-section");

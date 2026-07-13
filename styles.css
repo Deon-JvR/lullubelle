@@ -638,6 +638,16 @@ h3 {
   text-transform: uppercase;
 }
 
+.treatment-menu-card .treatment-subgroup {
+  margin-top: 8px;
+  color: var(--leaf);
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
 .menu-note {
   margin: 0;
   color: var(--muted);

@@ -594,6 +594,7 @@ const updateProductQuickControl = (input) => {
 const renderTreatments = () => {
   $("[data-list='treatments']").innerHTML = state.content.treatments.map((item) => cardShell(item, "treatments", item.name || "New treatment", `
     ${field("Category", item.category || "", "category")}
+    ${field("Option group", item.group || "", "group")}
     ${field("Treatment name", item.name, "name")}
     ${field("Price", item.price || "", "price")}
     ${field("Duration", item.duration || "", "duration")}
