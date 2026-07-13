@@ -4798,9 +4798,27 @@ input,textarea,select,button {
   box-shadow: var(--shadow-card);
 }
 
-.product-detail-page-hero .product-detail-media img {
+.product-detail-page-hero .product-detail-media .product-detail-main-image {
   width: min(430px, 100%);
   height: min(430px, 70vw);
+}
+
+.product-detail-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(76px, 96px));
+  justify-content: center;
+  width: 100%;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.product-detail-page-hero .product-detail-gallery img {
+  width: 96px;
+  height: 96px;
+  padding: 6px;
+  border: 1px solid rgba(49, 91, 60, 0.14);
+  border-radius: 10px;
+  object-fit: contain;
 }
 
 .product-detail-copy .product-size {

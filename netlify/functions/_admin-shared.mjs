@@ -9,6 +9,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { sanitiseDeliverySettings } from "./_delivery.mjs";
 import { sanitiseGallery } from "./_gallery.mjs";
+import { mergeProductCatalogue, normaliseProductGallery } from "./_products.mjs";
 
 export const SESSION_COOKIE = "lullubelle_admin";
 export const SESSION_MAX_AGE = 60 * 30;
@@ -100,23 +101,11 @@ const mergeBrands = (seedBrands, storedBrands) => {
   if (!Array.isArray(storedBrands) || !storedBrands.length) return seedBrands;
   return storedBrands;
 };
-const mergeProductCatalogue = (seedProducts, storedProducts) => {
-  if (!Array.isArray(storedProducts)) return seedProducts;
-  const storedIds = new Set(storedProducts.map((product) => product?.id).filter(Boolean));
-  if (storedProducts.length < seedProducts.length || !seedProducts.every((product) => storedIds.has(product.id))) {
-    return seedProducts;
-  }
-  const merged = new Map(seedProducts.map((product) => [product.id, product]));
-  storedProducts.forEach((product) => {
-    if (product?.id) merged.set(product.id, product);
-  });
-  return [...merged.values()];
-};
 export const readContent = async () => {
   const seed = await seedContent();
   let stored = null;
   try {
-    stored = await contentStore().get(CONTENT_KEY, { type: "json" });
+    stored = await contentStore().get(CONTENT_KEY, { type: "json", consistency: "strong" });
   } catch (error) {
     console.error("Admin content read failed; using static fallback", { message: error?.message });
     stored = null;
@@ -143,10 +132,16 @@ export const writeContent = async (content) => {
     ...content,
     deliverySettings: sanitiseDeliverySettings(content.deliverySettings),
     gallery: sanitiseGallery(content.gallery),
+    products: (Array.isArray(content.products) ? content.products : []).map((product) => ({
+      ...product,
+      galleryImages: normaliseProductGallery(product),
+    })),
     updatedAt: new Date().toISOString(),
   };
   await contentStore().setJSON(CONTENT_KEY, next);
-  return next;
+  const persisted = await contentStore().get(CONTENT_KEY, { type: "json", consistency: "strong" });
+  if (!persisted || persisted.updatedAt !== next.updatedAt) throw new Error("Saved content could not be verified after writing.");
+  return persisted;
 };
 
 export const readList = async (key) => {

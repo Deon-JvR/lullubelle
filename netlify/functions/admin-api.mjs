@@ -17,6 +17,7 @@ import {
 } from "./_admin-shared.mjs";
 import { DISCOUNTS_KEY, sanitiseDiscount, validateDiscountRecord } from "./_discounts.mjs";
 import { sanitiseDeliverySettings } from "./_delivery.mjs";
+import { validateProductCatalogue, verifyPersistedProducts } from "./_products.mjs";
 
 const requireAuth = (event) => {
   const session = requireSession(event);
@@ -35,47 +36,17 @@ const parseRequestBody = (event) => {
 const missingAdminEnv = () => ["ADMIN_USERNAME", "ADMIN_PASSWORD_HASH", "ADMIN_SESSION_SECRET"]
   .filter((name) => !process.env[name]);
 
-const validateProductCatalogue = (content) => {
-  const products = Array.isArray(content?.products) ? content.products : [];
-  const brands = Array.isArray(content?.brands) ? content.brands : [];
-  if (products.length < 65) {
-    return "The product catalogue must contain all 65 products before saving.";
-  }
-
-  if (!brands.length) return "At least one brand is required.";
-  const normalisedNames = brands.map((brand) => String(brand?.name || "").trim().toLowerCase());
-  const normalisedIds = brands.map((brand) => String(brand?.id || "").trim().toLowerCase());
-  if (new Set(normalisedNames).size !== brands.length || new Set(normalisedIds).size !== brands.length) {
-    return "Brand names and IDs must be unique.";
-  }
-  if (brands.some((brand) => !brand?.name?.trim() || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(brand?.id || ""))) {
-    return "Every brand requires a name and a valid lowercase ID.";
-  }
-  const brandIds = new Set(brands.map((brand) => brand.id));
-
-  const invalidProduct = products.find((product) => {
-    const price = Number(product?.price);
-    return !product?.name?.trim()
-      || !product?.brand?.trim()
-      || !brandIds.has(product?.brandId)
-      || !product?.image?.trim()
-      || !Number.isFinite(price)
-      || price <= 0;
-  });
-  if (invalidProduct) {
-    return `Product name, brand, image and a valid price are required for every product. Please review: ${invalidProduct.name || invalidProduct.id || "Unnamed product"}.`;
-  }
-
-  return "";
-};
-
-const saveUpload = async ({ filename, mimeType, base64 }) => {
+const saveUpload = async ({ filename, mimeType, base64, ownerType, ownerId, slot, imageId }) => {
   if (!base64) throw new Error("No image supplied");
   if (!String(mimeType || "").startsWith("image/")) throw new Error("Only image uploads are supported.");
+  if (!['product', 'brand'].includes(ownerType) || !/^[a-z0-9][a-z0-9_-]*$/i.test(String(ownerId || ""))) throw new Error("A stable product or brand ID is required for image uploads.");
+  if (!['main', 'gallery', 'logo'].includes(slot)) throw new Error("A valid image slot is required.");
+  if (slot === 'gallery' && !/^[a-z0-9][a-z0-9_-]*$/i.test(String(imageId || ""))) throw new Error("A stable gallery image ID is required.");
   const encoded = String(base64).replace(/^data:[^,]+,/, "");
   if (encoded.length > 5 * 1024 * 1024) throw new Error("The optimised image is too large. Please upload a smaller image.");
   const extension = (filename || "image.webp").split(".").pop()?.replace(/[^a-z0-9]/gi, "").toLowerCase() || "webp";
-  const key = `${Date.now()}-${newId("asset")}.${extension}`;
+  const safeImageId = slot === "gallery" ? `-${imageId}` : "";
+  const key = `${ownerType}s/${ownerId}/${slot}${safeImageId}-${Date.now()}-${newId("asset")}.${extension}`;
   const buffer = Buffer.from(encoded, "base64");
   if (!buffer.length) throw new Error("The uploaded image was empty or invalid.");
   try {
@@ -91,7 +62,12 @@ const saveUpload = async ({ filename, mimeType, base64 }) => {
     storageError.code = "ASSET_STORAGE_UNAVAILABLE";
     throw storageError;
   }
-  return `/.netlify/functions/admin-asset?key=${encodeURIComponent(key)}`;
+  const persisted = await assetStore().getWithMetadata(key, { type: "arrayBuffer", consistency: "strong" });
+  if (!persisted?.data?.byteLength) throw new Error("Uploaded image could not be verified in storage.");
+  return {
+    url: `/.netlify/functions/admin-asset?key=${encodeURIComponent(key)}`,
+    binding: { ownerType, ownerId, slot, imageId: slot === "gallery" ? imageId : "" },
+  };
 };
 
 export const handler = async (event) => {
@@ -142,7 +118,10 @@ export const handler = async (event) => {
     const validationError = validateProductCatalogue(body);
     if (validationError) return json(400, { error: `Validation failed: ${validationError}`, code: "VALIDATION_FAILED" });
     try {
-      return json(200, await writeContent(body));
+      const persisted = await writeContent(body);
+      const verificationError = verifyPersistedProducts(body, persisted);
+      if (verificationError) return json(500, { error: verificationError, code: "CONTENT_VERIFICATION_FAILED" });
+      return json(200, persisted);
     } catch (error) {
       console.error("Admin content storage failed", { message: error?.message });
       return json(500, { error: "Product could not be saved because storage is unavailable. Please try again.", code: "CONTENT_STORAGE_UNAVAILABLE" });
@@ -151,8 +130,8 @@ export const handler = async (event) => {
 
   if (method === "POST" && action === "upload") {
     try {
-      const url = await saveUpload(body);
-      return json(200, { ok: true, url });
+      const upload = await saveUpload(body);
+      return json(200, { ok: true, ...upload });
     } catch (error) {
       const storageFailure = error.code === "ASSET_STORAGE_UNAVAILABLE";
       return json(storageFailure ? 500 : 400, { error: error.message || "Image upload failed.", code: error.code || "IMAGE_UPLOAD_FAILED" });

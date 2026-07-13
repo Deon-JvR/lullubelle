@@ -386,7 +386,7 @@ const loadManagedContent = async () => {
         const managedProducts = Array.isArray(content?.products) ? content.products : [];
         const products = hasCompleteProductCatalogue(managedProducts, fallback.products)
           ? managedProducts
-          : mergeCollections(fallback.products, managedProducts);
+          : mergeProductCollections(fallback.products, managedProducts);
         return {
           ...content,
           products,
@@ -422,6 +422,19 @@ const mergeCollections = (fallbackItems = [], managedItems = []) => {
       const key = String(item.id || item.name || "").trim().toLowerCase();
       if (key) merged.set(key, { ...(merged.get(key) || {}), ...item });
     });
+  return [...merged.values()];
+};
+
+const mergeProductCollections = (fallbackProducts = [], managedProducts = []) => {
+  const merged = new Map();
+  (Array.isArray(fallbackProducts) ? fallbackProducts : []).forEach((product) => {
+    const key = String(product?.id || "").trim().toLowerCase();
+    if (key) merged.set(key, product);
+  });
+  (Array.isArray(managedProducts) ? managedProducts : []).forEach((product) => {
+    const key = String(product?.id || "").trim().toLowerCase();
+    if (key) merged.set(key, product);
+  });
   return [...merged.values()];
 };
 
@@ -519,6 +532,12 @@ const normaliseManagedProduct = (product) => {
     benefits: Array.isArray(product.benefits) ? product.benefits : [],
     storage: Array.isArray(product.storage) ? product.storage : [],
     imageAlt: product.imageAlt || `${brand} ${name}`,
+    galleryImages: (Array.isArray(product.galleryImages) ? product.galleryImages : []).flatMap((item, index) => {
+      const normalised = typeof item === "string" ? { id: `${product.id}-gallery-${index + 1}`, url: item, alt: "" } : item;
+      const url = String(normalised?.url || "").trim();
+      if (!url || /^(?:data|blob):/i.test(url) || /(?:^|\/)(?:lullubelle-logo|placeholder)(?:[._/?-]|$)/i.test(url)) return [];
+      return [{ id: normalised.id || `${product.id}-gallery-${index + 1}`, url, alt: normalised.alt || `${brand} ${name} gallery image ${index + 1}` }];
+    }),
     seoTitle: product.seoTitle || "",
     seoDescription: product.seoDescription || product.metaDescription || "",
   };
@@ -809,7 +828,8 @@ const renderProductDetailPage = async () => {
   container.innerHTML = `
     <section class="section product-detail product-detail-page-hero">
       <div class="product-detail-media">
-        <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.imageAlt)}" width="900" height="900" decoding="async" loading="eager" fetchpriority="high">
+        <img class="product-detail-main-image" src="${escapeHtml(product.image)}" alt="${escapeHtml(product.imageAlt)}" width="900" height="900" decoding="async" loading="eager" fetchpriority="high">
+        ${product.galleryImages.length ? `<div class="product-detail-gallery" aria-label="Additional product images">${product.galleryImages.map((image) => `<img src="${escapeHtml(image.url)}" alt="${escapeHtml(image.alt)}" width="320" height="320" decoding="async" loading="lazy">`).join("")}</div>` : ""}
       </div>
       <div class="product-detail-copy">
         <p class="eyebrow">${escapeHtml(product.brand)} skincare</p>

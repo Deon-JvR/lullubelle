@@ -8,6 +8,8 @@ const state = {
   discountSearch: "",
   discountFilter: "all",
   dirty: false,
+  saving: false,
+  pendingUploads: new Map(),
   productUi: {
     mode: "list",
     editingId: "",
@@ -56,13 +58,6 @@ const productEditorBrands = (product) => {
 };
 const brandForProduct = (product) => state.content.brands.find((brand) => brand.id === product.brandId)
   || state.content.brands.find((brand) => brand.name.toLowerCase() === String(product.brand || "").toLowerCase());
-const syncProductBrands = () => state.content.products.forEach((product) => {
-  const brand = brandForProduct(product);
-  if (brand) {
-    product.brandId = brand.id;
-    product.brand = brand.name;
-  }
-});
 
 const setStatus = (message, type = "") => {
   const node = $("[data-admin-status]");
@@ -88,6 +83,7 @@ const request = async (action, options = {}) => {
   try {
     response = await fetch(`${API}?action=${encodeURIComponent(action)}`, {
       credentials: "same-origin",
+      cache: "no-store",
       headers: { "Content-Type": "application/json", ...(options.headers || {}) },
       ...options,
     });
@@ -166,7 +162,7 @@ const convertImageToWebP = async (file) => {
   return blob;
 };
 
-const uploadImage = async (file) => {
+const uploadImage = async (file, binding) => {
   if (!file?.type?.startsWith("image/")) throw new Error("Image upload failed: select a valid image file.");
   if (file.size > 20 * 1024 * 1024) throw new Error("Image upload failed: the source file must be smaller than 20 MB.");
   const webp = await convertImageToWebP(file);
@@ -177,8 +173,15 @@ const uploadImage = async (file) => {
   const dataUrl = await blobToDataUrl(uploadFile);
   const result = await request("upload", {
     method: "POST",
-    body: JSON.stringify({ filename, mimeType, base64: dataUrl }),
+    body: JSON.stringify({ filename, mimeType, base64: dataUrl, ...binding }),
   });
+  if (!result.url || result.binding?.ownerType !== binding.ownerType || result.binding?.ownerId !== binding.ownerId || result.binding?.slot !== binding.slot || (binding.slot === "gallery" && result.binding?.imageId !== binding.imageId)) {
+    throw new Error("The uploaded image was not associated with the requested product. Nothing was changed.");
+  }
+  const verification = await fetch(result.url, { credentials: "same-origin", cache: "no-store", headers: { Accept: "image/*" } });
+  if (!verification.ok || !String(verification.headers.get("Content-Type") || "").startsWith("image/")) {
+    throw new Error("The uploaded image could not be reloaded from storage. Please try again.");
+  }
   return result.url;
 };
 
@@ -203,10 +206,20 @@ const productVisibilityLabel = (product) => product.hidden ? "Hidden" : "Visible
 const productBadge = (label, active, tone = "") => `<span class="status-pill ${active ? "is-active" : ""} ${tone}">${escapeHtml(label)}</span>`;
 const adminImageSrc = (image) => {
   const value = String(image || "").trim();
-  if (!value) return "lullubelle-logo.jpg";
+  if (!value) return "/lullubelle-logo.jpg";
   if (/^(https?:|data:|blob:|\/)/i.test(value)) return value;
   return `/${value.replace(/^\.?\//, "")}`;
 };
+const invalidProductImage = (image) => {
+  const value = String(image || "").trim();
+  return !value
+    || /(?:^|\/)(?:lullubelle-logo|placeholder|default-product|sample-product)(?:[._/?-]|$)/i.test(value)
+    || /^(?:data|blob):/i.test(value)
+    || !/^(?:https?:\/\/|\/\.netlify\/functions\/admin-asset\?key=|\/?products\/)[^\s]+$/i.test(value);
+};
+const productGallery = (product = {}) => (Array.isArray(product.galleryImages) ? product.galleryImages : []).map((item, index) => typeof item === "string"
+  ? { id: `${product.id}-gallery-${index + 1}`, url: item, alt: "" }
+  : { id: String(item?.id || `${product.id}-gallery-${index + 1}`), url: String(item?.url || ""), alt: String(item?.alt || "") });
 const productBadges = (product) => {
   const badges = [];
   if (product.featured) badges.push(productBadge("Featured", true, "featured"));
@@ -215,6 +228,16 @@ const productBadges = (product) => {
 };
 
 const getProductById = (id) => state.content.products.find((product) => product.id === id);
+
+const setSavingState = (saving) => {
+  state.saving = saving;
+  $$('[data-save]').forEach((button) => {
+    button.disabled = saving;
+    button.setAttribute("aria-busy", String(saving));
+  });
+  const saveState = $("[data-save-state]");
+  if (saveState && saving) saveState.textContent = "Saving and verifying…";
+};
 
 const getFilteredProducts = () => {
   const ui = state.productUi;
@@ -373,6 +396,25 @@ const renderProductRows = (products) => {
     </div>`;
 };
 
+const renderProductGalleryEditor = (product) => {
+  const images = productGallery(product);
+  return `
+    <div class="product-gallery-editor" data-product-gallery>
+      <p class="hint">Optional gallery images appear after the main image and keep this order.</p>
+      ${images.length ? `<div class="product-gallery-editor-list">${images.map((image, index) => `
+        <article class="product-gallery-editor-item" data-gallery-image-id="${escapeHtml(image.id)}">
+          <img src="${escapeHtml(adminImageSrc(image.url))}" alt="${escapeHtml(image.alt || `${product.name || "Product"} gallery image ${index + 1}`)}">
+          <div>
+            ${field(`Gallery image ${index + 1} URL`, image.url, "galleryUrl", "text", "wide").replace('data-key="galleryUrl"', `data-gallery-key="url" data-gallery-id="${escapeHtml(image.id)}"`)}
+            ${field("Alt text", image.alt, "galleryAlt", "text", "wide").replace('data-key="galleryAlt"', `data-gallery-key="alt" data-gallery-id="${escapeHtml(image.id)}"`)}
+            <label>Replace image <input type="file" accept="image/*" data-gallery-upload-id="${escapeHtml(image.id)}"></label>
+            <button class="button danger" type="button" data-gallery-remove="${escapeHtml(image.id)}">Remove gallery image</button>
+          </div>
+        </article>`).join("")}</div>` : "<p>No gallery images added.</p>"}
+      <label>Add gallery image <input type="file" accept="image/*" data-gallery-upload-new></label>
+    </div>`;
+};
+
 const renderProductEditor = (product) => `
   <article class="editor-card product-editor ${product.hidden ? "is-hidden" : ""}" data-id="${escapeHtml(product.id)}" data-collection="products">
     <div class="product-editor-header">
@@ -387,9 +429,10 @@ const renderProductEditor = (product) => `
         <h4>General</h4>
         <div class="form-grid">
           ${field("Product name", product.name, "name")}
-          ${field("Product ID / slug", product.id, "id")}
+          <label>Product ID / slug<input type="text" value="${escapeHtml(product.id)}" readonly aria-describedby="product-id-help"><small id="product-id-help">Stable identity used for images and storefront URLs.</small></label>
           <label>Brand
             <select data-key="brandId" required>
+              <option value="" ${product.brandId ? "" : "selected"} disabled>Select a brand…</option>
               ${productEditorBrands(product).map((brand) => `<option value="${escapeHtml(brand.id)}" ${brand.id === product.brandId ? "selected" : ""}>${escapeHtml(brand.name)}${brand.active === false ? " (inactive)" : ""}</option>`).join("")}
               <option value="__add_brand__">＋ Add new brand…</option>
             </select>
@@ -416,6 +459,8 @@ const renderProductEditor = (product) => `
             <label class="wide">Upload/change product image <input type="file" accept="image/*" data-upload="image"></label>
           </div>
         </div>
+        <h4>Gallery images</h4>
+        ${renderProductGalleryEditor(product)}
       </section>
       <section class="editor-section">
         <h4>Description</h4>
@@ -674,7 +719,6 @@ const closeBrandManager = () => {
   const dialog = $("[data-brand-manager]");
   if (dialog?.close) dialog.close();
   else dialog?.removeAttribute("open");
-  syncProductBrands();
   renderProducts();
 };
 
@@ -697,7 +741,10 @@ const render = () => {
 
 const loadAll = async () => {
   state.content = await request("content");
-  syncProductBrands();
+  state.content.products = (Array.isArray(state.content.products) ? state.content.products : []).map((product) => ({
+    ...product,
+    galleryImages: productGallery(product),
+  }));
   state.bookings = await request("bookings");
   state.orders = await request("orders");
   state.discounts = await request("discounts");
@@ -731,9 +778,8 @@ const showLogin = () => {
 };
 
 const addItem = (collection) => {
-  const defaultBrand = activeBrands()[0];
   const defaults = {
-    products: { id: uid("product"), brandId: defaultBrand?.id || "", brand: defaultBrand?.name || "", category: "Needs review", name: "New product", price: 1, stockStatus: "In stock", image: "lullubelle-logo.jpg", hidden: false },
+    products: { id: uid("product"), brandId: "", brand: "", category: "Needs review", name: "", price: 1, stockStatus: "In stock", image: "", imageAlt: "", galleryImages: [], hidden: true },
     treatments: { id: uid("treatment"), category: "General", name: "New treatment", price: "", duration: "", hidden: false },
     gallery: { id: uid("gallery"), title: "New result", category: "Microneedling", categories: "microneedling", order: state.content.gallery.length + 1, featured: false, hidden: false },
     vouchers: { id: uid("voucher"), name: "Gift Voucher", amount: 250, hidden: false },
@@ -790,20 +836,83 @@ const validateProductsBeforeSave = () => {
   if (new Set(names).size !== brands.length || new Set(ids).size !== brands.length) return "Brand names and IDs must be unique.";
   const brandIds = new Set(brands.map((brand) => brand.id));
 
+  const productIds = products.map((product) => String(product.id || "").trim().toLowerCase());
+  const productSlugs = productIds.map((id) => slugify(id));
+  const duplicateId = productIds.find((id, index) => id && productIds.indexOf(id) !== index);
+  if (duplicateId) return `Duplicate product ID detected: ${duplicateId}. Saving was blocked.`;
+  const duplicateSlugIndex = productSlugs.findIndex((slug, index) => slug && productSlugs.indexOf(slug) !== index);
+  if (duplicateSlugIndex >= 0) return `Duplicate product slug detected: ${products[duplicateSlugIndex].id}. Saving was blocked.`;
+
   const invalid = products.find((product) => {
     const price = Number(product.price);
-    return !product.name?.trim()
+    const selectedBrand = brands.find((brand) => brand.id === product.brandId);
+    const gallery = productGallery(product);
+    return !product.id?.trim()
+      || !/^[a-z0-9][a-z0-9_-]*$/.test(product.id)
+      || !product.name?.trim()
       || !product.brand?.trim()
       || !brandIds.has(product.brandId)
-      || !product.image?.trim()
+      || product.brand !== selectedBrand?.name
+      || invalidProductImage(product.image)
+      || gallery.some((image) => !image.id || invalidProductImage(image.url))
+      || new Set(gallery.map((image) => image.id.toLowerCase())).size !== gallery.length
       || !Number.isFinite(price)
       || price <= 0;
   });
   if (invalid) {
-    return `Please complete product name, brand, image and a valid price before saving: ${invalid.name || invalid.id || "Unnamed product"}.`;
+    if (!invalid.brandId || !brandIds.has(invalid.brandId)) return `Select a brand for ${invalid.name || invalid.id || "the new product"}. Saving was blocked.`;
+    if (invalidProductImage(invalid.image)) return `Upload a valid main image for ${invalid.name || invalid.id || "the new product"}. Placeholder or blank images cannot be saved.`;
+    return `Please complete the product ID, name, brand, images and a valid price before saving: ${invalid.name || invalid.id || "Unnamed product"}.`;
   }
 
   return "";
+};
+
+const verifyPersistedContent = (expected, actual) => {
+  const expectedProducts = Array.isArray(expected?.products) ? expected.products : [];
+  const actualProducts = Array.isArray(actual?.products) ? actual.products : [];
+  const actualById = new Map(actualProducts.map((product) => [String(product.id || "").toLowerCase(), product]));
+  for (const product of expectedProducts) {
+    const persisted = actualById.get(String(product.id || "").toLowerCase());
+    if (!persisted) return `Saved product could not be reloaded: ${product.name || product.id}.`;
+    if (persisted.brandId !== product.brandId || persisted.brand !== product.brand) return `Saved brand could not be verified for ${product.name || product.id}.`;
+    if (persisted.image !== product.image) return `Saved main image could not be verified for ${product.name || product.id}.`;
+    if (JSON.stringify(productGallery(persisted)) !== JSON.stringify(productGallery(product))) return `Saved gallery images could not be verified for ${product.name || product.id}.`;
+  }
+  return "";
+};
+
+const persistWebsiteContent = async (successMessage) => {
+  if (state.saving) return;
+  if (state.pendingUploads.size) {
+    setStatus("Wait for all image uploads to finish before saving.", "error");
+    return;
+  }
+  const validationError = validateProductsBeforeSave();
+  if (validationError) {
+    setStatus(validationError, "error");
+    return;
+  }
+
+  const submitted = JSON.parse(JSON.stringify(state.content));
+  setSavingState(true);
+  setStatus("Saving product data and image references…");
+  try {
+    await request("content", { method: "PUT", body: JSON.stringify(submitted) });
+    const authoritative = await request("content", { headers: { "Cache-Control": "no-cache" } });
+    const verificationError = verifyPersistedContent(submitted, authoritative);
+    if (verificationError) throw new Error(verificationError);
+    state.content = authoritative;
+    state.content.products = state.content.products.map((product) => ({ ...product, galleryImages: productGallery(product) }));
+    setDirty(false);
+    render();
+    setStatus(successMessage, "success");
+  } catch (error) {
+    console.error("[Admin content save] Persistence verification failed", error);
+    setStatus(error.message || "The catalogue could not be saved and verified. Please try again.", "error");
+  } finally {
+    setSavingState(false);
+  }
 };
 
 const updateRecord = (card, key, value) => {
@@ -819,12 +928,10 @@ const updateRecord = (card, key, value) => {
   else if (key === "categoriesText") item.categories = String(value || "").split(",").map((entry) => entry.trim()).filter(Boolean);
   else if (key === "tags" || key === "relatedProducts") {
     item[key] = String(value || "").split(",").map((entry) => entry.trim()).filter(Boolean);
-  } else if (key === "id") {
+  } else if (key === "id" && collection !== "products") {
     item.id = String(value || "").trim();
     card.dataset.id = item.id;
-    if (collection === "products") state.productUi.editingId = item.id;
-  }
-  else if (key === "customerText") {
+  } else if (key === "customerText") {
     try { item.customer = JSON.parse(value || "{}"); } catch { item.customer = {}; }
   } else if (key === "productsText") {
     try { item.products = JSON.parse(value || "[]"); } catch { item.products = []; }
@@ -842,19 +949,45 @@ const updateRecord = (card, key, value) => {
 const handleUploadInput = async (input) => {
   const card = input.closest?.(".editor-card");
   if (!card || !input.files?.[0]) return false;
-  if (input.matches("[data-upload]") && input.files?.[0]) {
+  if (input.matches("[data-upload], [data-gallery-upload-id], [data-gallery-upload-new]") && input.files?.[0]) {
     if (input.dataset.uploading === "true") return true;
+    const productId = card.dataset.id;
+    const targetProduct = getProductById(productId);
+    if (!targetProduct) {
+      setStatus("The product being edited could not be identified. Reopen it and try again.", "error");
+      return true;
+    }
+    const galleryUpload = input.matches("[data-gallery-upload-id], [data-gallery-upload-new]");
+    const imageId = galleryUpload ? (input.dataset.galleryUploadId || uid("image")) : "";
+    const uploadToken = `${productId}:${galleryUpload ? imageId : "main"}:${uid("upload")}`;
     input.dataset.uploading = "true";
-    setStatus("Uploading image…");
+    state.pendingUploads.set(uploadToken, { productId, imageId });
+    setStatus(`Uploading and verifying image for ${targetProduct.name || productId}…`);
     try {
-      const url = await uploadImage(input.files[0]);
-      updateRecord(card, input.dataset.upload, url);
+      const url = await uploadImage(input.files[0], {
+        ownerType: "product",
+        ownerId: productId,
+        slot: galleryUpload ? "gallery" : "main",
+        imageId,
+      });
+      const persistedTarget = getProductById(productId);
+      if (!persistedTarget) throw new Error("The product was closed or removed before its image upload completed.");
+      if (galleryUpload) {
+        persistedTarget.galleryImages = productGallery(persistedTarget);
+        const existing = persistedTarget.galleryImages.find((image) => image.id === imageId);
+        if (existing) existing.url = url;
+        else persistedTarget.galleryImages.push({ id: imageId, url, alt: "" });
+      } else {
+        persistedTarget.image = url;
+      }
       setDirty();
-      setStatus("Image uploaded.", "success");
+      setStatus("Image uploaded and verified. Save changes to publish it.");
       render();
     } catch (error) {
       console.error("[Admin image upload] Product image upload failed", error);
       setStatus(error.message || "Image upload failed.", "error");
+    } finally {
+      state.pendingUploads.delete(uploadToken);
       input.dataset.uploading = "false";
     }
     return true;
@@ -902,6 +1035,18 @@ document.addEventListener("input", async (event) => {
   if (!card) return;
   if (await handleUploadInput(input)) return;
 
+  if (input.matches("[data-gallery-key]")) {
+    const product = getProductById(card.dataset.id);
+    const image = productGallery(product).find((entry) => entry.id === input.dataset.galleryId);
+    if (product && image) {
+      product.galleryImages = productGallery(product);
+      const target = product.galleryImages.find((entry) => entry.id === input.dataset.galleryId);
+      target[input.dataset.galleryKey] = input.value;
+      setDirty();
+    }
+    return;
+  }
+
   const key = input.dataset.key;
   if (!key) return;
   updateRecord(card, key, input.multiple ? Array.from(input.selectedOptions, (option) => option.value) : input.type === "checkbox" ? input.checked : input.value);
@@ -939,7 +1084,7 @@ document.addEventListener("change", async (event) => {
     if (!brand) return;
     setStatus("Uploading brand logo…");
     try {
-      brand.logo = await uploadImage(input.files[0]);
+      brand.logo = await uploadImage(input.files[0], { ownerType: "brand", ownerId: brand.id, slot: "logo", imageId: "" });
       setDirty();
       renderBrandManager();
       setStatus("Brand logo uploaded.", "success");
@@ -986,7 +1131,7 @@ document.addEventListener("change", async (event) => {
     return;
   }
 
-  if (input.matches("[data-upload]")) {
+  if (input.matches("[data-upload], [data-gallery-upload-id], [data-gallery-upload-new]")) {
     await handleUploadInput(input);
     return;
   }
@@ -1074,9 +1219,10 @@ document.addEventListener("click", async (event) => {
     renderProducts();
   }
 
-  if (target.matches("[data-product-edit]")) {
+  const productEditButton = target.closest?.("[data-product-edit]");
+  if (productEditButton) {
     state.productUi.mode = "edit";
-    state.productUi.editingId = target.dataset.productEdit;
+    state.productUi.editingId = productEditButton.dataset.productEdit;
     renderProducts();
   }
 
@@ -1111,6 +1257,17 @@ document.addEventListener("click", async (event) => {
     return;
   }
 
+  if (target.matches("[data-gallery-remove]")) {
+    const product = getProductById(target.closest(".editor-card")?.dataset.id);
+    if (product) {
+      product.galleryImages = productGallery(product).filter((image) => image.id !== target.dataset.galleryRemove);
+      setDirty();
+      render();
+      setStatus("Gallery image removed. Save changes to publish it.");
+    }
+    return;
+  }
+
   const card = target.closest?.(".editor-card");
   if (card?.dataset.collection && target.matches("[data-hide]")) {
     const collection = card.dataset.collection;
@@ -1132,21 +1289,7 @@ document.addEventListener("click", async (event) => {
   }
 
   if (target.matches("[data-save]")) {
-    const validationError = validateProductsBeforeSave();
-    if (validationError) {
-      setStatus(validationError, "error");
-      return;
-    }
-
-    setStatus("Saving…");
-    try {
-      state.content = await request("content", { method: "PUT", body: JSON.stringify(state.content) });
-      setDirty(false);
-      render();
-      setStatus("Website content saved.", "success");
-    } catch (error) {
-      setStatus(error.message, "error");
-    }
+    await persistWebsiteContent("Website content saved and verified.");
   }
 
   if (target.matches("[data-save-bookings]")) {
@@ -1170,12 +1313,7 @@ document.addEventListener("click", async (event) => {
   }
 
   if (target.matches("[data-save-delivery]")) {
-    try {
-      state.content = await request("content", { method: "PUT", body: JSON.stringify(state.content) });
-      setDirty(false);
-      render();
-      setStatus("Delivery settings saved.", "success");
-    } catch (error) { setStatus(error.message, "error"); }
+    await persistWebsiteContent("Delivery settings saved and verified.");
   }
 
   if (target.matches("[data-refresh]")) loadAll().catch((error) => setStatus(error.message, "error"));
