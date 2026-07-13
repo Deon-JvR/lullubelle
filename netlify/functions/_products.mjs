@@ -1,6 +1,8 @@
+import { createHash } from "node:crypto";
+
 const PLACEHOLDER_IMAGE_PATTERN = /(?:^|\/)(?:lullubelle-logo|placeholder|default-product|sample-product)(?:[._/?-]|$)/i;
 const PRODUCT_ID_PATTERN = /^[a-z0-9][a-z0-9_-]*$/;
-export const CATALOGUE_SCHEMA_VERSION = 3;
+export const CATALOGUE_SCHEMA_VERSION = 4;
 
 export const productIdentityKey = (value) => String(value || "").trim().toLowerCase();
 
@@ -8,6 +10,10 @@ export const productSlugKey = (value) => productIdentityKey(value)
   .replace(/&/g, "and")
   .replace(/[^a-z0-9]+/g, "-")
   .replace(/^-|-$/g, "");
+
+export const catalogueSeedSignature = (products = []) => createHash("sha256")
+  .update(JSON.stringify(Array.isArray(products) ? products : []))
+  .digest("hex");
 
 export const isValidProductImageUrl = (value) => {
   const url = String(value || "").trim();
@@ -34,23 +40,100 @@ const isGeneratedPlaceholderProduct = (product = {}) => (
   && PLACEHOLDER_IMAGE_PATTERN.test(String(product.image || ""))
 );
 
+const normalisedProductName = (value) => productIdentityKey(value).replace(/\s+/g, " ");
+const productBrandKey = (product = {}) => productIdentityKey(product.brandId || product.brand);
+const productNameKey = (product = {}) => `${productBrandKey(product)}::${normalisedProductName(product.name)}`;
+
+const synchroniseBrands = (seedBrands = [], storedBrands = []) => {
+  const managed = Array.isArray(storedBrands) ? storedBrands : [];
+  const used = new Set();
+  const synced = (Array.isArray(seedBrands) ? seedBrands : []).map((seedBrand) => {
+    const match = managed.find((brand) => !used.has(brand) && (
+      productIdentityKey(brand?.id) === productIdentityKey(seedBrand?.id)
+      || productIdentityKey(brand?.name) === productIdentityKey(seedBrand?.name)
+    ));
+    if (match) used.add(match);
+    return { ...seedBrand, ...(match || {}), id: seedBrand.id || match?.id };
+  });
+  managed.filter((brand) => !used.has(brand)).forEach((brand) => synced.push(brand));
+  return synced;
+};
+
+export const synchroniseProductCatalogue = (seedProducts = [], storedProducts = []) => {
+  const seed = Array.isArray(seedProducts) ? seedProducts.filter(Boolean) : [];
+  const managed = Array.isArray(storedProducts) ? storedProducts.filter(Boolean) : [];
+  const used = new Set();
+  let added = 0;
+  let updated = 0;
+  let deduplicated = 0;
+
+  const products = seed.map((seedProduct) => {
+    const seedSku = productIdentityKey(seedProduct?.sku);
+    const seedName = normalisedProductName(seedProduct?.name);
+    const seedBrand = productBrandKey(seedProduct);
+    const bySku = seedSku && managed.find((product) => !used.has(product) && productIdentityKey(product?.sku) === seedSku);
+    const byName = bySku || (seedName && managed.find((product) => !used.has(product)
+      && normalisedProductName(product?.name) === seedName
+      && (!seedBrand || !productBrandKey(product) || productBrandKey(product) === seedBrand)));
+    const byId = byName || managed.find((product) => !used.has(product)
+      && productIdentityKey(product?.id) === productIdentityKey(seedProduct?.id));
+    const storedProduct = bySku || byName || byId;
+    if (storedProduct) {
+      used.add(storedProduct);
+      updated += 1;
+    } else added += 1;
+    return {
+      ...seedProduct,
+      ...(storedProduct || {}),
+      // Seed IDs remain canonical so the static and managed catalogues cannot
+      // produce two records for one SKU after a name-based reconciliation.
+      id: seedProduct.id || storedProduct?.id,
+    };
+  });
+
+  const ids = new Set(products.map((product) => productIdentityKey(product?.id)).filter(Boolean));
+  const skus = new Set(products.map((product) => productIdentityKey(product?.sku)).filter(Boolean));
+  const names = new Set(products.map(productNameKey).filter((key) => !key.endsWith("::")));
+  managed.filter((product) => !used.has(product)).forEach((product) => {
+    const id = productIdentityKey(product?.id);
+    const sku = productIdentityKey(product?.sku);
+    const name = productNameKey(product);
+    if ((id && ids.has(id)) || (sku && skus.has(sku)) || (name && !name.endsWith("::") && names.has(name))) {
+      deduplicated += 1;
+      return;
+    }
+    products.push(product);
+    if (id) ids.add(id);
+    if (sku) skus.add(sku);
+    if (name && !name.endsWith("::")) names.add(name);
+  });
+
+  return {
+    products,
+    stats: {
+      seedProducts: seed.length,
+      managedProductsBefore: managed.length,
+      added,
+      updated,
+      skipped: 0,
+      deduplicated,
+      managedOnlyPreserved: products.length - seed.length,
+      productsAfter: products.length,
+    },
+  };
+};
+
 export const migrateCatalogueContent = (storedContent = {}, seedContent = {}) => {
-  if (Number(storedContent?.catalogueSchemaVersion) >= CATALOGUE_SCHEMA_VERSION) {
+  const seedSignature = catalogueSeedSignature(seedContent?.products);
+  if (Number(storedContent?.catalogueSchemaVersion) >= CATALOGUE_SCHEMA_VERSION
+    && storedContent?.catalogueSeedSignature === seedSignature) {
     return { content: storedContent, changed: false, removedPlaceholderIds: [] };
   }
 
-  const seedBrandsById = new Map((Array.isArray(seedContent?.brands) ? seedContent.brands : [])
-    .map((brand) => [productIdentityKey(brand?.id), brand]));
-  const storedBrands = Array.isArray(storedContent?.brands) && storedContent.brands.length
-    ? storedContent.brands
-    : (Array.isArray(seedContent?.brands) ? seedContent.brands : []);
-  const brands = storedBrands.map((brand) => {
-    const canonical = seedBrandsById.get(productIdentityKey(brand?.id));
-    return canonical?.name ? { ...brand, name: canonical.name } : brand;
-  });
+  const brands = synchroniseBrands(seedContent?.brands, storedContent?.brands);
   const brandNamesById = new Map(brands.map((brand) => [productIdentityKey(brand?.id), brand?.name]));
   const removedPlaceholderIds = [];
-  let products = (Array.isArray(storedContent?.products) ? storedContent.products : []).flatMap((product) => {
+  const cleanedStoredProducts = (Array.isArray(storedContent?.products) ? storedContent.products : []).flatMap((product) => {
     if (isGeneratedPlaceholderProduct(product)) {
       removedPlaceholderIds.push(String(product.id));
       return [];
@@ -59,26 +142,7 @@ export const migrateCatalogueContent = (storedContent = {}, seedContent = {}) =>
     return [{ ...product, ...(canonicalBrand ? { brand: canonicalBrand } : {}) }];
   });
 
-  const isKalahari = (product) => productIdentityKey(product?.brandId) === "kalahari" || productIdentityKey(product?.brand) === "kalahari";
-  const authoritativeKalahari = (Array.isArray(seedContent?.products) ? seedContent.products : []).filter(isKalahari);
-  if (authoritativeKalahari.length) {
-    const storedKalahari = products.filter(isKalahari);
-    const used = new Set();
-    const reconciled = authoritativeKalahari.map((seedProduct) => {
-      const bySku = storedKalahari.find((product) => productIdentityKey(product?.sku) && productIdentityKey(product.sku) === productIdentityKey(seedProduct.sku) && !used.has(product));
-      const byName = bySku || storedKalahari.find((product) => String(product?.name || "").trim() === String(seedProduct.name || "").trim() && !used.has(product));
-      const storedProduct = bySku || byName;
-      if (storedProduct) used.add(storedProduct);
-      const managedAsset = /^\/.netlify\/functions\/admin-asset\?key=/i.test(String(storedProduct?.image || ""));
-      return {
-        ...(storedProduct || {}),
-        ...seedProduct,
-        ...(managedAsset ? { image: storedProduct.image, imageAlt: storedProduct.imageAlt || seedProduct.imageAlt } : {}),
-        ...(Array.isArray(storedProduct?.galleryImages) && storedProduct.galleryImages.length ? { galleryImages: storedProduct.galleryImages } : {}),
-      };
-    });
-    products = [...products.filter((product) => !isKalahari(product)), ...reconciled];
-  }
+  const synchronised = synchroniseProductCatalogue(seedContent?.products, cleanedStoredProducts);
 
   return {
     changed: true,
@@ -86,24 +150,21 @@ export const migrateCatalogueContent = (storedContent = {}, seedContent = {}) =>
     content: {
       ...storedContent,
       brands,
-      products,
+      products: synchronised.products,
       catalogueSchemaVersion: CATALOGUE_SCHEMA_VERSION,
+      catalogueSeedSignature: seedSignature,
+      catalogueSync: {
+        version: CATALOGUE_SCHEMA_VERSION,
+        synchronizedAt: new Date().toISOString(),
+        ...synchronised.stats,
+      },
     },
   };
 };
 
 export const mergeProductCatalogue = (seedProducts = [], managedProducts) => {
   if (!Array.isArray(managedProducts)) return Array.isArray(seedProducts) ? seedProducts : [];
-  const merged = new Map();
-  (Array.isArray(seedProducts) ? seedProducts : []).forEach((product) => {
-    const key = productIdentityKey(product?.id);
-    if (key) merged.set(key, product);
-  });
-  managedProducts.forEach((product) => {
-    const key = productIdentityKey(product?.id);
-    if (key) merged.set(key, product);
-  });
-  return [...merged.values()];
+  return synchroniseProductCatalogue(seedProducts, managedProducts).products;
 };
 
 export const validateProductCatalogue = (content, { minimumProducts = 65 } = {}) => {
@@ -159,7 +220,6 @@ export const validateProductCatalogue = (content, { minimumProducts = 65 } = {})
       if (!String(product.slug || "").trim() || !String(product.searchKeywords || "").trim()) {
         return `Kalahari SEO slug and search keywords are required for ${product.name}.`;
       }
-      if (product.active !== true || product.hidden === true) return `Kalahari catalogue product must be active: ${product.name}.`;
     }
 
     const gallery = normaliseProductGallery(product);

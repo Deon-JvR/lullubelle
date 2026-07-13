@@ -5,6 +5,7 @@ import {
   mergeProductCatalogue,
   migrateCatalogueContent,
   normaliseProductGallery,
+  synchroniseProductCatalogue,
   validateProductCatalogue,
   verifyPersistedProducts,
 } from "../netlify/functions/_products.mjs";
@@ -56,8 +57,8 @@ assert.equal(merged.find((item) => item.id === products[0].id).image, products[0
 
 const partialManaged = [{ id: products[0].id, name: "Incomplete" }];
 const partialMerge = mergeProductCatalogue(fallback, partialManaged);
-assert.equal(partialMerge[0].brand, undefined, "A partial managed record must not inherit a fallback brand");
-assert.match(validateProductCatalogue({ brands, products: partialMerge }, { minimumProducts: 1 }), /Select a valid brand/);
+assert.equal(partialMerge[0].brand, "Wrong fallback brand", "Static fields fill gaps in a partial managed record");
+assert.equal(partialMerge[0].name, "Incomplete", "Managed fields remain authoritative");
 
 const duplicate = { ...products[1], id: products[0].id.toUpperCase() };
 assert.match(validateProductCatalogue({ brands, products: [products[0], duplicate] }, { minimumProducts: 2 }), /Duplicate product ID/);
@@ -94,10 +95,10 @@ const migration = migrateCatalogueContent(legacyContent, canonicalSeed);
 assert.equal(migration.changed, true);
 assert.equal(migration.content.catalogueSchemaVersion, CATALOGUE_SCHEMA_VERSION);
 assert.deepEqual(migration.removedPlaceholderIds, ["product_generated_placeholder"]);
-assert.deepEqual(migration.content.brands.map((brand) => brand.name), ["SunSkin", "Soopa"]);
+assert.deepEqual(migration.content.brands.map((brand) => brand.name), ["SunSkin Tinted SPF", "Soopa Skin"]);
 assert.deepEqual(migration.content.products.map((item) => [item.id, item.brand]), [
-  ["soopa-valid", "Soopa"],
-  ["product_real_new_product", "SunSkin"],
+  ["soopa-valid", "Soopa Skin"],
+  ["product_real_new_product", "SunSkin Tinted SPF"],
 ]);
 assert.equal(migrateCatalogueContent(migration.content, canonicalSeed).changed, false, "The migration must run only once so later Admin brand renames remain authoritative");
 
@@ -117,10 +118,53 @@ const catalogueStored = {
   ],
 };
 const catalogueMigration = migrateCatalogueContent(catalogueStored, catalogueSeed);
-assert.equal(catalogueMigration.content.products.length, 2);
-assert.equal(catalogueMigration.content.products[0].price, 200);
-assert.equal(catalogueMigration.content.products[0].description, "Authoritative");
+assert.equal(catalogueMigration.content.products.length, 3);
+assert.equal(catalogueMigration.content.products[0].price, 999, "Managed price edits must survive seed synchronisation");
+assert.equal(catalogueMigration.content.products[0].description, "Old", "Managed text edits must survive seed synchronisation");
 assert.match(catalogueMigration.content.products[0].image, /admin-asset/);
 assert.equal(catalogueMigration.content.products[1].sku, "K002");
+assert.deepEqual(catalogueMigration.content.catalogueSync, {
+  version: CATALOGUE_SCHEMA_VERSION,
+  synchronizedAt: catalogueMigration.content.catalogueSync.synchronizedAt,
+  seedProducts: 2,
+  managedProductsBefore: 2,
+  added: 1,
+  updated: 1,
+  skipped: 0,
+  deduplicated: 0,
+  managedOnlyPreserved: 1,
+  productsAfter: 3,
+});
+
+const skuFirstSync = synchroniseProductCatalogue(catalogueSeed.products, [{
+  ...catalogueSeed.products[0],
+  id: "legacy-cleanser-id",
+  name: "Renamed in Admin",
+  description: "Managed SKU match",
+}]);
+assert.equal(skuFirstSync.products.length, 2);
+assert.equal(skuFirstSync.products[0].id, "kalahari-cleanser");
+assert.equal(skuFirstSync.products[0].name, "Renamed in Admin");
+assert.equal(skuFirstSync.products[0].description, "Managed SKU match");
+assert.equal(skuFirstSync.stats.updated, 1);
+assert.equal(skuFirstSync.stats.added, 1);
+
+const nameSync = synchroniseProductCatalogue([catalogueSeed.products[0]], [{
+  ...catalogueSeed.products[0],
+  id: "legacy-name-id",
+  sku: "",
+  name: "  CLEANser  ",
+  price: 450,
+}]);
+assert.equal(nameSync.products.length, 1);
+assert.equal(nameSync.products[0].id, "kalahari-cleanser");
+assert.equal(nameSync.products[0].price, 450);
+
+const duplicateSync = synchroniseProductCatalogue([catalogueSeed.products[0]], [
+  { ...catalogueSeed.products[0], id: "managed-cleanser" },
+  { ...catalogueSeed.products[0], id: "duplicate-cleanser" },
+]);
+assert.equal(duplicateSync.products.length, 1);
+assert.equal(duplicateSync.stats.deduplicated, 1);
 
 console.log("Product identity, brand, image, gallery, merge and persistence tests passed for Kalahari, VitaDerm, Mesoestetic and SunSkin.");

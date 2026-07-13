@@ -244,9 +244,11 @@ const setSavingState = (saving) => {
 const getFilteredProducts = () => {
   const ui = state.productUi;
   const search = ui.search.trim().toLowerCase();
+  const exactSkuSearch = search && state.content.products.some((product) => String(product.sku || "").trim().toLowerCase() === search);
   return [...state.content.products]
     .filter((product) => {
       const searchable = [product.name, product.sku, product.category, product.searchKeywords].join(" ").toLowerCase();
+      const sku = String(product.sku || "").trim().toLowerCase();
       const brandId = brandForProduct(product)?.id || "";
       const stock = String(product.stockStatus || "In stock");
       const visibleMatch = ui.visibility === "all"
@@ -258,7 +260,7 @@ const getFilteredProducts = () => {
       const bestSellerMatch = ui.bestSeller === "all"
         || (ui.bestSeller === "yes" && product.bestSeller === true)
         || (ui.bestSeller === "no" && product.bestSeller !== true);
-      return (!search || searchable.includes(search))
+      return (!search || (exactSkuSearch ? sku === search : searchable.includes(search)))
         && (ui.brand === "all" || brandId === ui.brand)
         && (ui.stock === "all" || stock === ui.stock)
         && visibleMatch
@@ -362,6 +364,7 @@ const renderProductRows = (products) => {
                   <div>
                     <strong data-product-name="${escapeHtml(product.id)}">${escapeHtml(product.name || "Unnamed product")}</strong>
                     <small data-product-slug="${escapeHtml(product.id)}">${escapeHtml(product.id || "")}</small>
+                    <small>${escapeHtml([product.sku && `SKU ${product.sku}`, product.category, product.size].filter(Boolean).join(" · "))}</small>
                   </div>
                 </div>
               </td>
@@ -389,7 +392,7 @@ const renderProductRows = (products) => {
                 <div class="row-actions">
                   <button class="button secondary" type="button" data-product-edit="${escapeHtml(product.id)}">Edit</button>
                   <button class="button secondary" type="button" data-product-hide="${escapeHtml(product.id)}" data-product-hide-label="${escapeHtml(product.id)}">${product.hidden ? "Show" : "Hide"}</button>
-                  <button class="button danger" type="button" data-product-delete="${escapeHtml(product.id)}">Delete</button>
+                  <button class="button danger" type="button" data-product-delete="${escapeHtml(product.id)}" ${product.catalogueSource === "Kalahari Retail Price List 2025" ? 'disabled title="Required catalogue products can be deactivated but not deleted"' : ""}>Delete</button>
                 </div>
               </td>
             </tr>`).join("")}
