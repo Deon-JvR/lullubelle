@@ -108,7 +108,9 @@ const request = async (action, options = {}) => {
       503: action === "upload" ? "Image storage is unavailable. Please try again." : "Product storage is temporarily unavailable.",
     };
     const message = data.error || statusMessages[response.status] || `Admin request failed (HTTP ${response.status}).`;
-    console.error(`[Admin API] ${action} failed`, { status: response.status, message, response: responseText.slice(0, 1000) });
+    if (!(action === "me" && response.status === 401)) {
+      console.error(`[Admin API] ${action} failed`, { status: response.status, message, response: responseText.slice(0, 1000) });
+    }
     const error = new Error(message);
     error.status = response.status;
     error.code = data.code || "ADMIN_REQUEST_FAILED";
