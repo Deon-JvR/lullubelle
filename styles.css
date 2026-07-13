@@ -3094,8 +3094,26 @@ input,textarea,select,button {
 
 .shop-brand-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: 18px;
+}
+
+.partner-brands {
+  background: #fff;
+}
+
+.partner-brand-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.partner-brand-grid .brand-tile {
+  min-width: 0;
+}
+
+.partner-brand-grid .brand-logo {
+  display: block;
+  object-fit: contain;
+  object-position: center;
 }
 
 .shop-brand-card {
@@ -4491,6 +4509,10 @@ input,textarea,select,button {
 
   .shop-brand-card {
     min-height: 150px;
+  }
+
+  .partner-brand-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .shop-brand-card span {

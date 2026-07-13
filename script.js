@@ -211,14 +211,8 @@ const setupPageStructuredData = () => {
 };
 
 const setupShopCatalogue = (content) => {
-  const products = getVisibleManagedItems(content?.products).map(normaliseManagedProduct);
-  const brands = (Array.isArray(content?.brands) ? content.brands : [])
-    .filter((brand) => brand?.active !== false)
-    .sort((a, b) => Number(a.order) - Number(b.order) || a.name.localeCompare(b.name))
-    .filter((brand) => {
-      const hasProducts = products.some((product) => (product.brandId && product.brandId === brand.id) || product.brand.toLowerCase() === brand.name.toLowerCase());
-      return hasProducts || brand.hideWhenEmpty === false;
-    });
+  const products = getActiveCatalogueProducts(content?.products).map(normaliseManagedProduct);
+  const brands = getCatalogueBrands(content, products);
   const tabs = document.querySelector(".supplier-tabs");
   const payments = document.querySelector(".payments-section");
   if (!tabs || !payments || !brands.length) return;
@@ -226,7 +220,7 @@ const setupShopCatalogue = (content) => {
   tabs.innerHTML = brands.map((brand, index) => `<button class="supplier-tab ${index === 0 ? "is-active" : ""}" type="button" data-brand-filter="${escapeHtml(brand.id)}" aria-pressed="${index === 0 ? "true" : "false"}">${escapeHtml(brand.name)}</button>`).join("");
   document.querySelectorAll("[data-brand-panel]").forEach((panel) => panel.remove());
   payments.insertAdjacentHTML("beforebegin", brands.map((brand, index) => {
-    const brandProducts = products.filter((product) => (product.brandId && product.brandId === brand.id) || product.brand.toLowerCase() === brand.name.toLowerCase());
+    const brandProducts = products.filter((product) => productMatchesBrand(product, brand));
     return `<section class="section product-price-section" data-brand-panel="${escapeHtml(brand.id)}" ${index === 0 ? "" : "hidden"}>
       <div class="section-heading"><p class="eyebrow">${escapeHtml(brand.name)}</p><h2>${escapeHtml(brand.name)} products</h2><p>Browse ${escapeHtml(brand.name)} products available through Lullubelle.</p></div>
       <div class="kalahari-grid" aria-live="polite">${brandProducts.length ? brandProducts.map(renderManagedProductCard).join("") : `<p>No ${escapeHtml(brand.name)} products are currently listed.</p>`}</div>
@@ -238,6 +232,23 @@ const setupShopCatalogue = (content) => {
     syncProductSchemas(grid);
   });
   setupBrandFilters();
+};
+
+const setupHomepageBrands = (content) => {
+  const grid = document.querySelector("[data-shop-brands]");
+  if (!grid) return;
+
+  const products = getActiveCatalogueProducts(content?.products).map(normaliseManagedProduct);
+  const brands = getCatalogueBrands(content, products);
+  if (!brands.length) return;
+
+  grid.innerHTML = brands.map((brand) => {
+    const productCount = products.filter((product) => productMatchesBrand(product, brand)).length;
+    const description = productCount
+      ? `${productCount} ${productCount === 1 ? "product" : "products"}`
+      : "Professional skincare range";
+    return `<a class="shop-brand-card" href="/shop?brand=${encodeURIComponent(brand.id || brand.name)}"><span>${escapeHtml(brand.name)}</span><small>${escapeHtml(description)}</small></a>`;
+  }).join("");
 };
 
 const setupResultLightbox = () => {
@@ -372,13 +383,17 @@ const loadManagedContent = async () => {
       .then((response) => response.ok ? response.json() : null)
       .then(async (content) => {
         const fallback = await loadStaticContent();
-        if (hasCompleteProductCatalogue(content?.products, fallback.products)) return content;
+        const managedProducts = Array.isArray(content?.products) ? content.products : [];
+        const products = hasCompleteProductCatalogue(managedProducts, fallback.products)
+          ? managedProducts
+          : mergeCollections(fallback.products, managedProducts);
         return {
-          products: fallback.products,
-          brands: content?.brands?.length ? content.brands : fallback.brands,
-          treatments: content?.treatments || [],
+          ...content,
+          products,
+          brands: mergeCollections(fallback.brands, content?.brands),
+          treatments: Array.isArray(content?.treatments) ? content.treatments : fallback.treatments,
           gallery: Array.isArray(content?.gallery) ? content.gallery : fallback.gallery,
-          vouchers: content?.vouchers || [],
+          vouchers: Array.isArray(content?.vouchers) ? content.vouchers : fallback.vouchers,
           deliverySettings: content?.deliverySettings || { ...DEFAULT_DELIVERY_SETTINGS },
           updatedAt: content?.updatedAt || new Date().toISOString(),
         };
@@ -398,6 +413,57 @@ const loadManagedContent = async () => {
 const getVisibleManagedItems = (items) => Array.isArray(items)
   ? items.filter((item) => item && item.hidden !== true)
   : [];
+
+const mergeCollections = (fallbackItems = [], managedItems = []) => {
+  const merged = new Map();
+  [...(Array.isArray(fallbackItems) ? fallbackItems : []), ...(Array.isArray(managedItems) ? managedItems : [])]
+    .filter(Boolean)
+    .forEach((item) => {
+      const key = String(item.id || item.name || "").trim().toLowerCase();
+      if (key) merged.set(key, { ...(merged.get(key) || {}), ...item });
+    });
+  return [...merged.values()];
+};
+
+const PLACEHOLDER_BRANDS = new Set(["brand", "unknown", "other", "none", "n/a", "na", "unbranded", "placeholder", "test", "lullubelle"]);
+const isGenuineBrandName = (value) => {
+  const name = String(value || "").trim();
+  return Boolean(name) && !PLACEHOLDER_BRANDS.has(name.toLowerCase()) && !/^new brand\b/i.test(name);
+};
+const getActiveCatalogueProducts = (items) => getVisibleManagedItems(items).filter((product) => (
+  product.active !== false
+  && product.published !== false
+  && !/^(?:draft|inactive|archived)$/i.test(String(product.status || "").trim())
+  && isGenuineBrandName(product.brand)
+));
+const productMatchesBrand = (product, brand) => (
+  Boolean(product.brandId && brand.id && product.brandId.toLowerCase() === brand.id.toLowerCase())
+  || product.brand.toLowerCase() === brand.name.toLowerCase()
+);
+const getCatalogueBrands = (content, normalisedProducts = []) => {
+  const configured = (Array.isArray(content?.brands) ? content.brands : [])
+    .filter((brand) => brand?.active !== false && isGenuineBrandName(brand.name));
+  const candidates = configured
+    .filter((brand) => normalisedProducts.some((product) => productMatchesBrand(product, brand)) || brand.hideWhenEmpty === false)
+    .concat(normalisedProducts.map((product, index) => ({
+      id: product.brandId || slugify(product.brand),
+      name: product.brand,
+      order: configured.length + index + 1,
+      active: true,
+    })));
+  const seenNames = new Set();
+  const seenIds = new Set();
+  return candidates
+    .sort((a, b) => Number(a.order ?? Number.MAX_SAFE_INTEGER) - Number(b.order ?? Number.MAX_SAFE_INTEGER) || a.name.localeCompare(b.name))
+    .filter((brand) => {
+      const nameKey = brand.name.trim().toLowerCase();
+      const idKey = String(brand.id || "").trim().toLowerCase();
+      if (seenNames.has(nameKey) || (idKey && seenIds.has(idKey))) return false;
+      seenNames.add(nameKey);
+      if (idKey) seenIds.add(idKey);
+      return true;
+    });
+};
 
 const normaliseGalleryItems = (items = []) => {
   const seen = new Set();
@@ -673,6 +739,7 @@ const applyManagedTreatments = (treatments = []) => {
 const applyManagedContent = (content) => {
   if (!content) return;
   setupShopCatalogue(content);
+  setupHomepageBrands(content);
   setupFeaturedProducts(content);
   applyManagedVouchers(content.vouchers);
   applyManagedGallery(content.gallery);
