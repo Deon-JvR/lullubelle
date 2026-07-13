@@ -73,6 +73,9 @@ assert.equal(isValidProductImageUrl("lullubelle-logo.jpg"), false);
 assert.equal(isValidProductImageUrl("blob:stale-preview"), false);
 assert.equal(isValidProductImageUrl(products[0].image), true);
 assert.equal(verifyPersistedProducts(content, JSON.parse(JSON.stringify(content))), "");
+const staleSize = JSON.parse(JSON.stringify(content));
+staleSize.products[0].size = "stale size";
+assert.match(verifyPersistedProducts(content, staleSize), /Saved size could not be verified/);
 
 const legacyContent = {
   brands: [

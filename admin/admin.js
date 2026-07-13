@@ -883,14 +883,33 @@ const verifyPersistedContent = (expected, actual) => {
   const expectedProducts = Array.isArray(expected?.products) ? expected.products : [];
   const actualProducts = Array.isArray(actual?.products) ? actual.products : [];
   const actualById = new Map(actualProducts.map((product) => [String(product.id || "").toLowerCase(), product]));
+  const fields = [
+    "name", "slug", "sku", "brandId", "brand", "category", "size", "price", "stockStatus",
+    "image", "imageAlt", "benefit", "description", "directions", "ingredients", "suitable",
+    "tags", "relatedProducts", "seoTitle", "seoDescription", "searchKeywords", "featured",
+    "bestSeller", "hidden", "active", "published", "status",
+  ];
   for (const product of expectedProducts) {
     const persisted = actualById.get(String(product.id || "").toLowerCase());
     if (!persisted) return `Saved product could not be reloaded: ${product.name || product.id}.`;
-    if (persisted.brandId !== product.brandId || persisted.brand !== product.brand) return `Saved brand could not be verified for ${product.name || product.id}.`;
-    if (persisted.image !== product.image) return `Saved main image could not be verified for ${product.name || product.id}.`;
+    const mismatchedField = fields.find((field) => JSON.stringify(persisted[field]) !== JSON.stringify(product[field]));
+    if (mismatchedField) return `Saved ${mismatchedField} could not be verified for ${product.name || product.id}.`;
     if (JSON.stringify(productGallery(persisted)) !== JSON.stringify(productGallery(product))) return `Saved gallery images could not be verified for ${product.name || product.id}.`;
   }
   return "";
+};
+
+const reloadPersistedContent = async (submitted, timeoutMs = 65000) => {
+  const deadline = Date.now() + timeoutMs;
+  let lastError = "Saved content has not propagated yet.";
+  while (Date.now() < deadline) {
+    const authoritative = await request("content", { headers: { "Cache-Control": "no-cache" } });
+    const verificationError = verifyPersistedContent(submitted, authoritative);
+    if (!verificationError) return authoritative;
+    lastError = verificationError;
+    await new Promise((resolve) => window.setTimeout(resolve, 1500));
+  }
+  throw new Error(`${lastError} Refresh and verify the catalogue before making further changes.`);
 };
 
 const persistWebsiteContent = async (successMessage) => {
@@ -910,9 +929,7 @@ const persistWebsiteContent = async (successMessage) => {
   setStatus("Saving product data and image references…");
   try {
     await request("content", { method: "PUT", body: JSON.stringify(submitted) });
-    const authoritative = await request("content", { headers: { "Cache-Control": "no-cache" } });
-    const verificationError = verifyPersistedContent(submitted, authoritative);
-    if (verificationError) throw new Error(verificationError);
+    const authoritative = await reloadPersistedContent(submitted);
     state.content = authoritative;
     state.content.products = state.content.products.map((product) => ({ ...product, galleryImages: productGallery(product) }));
     setDirty(false);

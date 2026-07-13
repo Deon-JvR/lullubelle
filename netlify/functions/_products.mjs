@@ -237,11 +237,17 @@ export const verifyPersistedProducts = (expectedContent, actualContent) => {
   const expected = Array.isArray(expectedContent?.products) ? expectedContent.products : [];
   const actual = Array.isArray(actualContent?.products) ? actualContent.products : [];
   const actualById = new Map(actual.map((product) => [productIdentityKey(product?.id), product]));
+  const fields = [
+    "name", "slug", "sku", "brandId", "brand", "category", "size", "price", "stockStatus",
+    "image", "imageAlt", "benefit", "description", "directions", "ingredients", "suitable",
+    "tags", "relatedProducts", "seoTitle", "seoDescription", "searchKeywords", "featured",
+    "bestSeller", "hidden", "active", "published", "status",
+  ];
   for (const product of expected) {
     const persisted = actualById.get(productIdentityKey(product?.id));
     if (!persisted) return `Saved product could not be reloaded: ${product?.name || product?.id}.`;
-    if (persisted.brandId !== product.brandId || persisted.brand !== product.brand) return `Saved brand could not be verified for ${product?.name || product?.id}.`;
-    if (persisted.image !== product.image) return `Saved main image could not be verified for ${product?.name || product?.id}.`;
+    const mismatchedField = fields.find((field) => JSON.stringify(persisted[field]) !== JSON.stringify(product[field]));
+    if (mismatchedField) return `Saved ${mismatchedField} could not be verified for ${product?.name || product?.id}.`;
     const expectedGallery = normaliseProductGallery(product);
     const actualGallery = normaliseProductGallery(persisted);
     if (JSON.stringify(actualGallery) !== JSON.stringify(expectedGallery)) return `Saved gallery images could not be verified for ${product?.name || product?.id}.`;

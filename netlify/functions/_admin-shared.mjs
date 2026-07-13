@@ -51,17 +51,15 @@ const isNetlifyRuntime = () => Boolean(process.env.NETLIFY || process.env.CONTEX
 const getConfiguredStore = (name) => {
   const siteID = process.env.NETLIFY_BLOBS_SITE_ID;
   const token = process.env.NETLIFY_BLOBS_TOKEN;
-  if (siteID && token) return getStore({ name, siteID, token, consistency: "strong" });
-  return getStore({ name, consistency: "strong" });
+  if (siteID && token) return getStore({ name, siteID, token });
+  return getStore({ name });
 };
 
-const getRuntimeStore = (name) => getStore({ name, consistency: "strong" });
-
 export const contentStore = () => isNetlifyRuntime()
-  ? getRuntimeStore("lullubelle-admin")
+  ? getStore("lullubelle-admin")
   : getConfiguredStore("lullubelle-admin");
 export const assetStore = () => isNetlifyRuntime()
-  ? getRuntimeStore("lullubelle-admin-assets")
+  ? getStore("lullubelle-admin-assets")
   : getConfiguredStore("lullubelle-admin-assets");
 
 const localLists = new Map();
@@ -160,10 +158,12 @@ export const writeContent = async (content) => {
     })),
     updatedAt: new Date().toISOString(),
   };
-  await contentStore().setJSON(CONTENT_KEY, next);
-  const persisted = await contentStore().get(CONTENT_KEY, { type: "json" });
-  if (!persisted || persisted.updatedAt !== next.updatedAt) throw new Error("Saved content could not be verified after writing.");
-  return persisted;
+  const result = await contentStore().setJSON(CONTENT_KEY, next);
+  if (!result?.modified || !result.etag) throw new Error("Saved content was not accepted by storage.");
+  // Netlify confirms a successful durable write with `modified` and an ETag.
+  // Reads are eventually consistent, so the Admin client polls until this
+  // exact content is visible before it reports success.
+  return next;
 };
 
 export const readList = async (key) => {
