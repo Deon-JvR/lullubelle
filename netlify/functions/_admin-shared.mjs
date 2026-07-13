@@ -55,8 +55,14 @@ const getConfiguredStore = (name) => {
   return getStore({ name, consistency: "strong" });
 };
 
-export const contentStore = () => getConfiguredStore("lullubelle-admin");
-export const assetStore = () => getConfiguredStore("lullubelle-admin-assets");
+const getRuntimeStore = (name) => getStore({ name, consistency: "strong" });
+
+export const contentStore = () => isNetlifyRuntime()
+  ? getRuntimeStore("lullubelle-admin")
+  : getConfiguredStore("lullubelle-admin");
+export const assetStore = () => isNetlifyRuntime()
+  ? getRuntimeStore("lullubelle-admin-assets")
+  : getConfiguredStore("lullubelle-admin-assets");
 
 const localLists = new Map();
 
