@@ -246,7 +246,7 @@ const getFilteredProducts = () => {
   const search = ui.search.trim().toLowerCase();
   return [...state.content.products]
     .filter((product) => {
-      const name = String(product.name || "").toLowerCase();
+      const searchable = [product.name, product.sku, product.category, product.searchKeywords].join(" ").toLowerCase();
       const brandId = brandForProduct(product)?.id || "";
       const stock = String(product.stockStatus || "In stock");
       const visibleMatch = ui.visibility === "all"
@@ -258,7 +258,7 @@ const getFilteredProducts = () => {
       const bestSellerMatch = ui.bestSeller === "all"
         || (ui.bestSeller === "yes" && product.bestSeller === true)
         || (ui.bestSeller === "no" && product.bestSeller !== true);
-      return (!search || name.includes(search))
+      return (!search || searchable.includes(search))
         && (ui.brand === "all" || brandId === ui.brand)
         && (ui.stock === "all" || stock === ui.stock)
         && visibleMatch
@@ -294,7 +294,7 @@ const productFilterControls = (products) => {
     <div class="product-tools">
       <div class="product-tools-main">
         <label class="product-search">Search products
-          <input type="search" data-product-search value="${escapeHtml(state.productUi.search)}" placeholder="Search by product name">
+          <input type="search" data-product-search value="${escapeHtml(state.productUi.search)}" placeholder="Search by name, SKU, category or keyword">
         </label>
         ${filterSelect("Sort", "sort", state.productUi.sort, PRODUCT_SORTS)}
         <button class="button secondary compact-button" type="button" data-product-filters-toggle aria-expanded="${state.productUi.filtersOpen ? "true" : "false"}">More Filters${activeAdvancedFilters ? ` (${activeAdvancedFilters})` : ""}</button>
@@ -480,7 +480,9 @@ const renderProductEditor = (product) => `
         <h4>SEO</h4>
         <div class="form-grid">
           ${field("SEO title", product.seoTitle || "", "seoTitle", "text", "wide")}
+          ${field("SEO slug", product.slug || product.id || "", "slug", "text", "wide")}
           ${field("SEO meta description", product.seoDescription || product.metaDescription || "", "seoDescription", "textarea", "wide")}
+          ${field("Search keywords", product.searchKeywords || "", "searchKeywords", "textarea", "wide")}
         </div>
       </section>
       <section class="editor-section">
@@ -840,11 +842,14 @@ const validateProductsBeforeSave = () => {
   const brandIds = new Set(brands.map((brand) => brand.id));
 
   const productIds = products.map((product) => String(product.id || "").trim().toLowerCase());
-  const productSlugs = productIds.map((id) => slugify(id));
+  const productSlugs = products.map((product) => slugify(product.slug || product.id));
+  const productSkus = products.map((product) => String(product.sku || "").trim().toLowerCase());
   const duplicateId = productIds.find((id, index) => id && productIds.indexOf(id) !== index);
   if (duplicateId) return `Duplicate product ID detected: ${duplicateId}. Saving was blocked.`;
   const duplicateSlugIndex = productSlugs.findIndex((slug, index) => slug && productSlugs.indexOf(slug) !== index);
   if (duplicateSlugIndex >= 0) return `Duplicate product slug detected: ${products[duplicateSlugIndex].id}. Saving was blocked.`;
+  const duplicateSkuIndex = productSkus.findIndex((sku, index) => sku && productSkus.indexOf(sku) !== index);
+  if (duplicateSkuIndex >= 0) return `Duplicate product SKU detected: ${products[duplicateSkuIndex].sku}. Saving was blocked.`;
 
   const invalid = products.find((product) => {
     const price = Number(product.price);

@@ -168,7 +168,7 @@ const syncProductSchemas = (scope = document) => {
       name: button.dataset.productName,
       description,
       image: new URL(image, window.location.href).href,
-      sku: id,
+      sku: button.dataset.productSku || id,
       brand: { "@type": "Brand", name: brand },
       offers: {
         "@type": "Offer",
@@ -217,21 +217,77 @@ const setupShopCatalogue = (content) => {
   const payments = document.querySelector(".payments-section");
   if (!tabs || !payments || !brands.length) return;
 
-  tabs.innerHTML = brands.map((brand, index) => `<button class="supplier-tab ${index === 0 ? "is-active" : ""}" type="button" data-brand-filter="${escapeHtml(brand.id)}" aria-pressed="${index === 0 ? "true" : "false"}">${escapeHtml(brand.name)}</button>`).join("");
+  const parameters = new URLSearchParams(window.location.search);
+  const requestedBrand = parameters.get("brand");
+  const requestedCategory = parameters.get("category");
+  let query = parameters.get("q") || "";
+  let selectedBrand = brands.find((brand) => requestedBrand && (brand.id.toLowerCase() === requestedBrand.toLowerCase() || brand.name.toLowerCase() === requestedBrand.toLowerCase()))?.id
+    || ((requestedCategory || query) ? "all" : brands[0].id);
+  let selectedCategory = requestedCategory || "all";
+  const categories = [...new Set(products.map((product) => product.category).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+
+  tabs.innerHTML = [{ id: "all", name: "All Products" }, ...brands].map((brand) => `<button class="supplier-tab ${brand.id === selectedBrand ? "is-active" : ""}" type="button" data-brand-filter="${escapeHtml(brand.id)}" aria-pressed="${brand.id === selectedBrand ? "true" : "false"}">${escapeHtml(brand.name)}</button>`).join("");
   document.querySelectorAll("[data-brand-panel]").forEach((panel) => panel.remove());
-  payments.insertAdjacentHTML("beforebegin", brands.map((brand, index) => {
-    const brandProducts = products.filter((product) => productMatchesBrand(product, brand));
-    return `<section class="section product-price-section" data-brand-panel="${escapeHtml(brand.id)}" ${index === 0 ? "" : "hidden"}>
-      <div class="section-heading"><p class="eyebrow">${escapeHtml(brand.name)}</p><h2>${escapeHtml(brand.name)} products</h2><p>Browse ${escapeHtml(brand.name)} products available through Lullubelle.</p></div>
-      <div class="kalahari-grid" aria-live="polite">${brandProducts.length ? brandProducts.map(renderManagedProductCard).join("") : `<p>No ${escapeHtml(brand.name)} products are currently listed.</p>`}</div>
-      <div class="stock-note"><p>Product availability can change. Lullubelle will confirm stock before completing your order.</p></div>
-    </section>`;
-  }).join(""));
-  document.querySelectorAll("[data-brand-panel] .kalahari-grid").forEach((grid) => {
+  payments.insertAdjacentHTML("beforebegin", `<section class="section product-price-section" data-shop-catalogue>
+    <div class="section-heading" data-shop-catalogue-heading></div>
+    <div class="shop-catalogue-tools">
+      <label>Search products<input type="search" value="${escapeHtml(query)}" placeholder="Search by product, SKU or keyword" data-shop-product-search></label>
+      <label>Category<select data-shop-category><option value="all">All categories</option>${categories.map((category) => `<option value="${escapeHtml(slugify(category))}" ${slugify(category) === selectedCategory ? "selected" : ""}>${escapeHtml(category)}</option>`).join("")}</select></label>
+    </div>
+    <p class="shop-catalogue-status" aria-live="polite" data-shop-catalogue-status></p>
+    <div class="kalahari-grid" aria-live="polite" data-shop-product-grid></div>
+    <div class="stock-note"><p>Product availability can change. Lullubelle will confirm stock before completing your order.</p></div>
+  </section>`);
+
+  const section = document.querySelector("[data-shop-catalogue]");
+  const heading = section.querySelector("[data-shop-catalogue-heading]");
+  const grid = section.querySelector("[data-shop-product-grid]");
+  const status = section.querySelector("[data-shop-catalogue-status]");
+  const search = section.querySelector("[data-shop-product-search]");
+  const categorySelect = section.querySelector("[data-shop-category]");
+  if (selectedCategory !== "all" && !categories.some((category) => slugify(category) === selectedCategory)) selectedCategory = "all";
+
+  const updateUrl = () => {
+    const next = new URL(window.location.href);
+    if (selectedBrand === "all") next.searchParams.delete("brand"); else next.searchParams.set("brand", selectedBrand);
+    if (selectedCategory === "all") next.searchParams.delete("category"); else next.searchParams.set("category", selectedCategory);
+    if (query.trim()) next.searchParams.set("q", query.trim()); else next.searchParams.delete("q");
+    window.history.replaceState({}, "", `${next.pathname}${next.search}${next.hash}`);
+  };
+
+  const render = () => {
+    const brand = brands.find((item) => item.id === selectedBrand);
+    const queryKey = query.trim().toLowerCase();
+    const exactSkuSearch = queryKey && products.some((product) => String(product.sku || "").toLowerCase() === queryKey);
+    const filtered = products.filter((product) => {
+      const brandMatch = selectedBrand === "all" || (brand && productMatchesBrand(product, brand));
+      const categoryMatch = selectedCategory === "all" || slugify(product.category) === selectedCategory;
+      const searchText = [product.brand, product.name, product.sku, product.size, product.category, product.description, product.searchKeywords].join(" ").toLowerCase();
+      const searchMatch = !queryKey || (exactSkuSearch ? String(product.sku || "").toLowerCase() === queryKey : searchText.includes(queryKey));
+      return brandMatch && categoryMatch && searchMatch;
+    });
+    const title = brand ? `${brand.name} products` : "All products";
+    heading.innerHTML = `<p class="eyebrow">Product catalogue</p><h2>${escapeHtml(title)}</h2><p>Browse current products available through Lullubelle.</p>`;
+    grid.innerHTML = filtered.length ? filtered.map(renderManagedProductCard).join("") : `<p>No products match the selected brand, category and search.</p>`;
+    status.textContent = `Showing ${filtered.length} of ${products.length} active products`;
+    tabs.querySelectorAll("[data-brand-filter]").forEach((button) => {
+      const active = button.dataset.brandFilter === selectedBrand;
+      button.classList.toggle("is-active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
     bindProductButtons(grid);
     syncProductSchemas(grid);
-  });
-  setupBrandFilters();
+  };
+
+  tabs.querySelectorAll("[data-brand-filter]").forEach((button) => button.addEventListener("click", () => {
+    selectedBrand = button.dataset.brandFilter;
+    updateUrl();
+    render();
+    trackEvent("shop_supplier_filter", { supplier: selectedBrand });
+  }));
+  search.addEventListener("input", () => { query = search.value; updateUrl(); render(); });
+  categorySelect.addEventListener("change", () => { selectedCategory = categorySelect.value; updateUrl(); render(); });
+  render();
 };
 
 const setupHomepageBrands = (content) => {
@@ -513,6 +569,7 @@ const normaliseManagedProduct = (product) => {
   const name = product.name || "Product";
   return {
     id: product.id || `${slugify(brand)}-${slugify(name)}`,
+    slug: product.slug || product.id || `${slugify(brand)}-${slugify(name)}`,
     brandId: product.brandId || slugify(brand),
     brand,
     name,
@@ -525,6 +582,7 @@ const normaliseManagedProduct = (product) => {
     suitable: product.suitable || "Selected skin routines after consultation.",
     size: product.size || "",
     sku: product.sku || product.id || `${slugify(brand)}-${slugify(name)}`,
+    searchKeywords: Array.isArray(product.searchKeywords) ? product.searchKeywords.join(" ") : product.searchKeywords || "",
     stockStatus: product.stockStatus || "In stock",
     featured: product.featured === true,
     bestSeller: product.bestSeller === true,
@@ -573,17 +631,19 @@ const renderManagedProductCard = (product) => {
   const label = isPurchasable(product) ? "Add to cart" : stockLabel(product.stockStatus);
   const badge = product.bestSeller ? "Best Seller" : product.featured ? "Featured" : "";
   return `
-    <article class="kalahari-item">
+    <article class="kalahari-item" data-product-id="${escapeHtml(product.id)}" data-product-sku="${escapeHtml(product.sku)}" data-product-category="${escapeHtml(slugify(product.category))}">
       ${badge ? `<span class="product-status-badge">${escapeHtml(badge)}</span>` : ""}
       <div class="product-image-wrap"><img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.imageAlt)}" width="650" height="650" decoding="async" loading="lazy"></div>
       <span class="product-brand-badge" data-brand="${escapeHtml(product.brand.toLowerCase())}">${escapeHtml(product.brand)}</span>
       <h3>${escapeHtml(product.name)}</h3>
       <strong>${formatCurrency(product.price)}</strong>
+      ${product.size ? `<span class="product-size">${escapeHtml(product.size)}</span>` : ""}
+      ${product.category ? `<a class="product-category-link" href="/shop?category=${encodeURIComponent(slugify(product.category))}">${escapeHtml(product.category)}</a>` : ""}
       <p>${escapeHtml(product.benefit)}</p>
       <span class="product-stock"><span aria-hidden="true"></span> ${escapeHtml(stockLabel(product.stockStatus))}</span>
       <div class="product-card-actions">
-        <button class="button secondary" type="button" data-managed-cart-add data-product-id="${escapeHtml(product.id)}" data-product-name="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" data-product-price="${Number(product.price)}" data-product-image="${escapeHtml(product.image)}"${disabled}>${escapeHtml(label)}</button>
-        <a class="text-link" href="${escapeHtml(productDetailUrl(product.id))}">View Product</a>
+        <button class="button secondary" type="button" data-managed-cart-add data-product-id="${escapeHtml(product.id)}" data-product-sku="${escapeHtml(product.sku)}" data-product-name="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" data-product-price="${Number(product.price)}" data-product-image="${escapeHtml(product.image)}"${disabled}>${escapeHtml(label)}</button>
+        <a class="text-link" href="${escapeHtml(productDetailUrl(product.slug))}">View Product</a>
       </div>
     </article>`;
 };
@@ -842,7 +902,7 @@ const selectFeaturedProducts = (products, brands = []) => {
   const selectedIds = new Set(selected.map((product) => product.id));
   return [...selected, ...featured.filter((product) => !selectedIds.has(product.id))].slice(0, 8);
 };
-const productDetailUrl = (id) => `/products/${encodeURIComponent(id)}`;
+const productDetailUrl = (slug) => `/products/${encodeURIComponent(slug)}`;
 
 const getAllShopProducts = async () => {
   const managedContent = await loadManagedContent();
@@ -869,7 +929,7 @@ const renderProductDetailPage = async () => {
 
   const requestedId = new URLSearchParams(window.location.search).get("product")
     || window.location.pathname.match(/^\/products\/([^/]+)\/?$/)?.[1];
-  const product = products.find((item) => item.id === requestedId) || products[0];
+  const product = products.find((item) => item.id === requestedId || item.slug === requestedId) || products[0];
   const related = products
     .filter((item) => item.id !== product.id && item.brand === product.brand)
     .slice(0, 3);
@@ -877,7 +937,7 @@ const renderProductDetailPage = async () => {
 
   document.title = product.seoTitle || `${product.brand} ${product.name} | Lullubelle Skincare Centurion`;
   document.querySelector('meta[name="description"]')?.setAttribute("content", product.seoDescription || `${product.brand} ${product.name} from Lullubelle Beauty Specialist in Centurion. View benefits, directions, skin suitability and order online.`);
-  document.querySelector('link[rel="canonical"]')?.setAttribute("href", `https://www.lullubelle.co.za${productDetailUrl(product.id)}`);
+  document.querySelector('link[rel="canonical"]')?.setAttribute("href", `https://www.lullubelle.co.za${productDetailUrl(product.slug)}`);
 
   container.innerHTML = `
     <section class="section product-detail product-detail-page-hero">
@@ -939,7 +999,7 @@ const renderProductDetailPage = async () => {
             <h3>${escapeHtml(item.name)}</h3>
             <strong>${formatCurrency(item.price)}</strong>
             <p>${escapeHtml(item.benefit || "Professional home care selected by Lullubelle.")}</p>
-            <div class="product-card-actions"><a class="button secondary" href="${escapeHtml(productDetailUrl(item.id))}">View Product</a></div>
+            <div class="product-card-actions"><a class="button secondary" href="${escapeHtml(productDetailUrl(item.slug))}">View Product</a></div>
           </article>`).join("")}
       </div>
     </section>

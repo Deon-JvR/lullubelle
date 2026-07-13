@@ -1,0 +1,486 @@
+{
+  "source": "Docs/Cataloques/kalahari 2025.pdf",
+  "cataloguePages": 2,
+  "catalogueProducts": 77,
+  "existingProductsUpdated": 11,
+  "newProductsCreated": 66,
+  "skippedProducts": [],
+  "duplicateCatalogueSkus": [],
+  "duplicateExistingSkus": [],
+  "obsoleteProductsRemoved": [
+    {
+      "id": "kalahari-nourishing-eye-balm",
+      "sku": "",
+      "name": "Nourishing Eye Balm Tube",
+      "reason": "Not present in authoritative catalogue and did not match by SKU or exact name"
+    }
+  ],
+  "finalKalahariProducts": 77,
+  "finalTotalProducts": 130,
+  "updated": [
+    {
+      "sku": "CLE01",
+      "name": "Gentle Cleansing Milk",
+      "id": "kalahari-gentle-cleansing-milk",
+      "matchedBy": "exact name"
+    },
+    {
+      "sku": "FK2090",
+      "name": "Facial Cleanser",
+      "id": "kalahari-facial-cleanser",
+      "matchedBy": "exact name"
+    },
+    {
+      "sku": "ENE02",
+      "name": "Enzyme Face Buff",
+      "id": "kalahari-enzyme-face-buff",
+      "matchedBy": "exact name"
+    },
+    {
+      "sku": "FK2091",
+      "name": "Toning Lotion",
+      "id": "kalahari-toning-lotion",
+      "matchedBy": "exact name"
+    },
+    {
+      "sku": "CEP001",
+      "name": "Hydrating Collagen Eye Patches",
+      "id": "kalahari-hydrating-collagen-eye-patches",
+      "matchedBy": "exact name"
+    },
+    {
+      "sku": "ES01",
+      "name": "Essential Daily Moisturiser",
+      "id": "kalahari-essential-daily-moisturiser",
+      "matchedBy": "exact name"
+    },
+    {
+      "sku": "ES02",
+      "name": "Evening Moisturiser",
+      "id": "kalahari-evening-moisturiser",
+      "matchedBy": "exact name"
+    },
+    {
+      "sku": "K1046",
+      "name": "Hydralite Moisturiser",
+      "id": "kalahari-hydralite-moisturiser",
+      "matchedBy": "exact name"
+    },
+    {
+      "sku": "ES03",
+      "name": "Phyto Rich Moisturiser",
+      "id": "kalahari-phyto-rich-moisturiser",
+      "matchedBy": "exact name"
+    },
+    {
+      "sku": "FK1017",
+      "name": "Solar Defence Fluid 50",
+      "id": "kalahari-solar-defence-fluid-50",
+      "matchedBy": "exact name"
+    },
+    {
+      "sku": "TU004",
+      "name": "SPF 40 Sun Protection",
+      "id": "kalahari-spf-40-sun-protection",
+      "matchedBy": "exact name"
+    }
+  ],
+  "created": [
+    {
+      "sku": "D008A",
+      "name": "Skincare Journey Kit in Travel Bag",
+      "id": "kalahari-skincare-journey-kit-in-travel-bag",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "D11",
+      "name": "Age Preventative Kit",
+      "id": "kalahari-age-preventative-kit",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "D13",
+      "name": "Sensitive & Sensitised Kit",
+      "id": "kalahari-sensitive-and-sensitised-kit",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "D12",
+      "name": "Dry & Dehydrated Kit",
+      "id": "kalahari-dry-and-dehydrated-kit",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "D22",
+      "name": "Mature Skin Kit",
+      "id": "kalahari-mature-skin-kit",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "D14",
+      "name": "Hyperpigmented Skin Kit",
+      "id": "kalahari-hyperpigmented-skin-kit",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "D15",
+      "name": "Problematic Skin Kit",
+      "id": "kalahari-problematic-skin-kit",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1027",
+      "name": "Gentle Cleansing Milk in Refill Pouch",
+      "id": "kalahari-gentle-cleansing-milk-in-refill-pouch",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1026",
+      "name": "Facial Cleanser in Refill Pouch",
+      "id": "kalahari-facial-cleanser-in-refill-pouch",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1010",
+      "name": "Phyto-foam Cleanser | Self Foaming",
+      "id": "kalahari-phyto-foam-cleanser-self-foaming",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "PHY07",
+      "name": "Phyto-film Toner [pH3.5] [Treatment Toner]",
+      "id": "kalahari-phyto-film-toner-ph3-5-treatment-toner",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1101",
+      "name": "Phyto-Calm Facial Mist",
+      "id": "kalahari-phyto-calm-facial-mist",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "MAS02",
+      "name": "Facial Silicon Exfoliator",
+      "id": "kalahari-facial-silicon-exfoliator",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "DC001",
+      "name": "ECO Disposable Compress",
+      "id": "kalahari-eco-disposable-compress",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "PM015",
+      "name": "Soft Touch Cleansing Cloth",
+      "id": "kalahari-soft-touch-cleansing-cloth",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "GAU01",
+      "name": "Gauze (Non-sterile 100 individual units)",
+      "id": "kalahari-gauze-non-sterile-100-individual-units",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "NOU02",
+      "name": "Nourishing Face and Neck Mask",
+      "id": "kalahari-nourishing-face-and-neck-mask",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "D24",
+      "name": "Pow[d]er Clays & Mud Treatment Set",
+      "id": "kalahari-pow-d-er-clays-and-mud-treatment-set",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "PHY06",
+      "name": "Vita-gel Mask [pH4]",
+      "id": "kalahari-vita-gel-mask-ph4",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1012",
+      "name": "Activated Charcoal Mask",
+      "id": "kalahari-activated-charcoal-mask",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1161",
+      "name": "Vitamin C Mask",
+      "id": "kalahari-vitamin-c-mask",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "VIT01",
+      "name": "Vitamin C Sheet Mask",
+      "id": "kalahari-vitamin-c-sheet-mask",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1020",
+      "name": "De-age Hydration Mask",
+      "id": "kalahari-de-age-hydration-mask",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "PHY010",
+      "name": "Phyto Firming Neck Mask",
+      "id": "kalahari-phyto-firming-neck-mask",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1011",
+      "name": "Nourishing Eye Balm | Tube",
+      "id": "kalahari-nourishing-eye-balm-tube",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1021",
+      "name": "Anti-puffiness Eye Serum",
+      "id": "kalahari-anti-puffiness-eye-serum",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1150",
+      "name": "Phyto Eye Contour Mask | Tube",
+      "id": "kalahari-phyto-eye-contour-mask-tube",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1080",
+      "name": "Anti-ageing Gel",
+      "id": "kalahari-anti-ageing-gel",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1000",
+      "name": "Revitalising Booster Gel",
+      "id": "kalahari-revitalising-booster-gel",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "PHYL01",
+      "name": "Phyto Comfort Lotion",
+      "id": "kalahari-phyto-comfort-lotion",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1070",
+      "name": "Skin Brightening Gel",
+      "id": "kalahari-skin-brightening-gel",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1060",
+      "name": "Oily Skin Correction Gel",
+      "id": "kalahari-oily-skin-correction-gel",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "PHY10",
+      "name": "PhytoFlora Serum",
+      "id": "kalahari-phytoflora-serum",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1050",
+      "name": "Instant Lifting Serum",
+      "id": "kalahari-instant-lifting-serum",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1040",
+      "name": "Intensive Night Serum",
+      "id": "kalahari-intensive-night-serum",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "PHY01",
+      "name": "Phyto-correct Serum",
+      "id": "kalahari-phyto-correct-serum",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1024",
+      "name": "Clear Touch Blemish Patches",
+      "id": "kalahari-clear-touch-blemish-patches",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1002",
+      "name": "Ferulic CEB+ Serum",
+      "id": "kalahari-ferulic-ceb-serum",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "MAU04",
+      "name": "Marula Face Oil",
+      "id": "kalahari-marula-face-oil",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1028",
+      "name": "Vitamin C Booster Oil",
+      "id": "kalahari-vitamin-c-booster-oil",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1014",
+      "name": "Ultra-rich Skin Complex",
+      "id": "kalahari-ultra-rich-skin-complex",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "PH010",
+      "name": "Phyto Salve (Therapeutic)",
+      "id": "kalahari-phyto-salve-therapeutic",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1013",
+      "name": "Lipid Plus Recovery (Therapeutic)",
+      "id": "kalahari-lipid-plus-recovery-therapeutic",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1001",
+      "name": "Alpha lipoic Complex with Astaxanthin",
+      "id": "kalahari-alpha-lipoic-complex-with-astaxanthin",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1003",
+      "name": "Omega+ Complex with Folic acid",
+      "id": "kalahari-omega-complex-with-folic-acid",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1015",
+      "name": "Vitamin A Booster",
+      "id": "kalahari-vitamin-a-booster",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1016",
+      "name": "De-age Leave-on Mask",
+      "id": "kalahari-de-age-leave-on-mask",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "PH06",
+      "name": "Phyto Barrier Shield",
+      "id": "kalahari-phyto-barrier-shield",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "DD05",
+      "name": "Phyto DD Cream Marble",
+      "id": "kalahari-phyto-dd-cream-marble",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "DD03",
+      "name": "Phyto DD Cream Ivory",
+      "id": "kalahari-phyto-dd-cream-ivory",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "DD04",
+      "name": "Phyto DD Cream Sun Kissed",
+      "id": "kalahari-phyto-dd-cream-sun-kissed",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "PFF01",
+      "name": "Phyto Fluid Foundation Alabaster",
+      "id": "kalahari-phyto-fluid-foundation-alabaster",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "PFF02",
+      "name": "Phyto Fluid Foundation Honey",
+      "id": "kalahari-phyto-fluid-foundation-honey",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "PFF03",
+      "name": "Phyto Fluid Foundation Savannah",
+      "id": "kalahari-phyto-fluid-foundation-savannah",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "CMP01",
+      "name": "Collagen Lip Mask",
+      "id": "kalahari-collagen-lip-mask",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "PRM20",
+      "name": "Treatment Lip Glaze",
+      "id": "kalahari-treatment-lip-glaze",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1170",
+      "name": "Soothing Lips Wild Honey",
+      "id": "kalahari-soothing-lips-wild-honey",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1175",
+      "name": "Buchu Kisses",
+      "id": "kalahari-buchu-kisses",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1007",
+      "name": "Lip Balm with SPF & Grapeseed",
+      "id": "kalahari-lip-balm-with-spf-and-grapeseed",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1180",
+      "name": "Soothing Lips Desert Rose",
+      "id": "kalahari-soothing-lips-desert-rose",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1190",
+      "name": "Soothing Lips Kalahari Sunset",
+      "id": "kalahari-soothing-lips-kalahari-sunset",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1025",
+      "name": "Soothing Lips African Flowers",
+      "id": "kalahari-soothing-lips-african-flowers",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1200",
+      "name": "Desert Rose Set",
+      "id": "kalahari-desert-rose-set",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "FK1201",
+      "name": "Kalahari Sunset Set",
+      "id": "kalahari-kalahari-sunset-set",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "PM022",
+      "name": "Lip Pop Wild Honey",
+      "id": "kalahari-lip-pop-wild-honey",
+      "matchedBy": "new"
+    },
+    {
+      "sku": "AP03",
+      "name": "Shea Butter Lip Balm - Rose Round",
+      "id": "kalahari-shea-butter-lip-balm-rose-round",
+      "matchedBy": "new"
+    }
+  ]
+}

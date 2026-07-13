@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="650" height="650" viewBox="0 0 650 650" role="img" aria-labelledby="title desc">
+  <title id="title">Kalahari Phyto-Ceutical Skincare</title>
+  <desc id="desc">Kalahari branded product image for catalogue products without supplied packaging photography.</desc>
+  <rect width="650" height="650" rx="34" fill="#f5efe4"/>
+  <rect x="36" y="36" width="578" height="578" rx="24" fill="none" stroke="#6e4210" stroke-width="3"/>
+  <text x="325" y="286" text-anchor="middle" fill="#6e4210" font-family="Georgia, serif" font-size="78" font-weight="700">KALAHARI</text>
+  <text x="325" y="343" text-anchor="middle" fill="#6e4210" font-family="Arial, sans-serif" font-size="27" letter-spacing="4">PHYTO-CEUTICAL</text>
+  <text x="325" y="385" text-anchor="middle" fill="#6e4210" font-family="Arial, sans-serif" font-size="27" letter-spacing="7">SKINCARE</text>
+  <path d="M205 437c73 28 167 28 240 0" fill="none" stroke="#ba8d52" stroke-width="5" stroke-linecap="round"/>
+</svg>

@@ -63,6 +63,9 @@ const duplicate = { ...products[1], id: products[0].id.toUpperCase() };
 assert.match(validateProductCatalogue({ brands, products: [products[0], duplicate] }, { minimumProducts: 2 }), /Duplicate product ID/);
 const slugCollision = { ...products[1], id: "test_kalahari_1" };
 assert.match(validateProductCatalogue({ brands, products: [products[0], slugCollision] }, { minimumProducts: 2 }), /Duplicate product slug/);
+const duplicateSku = { ...products[1], sku: products[0].sku?.toUpperCase() || products[0].id.toUpperCase() };
+const skuProduct = { ...products[0], sku: products[0].sku || products[0].id };
+assert.match(validateProductCatalogue({ brands, products: [skuProduct, duplicateSku] }, { minimumProducts: 2 }), /Duplicate product SKU/);
 const missingBrand = { ...products[0], brandId: "", brand: "" };
 assert.match(validateProductCatalogue({ brands, products: [missingBrand] }, { minimumProducts: 1 }), /Select a valid brand/);
 assert.equal(isValidProductImageUrl("lullubelle-logo.jpg"), false);
@@ -97,5 +100,27 @@ assert.deepEqual(migration.content.products.map((item) => [item.id, item.brand])
   ["product_real_new_product", "SunSkin"],
 ]);
 assert.equal(migrateCatalogueContent(migration.content, canonicalSeed).changed, false, "The migration must run only once so later Admin brand renames remain authoritative");
+
+const catalogueSeed = {
+  brands: [{ id: "kalahari", name: "Kalahari", active: true }],
+  products: [
+    { id: "kalahari-cleanser", slug: "kalahari-cleanser", sku: "K001", brandId: "kalahari", brand: "Kalahari", name: "Cleanser", category: "Prepare", size: "50ml", description: "Authoritative", searchKeywords: "Kalahari, K001, Cleanser", catalogueSource: "Kalahari Retail Price List 2025", price: 200, image: "products/kalahari/catalogue-product.svg", active: true, hidden: false },
+    { id: "kalahari-mask", slug: "kalahari-mask", sku: "K002", brandId: "kalahari", brand: "Kalahari", name: "Mask", category: "Treatment Masks", size: "50ml", description: "Authoritative", searchKeywords: "Kalahari, K002, Mask", catalogueSource: "Kalahari Retail Price List 2025", price: 300, image: "products/kalahari/catalogue-product.svg", active: true, hidden: false },
+  ],
+};
+const catalogueStored = {
+  catalogueSchemaVersion: 2,
+  brands: catalogueSeed.brands,
+  products: [
+    { ...catalogueSeed.products[0], price: 999, description: "Old", image: "/.netlify/functions/admin-asset?key=products%2Fkalahari%2Fcleanser.webp" },
+    { id: "kalahari-obsolete", brandId: "kalahari", brand: "Kalahari", name: "Obsolete", price: 100, image: "products/kalahari/obsolete.webp" },
+  ],
+};
+const catalogueMigration = migrateCatalogueContent(catalogueStored, catalogueSeed);
+assert.equal(catalogueMigration.content.products.length, 2);
+assert.equal(catalogueMigration.content.products[0].price, 200);
+assert.equal(catalogueMigration.content.products[0].description, "Authoritative");
+assert.match(catalogueMigration.content.products[0].image, /admin-asset/);
+assert.equal(catalogueMigration.content.products[1].sku, "K002");
 
 console.log("Product identity, brand, image, gallery, merge and persistence tests passed for Kalahari, VitaDerm, Mesoestetic and SunSkin.");

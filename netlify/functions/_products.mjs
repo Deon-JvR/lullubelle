@@ -1,6 +1,6 @@
 const PLACEHOLDER_IMAGE_PATTERN = /(?:^|\/)(?:lullubelle-logo|placeholder|default-product|sample-product)(?:[._/?-]|$)/i;
 const PRODUCT_ID_PATTERN = /^[a-z0-9][a-z0-9_-]*$/;
-export const CATALOGUE_SCHEMA_VERSION = 2;
+export const CATALOGUE_SCHEMA_VERSION = 3;
 
 export const productIdentityKey = (value) => String(value || "").trim().toLowerCase();
 
@@ -50,7 +50,7 @@ export const migrateCatalogueContent = (storedContent = {}, seedContent = {}) =>
   });
   const brandNamesById = new Map(brands.map((brand) => [productIdentityKey(brand?.id), brand?.name]));
   const removedPlaceholderIds = [];
-  const products = (Array.isArray(storedContent?.products) ? storedContent.products : []).flatMap((product) => {
+  let products = (Array.isArray(storedContent?.products) ? storedContent.products : []).flatMap((product) => {
     if (isGeneratedPlaceholderProduct(product)) {
       removedPlaceholderIds.push(String(product.id));
       return [];
@@ -58,6 +58,27 @@ export const migrateCatalogueContent = (storedContent = {}, seedContent = {}) =>
     const canonicalBrand = brandNamesById.get(productIdentityKey(product?.brandId));
     return [{ ...product, ...(canonicalBrand ? { brand: canonicalBrand } : {}) }];
   });
+
+  const isKalahari = (product) => productIdentityKey(product?.brandId) === "kalahari" || productIdentityKey(product?.brand) === "kalahari";
+  const authoritativeKalahari = (Array.isArray(seedContent?.products) ? seedContent.products : []).filter(isKalahari);
+  if (authoritativeKalahari.length) {
+    const storedKalahari = products.filter(isKalahari);
+    const used = new Set();
+    const reconciled = authoritativeKalahari.map((seedProduct) => {
+      const bySku = storedKalahari.find((product) => productIdentityKey(product?.sku) && productIdentityKey(product.sku) === productIdentityKey(seedProduct.sku) && !used.has(product));
+      const byName = bySku || storedKalahari.find((product) => String(product?.name || "").trim() === String(seedProduct.name || "").trim() && !used.has(product));
+      const storedProduct = bySku || byName;
+      if (storedProduct) used.add(storedProduct);
+      const managedAsset = /^\/.netlify\/functions\/admin-asset\?key=/i.test(String(storedProduct?.image || ""));
+      return {
+        ...(storedProduct || {}),
+        ...seedProduct,
+        ...(managedAsset ? { image: storedProduct.image, imageAlt: storedProduct.imageAlt || seedProduct.imageAlt } : {}),
+        ...(Array.isArray(storedProduct?.galleryImages) && storedProduct.galleryImages.length ? { galleryImages: storedProduct.galleryImages } : {}),
+      };
+    });
+    products = [...products.filter((product) => !isKalahari(product)), ...reconciled];
+  }
 
   return {
     changed: true,
@@ -101,11 +122,22 @@ export const validateProductCatalogue = (content, { minimumProducts = 65 } = {})
   }
 
   const ids = products.map((product) => productIdentityKey(product?.id));
-  const slugs = products.map((product) => productSlugKey(product?.id));
+  const slugs = products.map((product) => productSlugKey(product?.slug || product?.id));
+  const skus = products.map((product) => productIdentityKey(product?.sku));
   const duplicateId = ids.find((id, index) => id && ids.indexOf(id) !== index);
   if (duplicateId) return `Duplicate product ID detected: ${duplicateId}. Product IDs must be unique.`;
   const duplicateSlugIndex = slugs.findIndex((slug, index) => slug && slugs.indexOf(slug) !== index);
   if (duplicateSlugIndex >= 0) return `Duplicate product slug detected: ${products[duplicateSlugIndex]?.id}. Choose a unique product ID.`;
+  const duplicateSkuIndex = skus.findIndex((sku, index) => sku && skus.indexOf(sku) !== index);
+  if (duplicateSkuIndex >= 0) return `Duplicate product SKU detected: ${products[duplicateSkuIndex]?.sku}. SKUs must be unique.`;
+
+  const kalahariCatalogue = products.filter((product) => product?.catalogueSource === "Kalahari Retail Price List 2025");
+  if (kalahariCatalogue.length) {
+    const expectedCounts = new Set(kalahariCatalogue.map((product) => Number(product.catalogueTotal)));
+    if (expectedCounts.size !== 1 || !expectedCounts.has(kalahariCatalogue.length)) {
+      return `The Kalahari catalogue must retain all ${[...expectedCounts][0] || "imported"} products.`;
+    }
+  }
 
   const brandsById = new Map(brands.map((brand) => [productIdentityKey(brand.id), brand]));
   for (const product of products) {
@@ -120,6 +152,15 @@ export const validateProductCatalogue = (content, { minimumProducts = 65 } = {})
     }
     if (!isValidProductImageUrl(product?.image)) return `Upload a valid product image for ${product?.name || id}. Placeholder or blank images cannot be saved.`;
     if (!Number.isFinite(price) || price <= 0) return `Enter a valid price for ${product?.name || id}.`;
+    if (product?.catalogueSource === "Kalahari Retail Price List 2025") {
+      if (!String(product.sku || "").trim() || !String(product.category || "").trim() || !String(product.size || "").trim()) {
+        return `Kalahari catalogue fields are incomplete for ${product.name}.`;
+      }
+      if (!String(product.slug || "").trim() || !String(product.searchKeywords || "").trim()) {
+        return `Kalahari SEO slug and search keywords are required for ${product.name}.`;
+      }
+      if (product.active !== true || product.hidden === true) return `Kalahari catalogue product must be active: ${product.name}.`;
+    }
 
     const gallery = normaliseProductGallery(product);
     const galleryIds = gallery.map((item) => productIdentityKey(item.id));
