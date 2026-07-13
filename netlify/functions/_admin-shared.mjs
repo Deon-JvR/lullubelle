@@ -105,7 +105,7 @@ export const readContent = async () => {
   const seed = await seedContent();
   let stored = null;
   try {
-    stored = await contentStore().get(CONTENT_KEY, { type: "json", consistency: "strong" });
+    stored = await contentStore().get(CONTENT_KEY, { type: "json" });
   } catch (error) {
     console.error("Admin content read failed; using static fallback", { message: error?.message });
     stored = null;
@@ -139,7 +139,7 @@ export const writeContent = async (content) => {
     updatedAt: new Date().toISOString(),
   };
   await contentStore().setJSON(CONTENT_KEY, next);
-  const persisted = await contentStore().get(CONTENT_KEY, { type: "json", consistency: "strong" });
+  const persisted = await contentStore().get(CONTENT_KEY, { type: "json" });
   if (!persisted || persisted.updatedAt !== next.updatedAt) throw new Error("Saved content could not be verified after writing.");
   return persisted;
 };

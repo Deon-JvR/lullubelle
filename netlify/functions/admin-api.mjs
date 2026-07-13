@@ -62,7 +62,7 @@ const saveUpload = async ({ filename, mimeType, base64, ownerType, ownerId, slot
     storageError.code = "ASSET_STORAGE_UNAVAILABLE";
     throw storageError;
   }
-  const persisted = await assetStore().getWithMetadata(key, { type: "arrayBuffer", consistency: "strong" });
+  const persisted = await assetStore().getWithMetadata(key, { type: "arrayBuffer" });
   if (!persisted?.data?.byteLength) throw new Error("Uploaded image could not be verified in storage.");
   return {
     url: `/.netlify/functions/admin-asset?key=${encodeURIComponent(key)}`,

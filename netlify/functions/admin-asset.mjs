@@ -7,7 +7,7 @@ export const handler = async (event) => {
 
   let blob;
   try {
-    blob = await assetStore().getWithMetadata(key, { type: "arrayBuffer", consistency: "strong" });
+    blob = await assetStore().getWithMetadata(key, { type: "arrayBuffer" });
   } catch (error) {
     console.error("Admin asset read failed", { key, message: error?.message });
     return {
