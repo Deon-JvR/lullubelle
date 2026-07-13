@@ -932,14 +932,14 @@ const injectFooterTrustSection = () => {
     footer.before(section);
   }
 
+  const topTarget = document.documentElement;
+  if (!topTarget.id) topTarget.id = "top";
   const bottomMarkup = `
     <p>© 2026 Lullubelle Beauty Specialist</p>
-    <nav class="footer-bottom-links" aria-label="Footer legal and external links">
-      <a href="https://www.facebook.com/profile.php?id=100063728102684" target="_blank" rel="noopener">Facebook</a>
-      <span aria-hidden="true">•</span>
-      <a href="https://zyam.co.za" target="_blank" rel="noopener">Website by Zyam</a>
-      <span aria-hidden="true">•</span>
-      <a href="#main-content">Back to top</a>
+    <nav class="footer-bottom-links" aria-label="Footer navigation">
+      <a href="https://www.facebook.com/profile.php?id=100063728102684" target="_blank" rel="noopener noreferrer" aria-label="Visit Lullubelle on Facebook (opens in a new tab)">Facebook</a>
+      <a href="https://zyam.co.za/" target="_blank" rel="noopener noreferrer" aria-label="Visit the Zyam website (opens in a new tab)">Website by Zyam</a>
+      <a href="#${escapeHtml(topTarget.id)}" aria-label="Back to top of page">Back to top</a>
     </nav>`;
   if (footer.classList.contains("storefront-footer")) {
     let bottom = footer.querySelector(".footer-bottom");
