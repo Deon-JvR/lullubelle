@@ -51,16 +51,12 @@ const isNetlifyRuntime = () => Boolean(process.env.NETLIFY || process.env.CONTEX
 const getConfiguredStore = (name) => {
   const siteID = process.env.NETLIFY_BLOBS_SITE_ID;
   const token = process.env.NETLIFY_BLOBS_TOKEN;
-  if (siteID && token) return getStore({ name, siteID, token });
-  return getStore({ name });
+  if (siteID && token) return getStore({ name, siteID, token, consistency: "strong" });
+  return getStore({ name, consistency: "strong" });
 };
 
-export const contentStore = () => isNetlifyRuntime()
-  ? getStore("lullubelle-admin")
-  : getConfiguredStore("lullubelle-admin");
-export const assetStore = () => isNetlifyRuntime()
-  ? getStore("lullubelle-admin-assets")
-  : getConfiguredStore("lullubelle-admin-assets");
+export const contentStore = () => getConfiguredStore("lullubelle-admin");
+export const assetStore = () => getConfiguredStore("lullubelle-admin-assets");
 
 const localLists = new Map();
 
