@@ -9,7 +9,12 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { sanitiseDeliverySettings } from "./_delivery.mjs";
 import { sanitiseGallery } from "./_gallery.mjs";
-import { mergeProductCatalogue, normaliseProductGallery } from "./_products.mjs";
+import {
+  CATALOGUE_SCHEMA_VERSION,
+  mergeProductCatalogue,
+  migrateCatalogueContent,
+  normaliseProductGallery,
+} from "./_products.mjs";
 
 export const SESSION_COOKIE = "lullubelle_admin";
 export const SESSION_MAX_AGE = 60 * 30;
@@ -59,6 +64,7 @@ export const assetStore = () => isNetlifyRuntime()
 const localLists = new Map();
 
 export const defaultContent = () => ({
+  catalogueSchemaVersion: CATALOGUE_SCHEMA_VERSION,
   brands: [],
   products: [],
   treatments: [],
@@ -86,6 +92,7 @@ const seedContent = async () => {
   ]);
 
   return {
+    catalogueSchemaVersion: CATALOGUE_SCHEMA_VERSION,
     brands: Array.isArray(brands) ? brands : [],
     products: Array.isArray(products) ? products : [],
     treatments: Array.isArray(treatments) ? treatments : [],
@@ -111,6 +118,15 @@ export const readContent = async () => {
     stored = null;
   }
   if (!stored) return seed;
+  const migration = migrateCatalogueContent(stored, seed);
+  if (migration.changed) {
+    stored = migration.content;
+    try {
+      await contentStore().setJSON(CONTENT_KEY, stored);
+    } catch (error) {
+      console.error("Admin catalogue migration could not be persisted", { message: error?.message });
+    }
+  }
   return {
     ...seed,
     ...stored,

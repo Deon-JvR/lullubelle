@@ -1,5 +1,6 @@
 const PLACEHOLDER_IMAGE_PATTERN = /(?:^|\/)(?:lullubelle-logo|placeholder|default-product|sample-product)(?:[._/?-]|$)/i;
 const PRODUCT_ID_PATTERN = /^[a-z0-9][a-z0-9_-]*$/;
+export const CATALOGUE_SCHEMA_VERSION = 2;
 
 export const productIdentityKey = (value) => String(value || "").trim().toLowerCase();
 
@@ -23,6 +24,51 @@ export const normaliseProductGallery = (product = {}) => {
       url: String(item?.url || "").trim(),
       alt: String(item?.alt || "").trim(),
     });
+};
+
+const isGeneratedPlaceholderProduct = (product = {}) => (
+  /^product_[a-z0-9_]+$/i.test(String(product.id || ""))
+  && /^(?:new|unnamed) product$/i.test(String(product.name || "").trim())
+  && String(product.category || "").trim().toLowerCase() === "needs review"
+  && Number(product.price) === 1
+  && PLACEHOLDER_IMAGE_PATTERN.test(String(product.image || ""))
+);
+
+export const migrateCatalogueContent = (storedContent = {}, seedContent = {}) => {
+  if (Number(storedContent?.catalogueSchemaVersion) >= CATALOGUE_SCHEMA_VERSION) {
+    return { content: storedContent, changed: false, removedPlaceholderIds: [] };
+  }
+
+  const seedBrandsById = new Map((Array.isArray(seedContent?.brands) ? seedContent.brands : [])
+    .map((brand) => [productIdentityKey(brand?.id), brand]));
+  const storedBrands = Array.isArray(storedContent?.brands) && storedContent.brands.length
+    ? storedContent.brands
+    : (Array.isArray(seedContent?.brands) ? seedContent.brands : []);
+  const brands = storedBrands.map((brand) => {
+    const canonical = seedBrandsById.get(productIdentityKey(brand?.id));
+    return canonical?.name ? { ...brand, name: canonical.name } : brand;
+  });
+  const brandNamesById = new Map(brands.map((brand) => [productIdentityKey(brand?.id), brand?.name]));
+  const removedPlaceholderIds = [];
+  const products = (Array.isArray(storedContent?.products) ? storedContent.products : []).flatMap((product) => {
+    if (isGeneratedPlaceholderProduct(product)) {
+      removedPlaceholderIds.push(String(product.id));
+      return [];
+    }
+    const canonicalBrand = brandNamesById.get(productIdentityKey(product?.brandId));
+    return [{ ...product, ...(canonicalBrand ? { brand: canonicalBrand } : {}) }];
+  });
+
+  return {
+    changed: true,
+    removedPlaceholderIds,
+    content: {
+      ...storedContent,
+      brands,
+      products,
+      catalogueSchemaVersion: CATALOGUE_SCHEMA_VERSION,
+    },
+  };
 };
 
 export const mergeProductCatalogue = (seedProducts = [], managedProducts) => {

@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import {
+  CATALOGUE_SCHEMA_VERSION,
   isValidProductImageUrl,
   mergeProductCatalogue,
+  migrateCatalogueContent,
   normaliseProductGallery,
   validateProductCatalogue,
   verifyPersistedProducts,
@@ -67,5 +69,33 @@ assert.equal(isValidProductImageUrl("lullubelle-logo.jpg"), false);
 assert.equal(isValidProductImageUrl("blob:stale-preview"), false);
 assert.equal(isValidProductImageUrl(products[0].image), true);
 assert.equal(verifyPersistedProducts(content, JSON.parse(JSON.stringify(content))), "");
+
+const legacyContent = {
+  brands: [
+    { id: "sunskin", name: "SunSkin Tinted SPF", active: true },
+    { id: "soopa", name: "Soopa Skin", active: true },
+  ],
+  products: [
+    { id: "soopa-valid", brandId: "soopa", brand: "Soopa Skin", name: "Valid product", category: "Care", price: 200, image: "products/soopa/valid.webp" },
+    { id: "product_generated_placeholder", brandId: "sunskin", brand: "SunSkin Tinted SPF", name: "New product", category: "Needs review", price: 1, image: "lullubelle-logo.jpg" },
+    { id: "product_real_new_product", brandId: "sunskin", brand: "SunSkin Tinted SPF", name: "New product", category: "Sun care", price: 250, image: "products/sunskin/new-product.webp" },
+  ],
+};
+const canonicalSeed = {
+  brands: [
+    { id: "sunskin", name: "SunSkin", active: true },
+    { id: "soopa", name: "Soopa", active: true },
+  ],
+};
+const migration = migrateCatalogueContent(legacyContent, canonicalSeed);
+assert.equal(migration.changed, true);
+assert.equal(migration.content.catalogueSchemaVersion, CATALOGUE_SCHEMA_VERSION);
+assert.deepEqual(migration.removedPlaceholderIds, ["product_generated_placeholder"]);
+assert.deepEqual(migration.content.brands.map((brand) => brand.name), ["SunSkin", "Soopa"]);
+assert.deepEqual(migration.content.products.map((item) => [item.id, item.brand]), [
+  ["soopa-valid", "Soopa"],
+  ["product_real_new_product", "SunSkin"],
+]);
+assert.equal(migrateCatalogueContent(migration.content, canonicalSeed).changed, false, "The migration must run only once so later Admin brand renames remain authoritative");
 
 console.log("Product identity, brand, image, gallery, merge and persistence tests passed for Kalahari, VitaDerm, Mesoestetic and SunSkin.");
