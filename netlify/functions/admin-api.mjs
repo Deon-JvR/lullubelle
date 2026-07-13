@@ -103,10 +103,11 @@ export const handler = async (event) => {
   }
 
   const session = requireAuth(event);
+  if (!session && method === "GET" && action === "me") return json(200, { ok: false, authenticated: false });
   if (!session) return json(401, { error: "Admin login required." });
 
   if (method === "GET" && action === "me") {
-    return json(200, { ok: true, username: session.username });
+    return json(200, { ok: true, authenticated: true, username: session.username });
   }
 
   if (method === "GET" && action === "content") {

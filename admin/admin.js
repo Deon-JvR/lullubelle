@@ -1360,7 +1360,7 @@ window.addEventListener("beforeunload", (event) => {
 });
 
 request("me")
-  .then(showDashboard)
+  .then((session) => session?.authenticated === false ? showLogin() : showDashboard())
   .catch(() => {
     showLogin();
   });
