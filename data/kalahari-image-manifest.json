@@ -1,0 +1,772 @@
+[
+  {
+    "sku": "D008A",
+    "productName": "Skincare Journey Kit in Travel Bag",
+    "brand": "Kalahari",
+    "expectedVariant": "1 unit — Essential Face Products [20ml sizes]",
+    "localImagePath": "public/images/products/kalahari/d008a.webp",
+    "sourceUrl": "https://kalaharilifestyle.com/wp-content/uploads/2019/03/skincare-journey-kit-1.jpg",
+    "matchStatus": "verified",
+    "verificationNotes": "Manual packaging review approved: Skincare Journey Kit in Travel Bag; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "D11",
+    "productName": "Age Preventative Kit",
+    "brand": "Kalahari",
+    "expectedVariant": "1 unit — Product collection suitable for this particular skin type",
+    "localImagePath": "public/images/products/kalahari/d11.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/products/AgePreventativeKit.png?v=1755111762",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Age Preventative Kit; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "D13",
+    "productName": "Sensitive & Sensitised Kit",
+    "brand": "Kalahari",
+    "expectedVariant": "1 unit — Product collection suitable for this particular skin type",
+    "localImagePath": "public/images/products/kalahari/d13.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/products/Sensitive_SensitisedKit.png?v=1755111763",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Sensitive & Sensitised Kit; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "D12",
+    "productName": "Dry & Dehydrated Kit",
+    "brand": "Kalahari",
+    "expectedVariant": "1 unit — Product collection suitable for this particular skin type",
+    "localImagePath": "public/images/products/kalahari/d12.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/products/Dry_DehydratedKit.png?v=1755111761",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Dry & Dehydrated Kit; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "D22",
+    "productName": "Mature Skin Kit",
+    "brand": "Kalahari",
+    "expectedVariant": "1 unit — Product collection suitable for this particular skin type",
+    "localImagePath": "public/images/products/kalahari/d22.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/products/MatureSkinKit.png?v=1755111765",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Mature Skin Kit; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "D14",
+    "productName": "Hyperpigmented Skin Kit",
+    "brand": "Kalahari",
+    "expectedVariant": "1 unit — Product collection suitable for this particular skin type",
+    "localImagePath": "public/images/products/kalahari/d14.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/products/HyperpigmentedSkinKit.png?v=1755111766",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Hyperpigmented Skin Kit; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "D15",
+    "productName": "Problematic Skin Kit",
+    "brand": "Kalahari",
+    "expectedVariant": "1 unit — Product collection suitable for this particular skin type",
+    "localImagePath": "public/images/products/kalahari/d15.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/products/ProblematicSkinKit.png?v=1755111764",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Problematic Skin Kit; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "CLE01",
+    "productName": "Gentle Cleansing Milk",
+    "brand": "Kalahari",
+    "expectedVariant": "160ml — With Jojoba, & Shea Oil, Fragrance Free",
+    "localImagePath": "public/images/products/kalahari/cle01.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_4fd06cef-85cc-4255-b36e-a284444ccc26.png?v=1755111839",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Gentle Cleansing Milk 160ml; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1027",
+    "productName": "Gentle Cleansing Milk in Refill Pouch",
+    "brand": "Kalahari",
+    "expectedVariant": "200ml — Milky base with botanical oils: Morninga & Baobab with orange essential oil",
+    "localImagePath": "public/images/products/kalahari/fk1027.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/C32EF251-08A6-44B1-9D4D-CC588313DA3E.png?v=1755111620",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Gentle Cleansing Milk in Refill Pouch 200ml; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK2090",
+    "productName": "Facial Cleanser",
+    "brand": "Kalahari",
+    "expectedVariant": "160ml — Gel based Cleanser, Fragrance Free",
+    "localImagePath": "public/images/products/kalahari/fk2090.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_12053044-a172-44fa-81df-296bcbd0011d.png?v=1755111838",
+    "matchStatus": "verified",
+    "verificationNotes": "Manual packaging review approved: Facial Cleansing Gel; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1026",
+    "productName": "Facial Cleanser in Refill Pouch",
+    "brand": "Kalahari",
+    "expectedVariant": "200ml — Gel based cleanser, Soap and Fragrance Free",
+    "localImagePath": "public/images/products/kalahari/fk1026.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/5AFFEC17-691B-4D85-9707-F1E3CB97E59A.png?v=1755111622",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Facial Cleanser in Refill Pouch 200ml; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1010",
+    "productName": "Phyto-foam Cleanser | Self Foaming",
+    "brand": "Kalahari",
+    "expectedVariant": "50ml — 4-1 Curcylic acid & Pumpkin Enzymes",
+    "localImagePath": "public/images/products/kalahari/fk1010.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/phyto-foam-cleanser.jpg?v=1755111769",
+    "matchStatus": "verified",
+    "verificationNotes": "Manual packaging review approved: Phyto-Foam Cleanser; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "ENE02",
+    "productName": "Enzyme Face Buff",
+    "brand": "Kalahari",
+    "expectedVariant": "50ml — Jojoba beads /Fruit & Veg. Enzymes",
+    "localImagePath": "public/images/products/kalahari/ene02.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_549aebcf-eb6b-4fce-aa40-fb74b8bf6b45.png?v=1755111836",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Enzyme Face Buff; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK2091",
+    "productName": "Toning Lotion",
+    "brand": "Kalahari",
+    "expectedVariant": "160ml — With Allantoin & Lactic acid, All Skin Conditions",
+    "localImagePath": "public/images/products/kalahari/fk2091.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/160ml-Toning-Lotion-with-Box.jpg?v=1755111835",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Toning Lotion; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "PHY07",
+    "productName": "Phyto-film Toner [pH3.5] [Treatment Toner]",
+    "brand": "Kalahari",
+    "expectedVariant": "50ml — [every 2nd evening, enlarged pores, oily skin, detox]",
+    "localImagePath": "public/images/products/kalahari/phy07.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/phyto-film-toner-1.jpg?v=1755111768",
+    "matchStatus": "verified",
+    "verificationNotes": "Manual packaging review approved: Phyto-Film Toner PH 3.5 | Treatment Toner; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1101",
+    "productName": "Phyto-Calm Facial Mist",
+    "brand": "Kalahari",
+    "expectedVariant": "50ml — Probiotic facial mist & sensitive skin conditions",
+    "localImagePath": "public/images/products/kalahari/fk1101.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/phyot-calm-facial-mist-50ml.jpg?v=1755111793",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Phyto-Calm Facial Mist; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "MAS02",
+    "productName": "Facial Silicon Exfoliator",
+    "brand": "Kalahari",
+    "expectedVariant": "1 unit — Gentle Exfoliation Tool. Re-usable.",
+    "localImagePath": "public/images/products/kalahari/mas02.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/white-silicine-exfoliator.jpg?v=1755111815",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Facial Silicon Exfoliator; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "DC001",
+    "productName": "ECO Disposable Compress",
+    "brand": "Kalahari",
+    "expectedVariant": "20 units — Single use cotton disposable compress",
+    "localImagePath": "public/images/products/kalahari/dc001.webp",
+    "sourceUrl": "https://kalaharilifestyle.com/wp-content/uploads/2019/09/eco-disposable-compress-towel-1.jpg",
+    "matchStatus": "verified",
+    "verificationNotes": "Manual packaging review approved: ECO Disposable Compress; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "PM015",
+    "productName": "Soft Touch Cleansing Cloth",
+    "brand": "Kalahari",
+    "expectedVariant": "1 unit — Treatment Support",
+    "localImagePath": "public/images/products/kalahari/pm015.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/NEW-soft-touch-cleansing-cloth.jpg?v=1755111750",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Soft Touch Cleansing Cloth; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "GAU01",
+    "productName": "Gauze (Non-sterile 100 individual units)",
+    "brand": "Kalahari",
+    "expectedVariant": "10X10cm — Incorporate with skin toners for a natural exfoliation benefit",
+    "localImagePath": "public/images/products/kalahari/gau01.webp",
+    "sourceUrl": "http://chrisalley.co.za/cdn/shop/products/kalahari-gauze-non-sterile-100-individual-units-3634320.jpg?v=1759566250",
+    "matchStatus": "verified",
+    "verificationNotes": "Manual packaging review approved: Gauze (Non-sterile 100 individual units); SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "NOU02",
+    "productName": "Nourishing Face and Neck Mask",
+    "brand": "Kalahari",
+    "expectedVariant": "50ml — Shea butter and Rooibos Tea Extract",
+    "localImagePath": "public/images/products/kalahari/nou02.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image.png?v=1755111814",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Nourishing Face & Neck Mask; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "D24",
+    "productName": "Pow[d]er Clays & Mud Treatment Set",
+    "brand": "Kalahari",
+    "expectedVariant": "1 unit — The POW[D]ER home-care kit includes 3 options of 100% Organic Clays",
+    "localImagePath": "public/images/products/kalahari/d24.webp",
+    "sourceUrl": "https://mc10317beautyproducts.blob.core.windows.net/mc10317no-beautyproducts-public/mc10317nobeautyproducts/45187/image/4ff7f51e-8f1a-4d91-b9ce-7583f1eeec94/p_ka2164_default_1.w900.png",
+    "matchStatus": "verified",
+    "verificationNotes": "Manual packaging review approved: Pow[d]er Clays & Mud Treatment Set; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "PHY06",
+    "productName": "Vita-gel Mask [pH4]",
+    "brand": "Kalahari",
+    "expectedVariant": "50ml — 4% AHA's, Resurrection Plant, Peptides",
+    "localImagePath": "public/images/products/kalahari/phy06.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/50ml-vita-gel-mask.jpg?v=1755111813",
+    "matchStatus": "verified",
+    "verificationNotes": "Manual packaging review approved: Vita-Gel Mask; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1012",
+    "productName": "Activated Charcoal Mask",
+    "brand": "Kalahari",
+    "expectedVariant": "50ml — Deep Cleansing & Exfoliating & Purifying",
+    "localImagePath": "public/images/products/kalahari/fk1012.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_c960831c-d324-4e3a-a3df-f2c4081e07ef.png?v=1755111829",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Activated Charcoal Mask; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1161",
+    "productName": "Vitamin C Mask",
+    "brand": "Kalahari",
+    "expectedVariant": "50ml — A nutrient and antioxidant rich, multi-effective leave-on treatment mask",
+    "localImagePath": "public/images/products/kalahari/fk1161.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/Vitamin-C-Mask-50ml.jpg?v=1755111760",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Vitamin C Mask; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "VIT01",
+    "productName": "Vitamin C Sheet Mask",
+    "brand": "Kalahari",
+    "expectedVariant": "1 unit — Formulated with Ascorbic acid, natural phyto-active extracts and Hyaluronic complex",
+    "localImagePath": "public/images/products/kalahari/vit01.webp",
+    "sourceUrl": "https://kalaharilifestyle.com/wp-content/uploads/2021/05/Vitamin-c-Sheet-Mask.jpg",
+    "matchStatus": "verified",
+    "verificationNotes": "Manual packaging review approved: Vitamin C Sheet Mask; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1020",
+    "productName": "De-age Hydration Mask",
+    "brand": "Kalahari",
+    "expectedVariant": "50ml — Epidermal Hydration! |. 72-hour moisture lock. |. The ultimate dermal hydrator",
+    "localImagePath": "public/images/products/kalahari/fk1020.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/Deage-hydration-mask_1.jpg?v=1755111627",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: De-Age Hydration Mask; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "PHY010",
+    "productName": "Phyto Firming Neck Mask",
+    "brand": "Kalahari",
+    "expectedVariant": "50ml — Evening Leave-on Mask",
+    "localImagePath": "public/images/products/kalahari/phy010.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_dc049ee3-eb01-457a-9a05-89c74b536dfe.png?v=1755111784",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Phyto Firming Neck Mask; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1011",
+    "productName": "Nourishing Eye Balm | Tube",
+    "brand": "Kalahari",
+    "expectedVariant": "15ml — With Vitamin B5 & Peptides",
+    "localImagePath": "public/images/products/kalahari/fk1011.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_822c2fa8-0218-4509-a03d-4f8202002e36.png?v=1755111797",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Nourishing Eye Balm; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1021",
+    "productName": "Anti-puffiness Eye Serum",
+    "brand": "Kalahari",
+    "expectedVariant": "20ml — Rice Protein enriched and Peptides",
+    "localImagePath": "public/images/products/kalahari/fk1021.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_425b0be7-1689-4202-a38d-62c4f7d1b24b.jpg?v=1755111830",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Anti-puffiness Eye Serum; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1150",
+    "productName": "Phyto Eye Contour Mask | Tube",
+    "brand": "Kalahari",
+    "expectedVariant": "15ml — Advanced Peptide Complexes",
+    "localImagePath": "public/images/products/kalahari/fk1150.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_fcd863b6-435e-47da-a619-cbb07781a4bf.jpg?v=1755111783",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Phyto Eye Contour Mask; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "CEP001",
+    "productName": "Hydrating Collagen Eye Patches",
+    "brand": "Kalahari",
+    "expectedVariant": "1 set — Hydrolysed Collagen, Hydrogel",
+    "localImagePath": "public/images/products/kalahari/cep001.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_a26f825f-733e-4a11-92be-0f3dfaedf63c.jpg?v=1755111787",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Hydrating Collagen Eye Patches; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1080",
+    "productName": "Anti-ageing Gel",
+    "brand": "Kalahari",
+    "expectedVariant": "35ml — De-ageing, Rejuvenating",
+    "localImagePath": "public/images/products/kalahari/fk1080.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_5b823a7b-1b4e-419c-9bb7-0ad42047264a.jpg?v=1755111828",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Anti-Ageing Gel; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1000",
+    "productName": "Revitalising Booster Gel",
+    "brand": "Kalahari",
+    "expectedVariant": "35ml — Peptides & Hyaluronic enriched | Hydrating",
+    "localImagePath": "public/images/products/kalahari/fk1000.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_f050afd8-489d-4f0e-9469-4178c6e96b1d.jpg?v=1755111801",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Revitalising Booster Gel; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "PHYL01",
+    "productName": "Phyto Comfort Lotion",
+    "brand": "Kalahari",
+    "expectedVariant": "35ml — Sensitive Skin, calming, soothing, with lemon oil",
+    "localImagePath": "public/images/products/kalahari/phyl01.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_17ef48b5-5088-461f-a1eb-17dbbb5e5571.jpg?v=1755111800",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Phyto Comfort Lotion; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1070",
+    "productName": "Skin Brightening Gel",
+    "brand": "Kalahari",
+    "expectedVariant": "35ml — Hyperpigmentation Skin Conditions",
+    "localImagePath": "public/images/products/kalahari/fk1070.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_29b6f9e5-1924-49c0-adc3-f1f13cc7c0da.jpg?v=1755111799",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Skin Brightening Gel; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1060",
+    "productName": "Oily Skin Correction Gel",
+    "brand": "Kalahari",
+    "expectedVariant": "35ml — Oily Skin, Acne Prone, Active Acne",
+    "localImagePath": "public/images/products/kalahari/fk1060.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_f17da5d8-b5a7-4406-9356-c95b1bc48b86.jpg?v=1755111798",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Oily Skin Correction Gel; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "PHY10",
+    "productName": "PhytoFlora Serum",
+    "brand": "Kalahari",
+    "expectedVariant": "20ml — Restore skins balance | Microbiome, All Skin Conditions",
+    "localImagePath": "public/images/products/kalahari/phy10.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_733f7672-2504-4bef-9970-74b664588706.jpg?v=1755111794",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: PhytoFlora Serum; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1050",
+    "productName": "Instant Lifting Serum",
+    "brand": "Kalahari",
+    "expectedVariant": "20ml — Lifting, Firming and Tightening",
+    "localImagePath": "public/images/products/kalahari/fk1050.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_aa39f57f-f694-4d1a-91bf-c2c39090b060.jpg?v=1755111792",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Instant Lifting Serum; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1040",
+    "productName": "Intensive Night Serum",
+    "brand": "Kalahari",
+    "expectedVariant": "20ml — Restoration, Rejuvenating and De-ageing",
+    "localImagePath": "public/images/products/kalahari/fk1040.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_8d56684d-5e0a-4a57-b4e4-37998c82b052.jpg?v=1755111812",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Intensive Night Serum; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "PHY01",
+    "productName": "Phyto-correct Serum",
+    "brand": "Kalahari",
+    "expectedVariant": "10ml — Acne, comedone, area specific application. 10% Glycolic.",
+    "localImagePath": "public/images/products/kalahari/phy01.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_de04a925-1a2a-487c-b2b8-c272dffc6243.jpg?v=1755111795",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Phyto-Correct Serum; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1024",
+    "productName": "Clear Touch Blemish Patches",
+    "brand": "Kalahari",
+    "expectedVariant": "72pc — Creates protective barrier,draw impurities & excess sebum out,faster healing",
+    "localImagePath": "public/images/products/kalahari/fk1024.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/IMG-3449.png?v=1755111626",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Clear Touch Blemish Patches (72pc); SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1002",
+    "productName": "Ferulic CEB+ Serum",
+    "brand": "Kalahari",
+    "expectedVariant": "20ml — Powerful Pro-oxidant, Ultra rejuvenating.",
+    "localImagePath": "public/images/products/kalahari/fk1002.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_dd1ffa83-1977-4384-b4a4-3d0a53727703.jpg?v=1755111809",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Ferulic CEB + Serum; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "MAU04",
+    "productName": "Marula Face Oil",
+    "brand": "Kalahari",
+    "expectedVariant": "15ml — Moisturising and Nourishing | Natural plant oil",
+    "localImagePath": "public/images/products/kalahari/mau04.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_8959372b-cad0-4b31-95e3-2156fbcbd109.jpg?v=1755111811",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Marula Face Oil; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1028",
+    "productName": "Vitamin C Booster Oil",
+    "brand": "Kalahari",
+    "expectedVariant": "15ml — Treatment Booster Oil with Vitamin C , Baobab & Squalene",
+    "localImagePath": "public/images/products/kalahari/fk1028.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/FullSizeRender_8c8fd616-b8a3-486d-b0a4-ca79366e2558.jpg?v=1755111617",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Vitamin C Booster Oil; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "ES01",
+    "productName": "Essential Daily Moisturiser",
+    "brand": "Kalahari",
+    "expectedVariant": "50ml — Rooibos Extract & Vitamin enriched | Phase 1",
+    "localImagePath": "public/images/products/kalahari/es01.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_3fe992e4-7f2d-4359-ba01-7a5473cbc525.jpg?v=1755111833",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Essential Daily Moisturiser; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "ES02",
+    "productName": "Evening Moisturiser",
+    "brand": "Kalahari",
+    "expectedVariant": "50ml — Shea Butter, Kigelia africana | Phase 1",
+    "localImagePath": "public/images/products/kalahari/es02.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_a8f483dd-9602-4074-8ea5-94a3405ebd9d.jpg?v=1755111832",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Evening Moisturiser; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "K1046",
+    "productName": "Hydralite Moisturiser",
+    "brand": "Kalahari",
+    "expectedVariant": "50ml — Fragrance Free, Abyssinian Oil | Phase 1",
+    "localImagePath": "public/images/products/kalahari/k1046.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_edfdc8de-8e22-4114-bc0c-a5054bb1a8a4.jpg?v=1755111834",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Hydralite Moisturiser; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "ES03",
+    "productName": "Phyto Rich Moisturiser",
+    "brand": "Kalahari",
+    "expectedVariant": "50ml — Dry, Dehydrated Skin Conditions | Phase 2",
+    "localImagePath": "public/images/products/kalahari/es03.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_183d38ae-4544-4929-8826-ec1610bd9e19.jpg?v=1755111808",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Phyto Rich Moisturiser; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1014",
+    "productName": "Ultra-rich Skin Complex",
+    "brand": "Kalahari",
+    "expectedVariant": "50ml — PM use: Ocean Plant extract & Vitamin C | Phase 2",
+    "localImagePath": "public/images/products/kalahari/fk1014.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_7d57dfbf-076e-4c3f-ad8c-7924f67a10b2.jpg?v=1755111807",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Ultra-Rich Skin Complex; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "PH010",
+    "productName": "Phyto Salve (Therapeutic)",
+    "brand": "Kalahari",
+    "expectedVariant": "50ml — Natural botanical remedy for all skin ailments, sunburn, rosacea",
+    "localImagePath": "public/images/products/kalahari/ph010.webp",
+    "sourceUrl": "https://kalaharilifestyle.com/wp-content/uploads/2019/02/Phyto-salve-1.jpg",
+    "matchStatus": "verified",
+    "verificationNotes": "Manual packaging review approved: Phyto Salve (Therapeutic); SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1013",
+    "productName": "Lipid Plus Recovery (Therapeutic)",
+    "brand": "Kalahari",
+    "expectedVariant": "50ml — Plant base essential fatty acids, rich texture",
+    "localImagePath": "public/images/products/kalahari/fk1013.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_144a74bb-7997-406a-93a8-e9bcbd08ce0c.jpg?v=1755111806",
+    "matchStatus": "verified",
+    "verificationNotes": "Manual packaging review approved: Lipid Plus Recovery; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1001",
+    "productName": "Alpha lipoic Complex with Astaxanthin",
+    "brand": "Kalahari",
+    "expectedVariant": "50ml — Super antioxidant, de-ageing benefits TUBE",
+    "localImagePath": "public/images/products/kalahari/fk1001.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_91e0a791-909c-472c-ba91-f23e4b73d19b.jpg?v=1755111824",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Alpha Lipoic Complex with Astaxanthin; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1003",
+    "productName": "Omega+ Complex with Folic acid",
+    "brand": "Kalahari",
+    "expectedVariant": "50ml — Superior Nourishing & Hydrating benefits TUBE",
+    "localImagePath": "public/images/products/kalahari/fk1003.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_b1e73dd0-036e-4caa-8b46-9c8225e4836b.jpg?v=1755111823",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Omega+ Complex with Folic acid; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1015",
+    "productName": "Vitamin A Booster",
+    "brand": "Kalahari",
+    "expectedVariant": "10ml — Phase 1: Evening Leave-on Treatment with Retinyl Palmitate",
+    "localImagePath": "public/images/products/kalahari/fk1015.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_ffe2281c-3a34-4257-b411-39d38c552f7a.jpg?v=1755111786",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Vitamin A Booster; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1016",
+    "productName": "De-age Leave-on Mask",
+    "brand": "Kalahari",
+    "expectedVariant": "10ml — Phase 2: Overnight Leave-on Mask with Curcylic acid for advance rejuvenation",
+    "localImagePath": "public/images/products/kalahari/fk1016.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_43189d75-fe0c-406e-af02-535e220f8f2d.jpg?v=1755111785",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: De-age Leave-on Mask; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "PH06",
+    "productName": "Phyto Barrier Shield",
+    "brand": "Kalahari",
+    "expectedVariant": "50ml — Kalahari Watermelon Seed Oil",
+    "localImagePath": "public/images/products/kalahari/ph06.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_7c37ac0d-c2c1-46a6-807b-e97e2e0d7572.jpg?v=1755111791",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Phyto Barrier Shield Protection; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1017",
+    "productName": "Solar Defence Fluid 50",
+    "brand": "Kalahari",
+    "expectedVariant": "50ml — Dermal protection against solar radiation & Photo-ageing",
+    "localImagePath": "public/images/products/kalahari/fk1017.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_59a341fb-7c90-4307-9f9d-06e4d08cbded.jpg?v=1755111767",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Solar Defence Fluid SPF 50; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "TU004",
+    "productName": "SPF 40 Sun Protection",
+    "brand": "Kalahari",
+    "expectedVariant": "50ml — Mongongo oil & Kigelia africana",
+    "localImagePath": "public/images/products/kalahari/tu004.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_80536195-cd03-4a45-bfdf-309375118814.jpg?v=1755111827",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: SPF 40 Sun Protection; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "DD05",
+    "productName": "Phyto DD Cream Marble",
+    "brand": "Kalahari",
+    "expectedVariant": "35ml — Light Treatment Tint Daily Defence",
+    "localImagePath": "public/images/products/kalahari/dd05.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/FullSizeRender_fce3a3cf-81c9-4350-bbbb-60c2126a0638.jpg?v=1755111610",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Phyto DD Cream Marble; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "DD03",
+    "productName": "Phyto DD Cream Ivory",
+    "brand": "Kalahari",
+    "expectedVariant": "35ml — Medium Treatment Tint Daily Defence",
+    "localImagePath": "public/images/products/kalahari/dd03.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/8F9B1AAD-98B7-4D13-9C74-53A8EAB1B7FC.jpg?v=1755111611",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Phyto DD Cream Ivory; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "DD04",
+    "productName": "Phyto DD Cream Sun Kissed",
+    "brand": "Kalahari",
+    "expectedVariant": "35ml — Medium Plus Treatment Tint Daily Defence",
+    "localImagePath": "public/images/products/kalahari/product-image-coming-soon.webp",
+    "sourceUrl": "",
+    "matchStatus": "missing",
+    "verificationNotes": "No reliable exact-SKU image found after checking the official catalogue, official product search, supplied catalogue assets and authorized stockist results. Neutral coming-soon image required. Best rejected match: Phyto DD Cream Ivory."
+  },
+  {
+    "sku": "PFF01",
+    "productName": "Phyto Fluid Foundation Alabaster",
+    "brand": "Kalahari",
+    "expectedVariant": "30ml — Fitzpatrick 1 Skin Complexion",
+    "localImagePath": "public/images/products/kalahari/product-image-coming-soon.webp",
+    "sourceUrl": "",
+    "matchStatus": "missing",
+    "verificationNotes": "No reliable exact-SKU image found after checking the official catalogue, official product search, supplied catalogue assets and authorized stockist results. Neutral coming-soon image required. Best rejected match: Phyto Fluid Foundation | Honey."
+  },
+  {
+    "sku": "PFF02",
+    "productName": "Phyto Fluid Foundation Honey",
+    "brand": "Kalahari",
+    "expectedVariant": "30ml — Fitzpatrick 2 Skin Complexion",
+    "localImagePath": "public/images/products/kalahari/pff02.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_f7a9690b-b9c6-4e01-b0f7-ac9a0bbf6aba.jpg?v=1755111774",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Phyto Fluid Foundation | Honey; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "PFF03",
+    "productName": "Phyto Fluid Foundation Savannah",
+    "brand": "Kalahari",
+    "expectedVariant": "30ml — Fitzpatrick 3-4 Skin Complexion",
+    "localImagePath": "public/images/products/kalahari/pff03.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_cb7bf76b-2da5-4687-bddf-a0927f3388ca.jpg?v=1755111773",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Phyto Fluid Foundation | Savannah; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "CMP01",
+    "productName": "Collagen Lip Mask",
+    "brand": "Kalahari",
+    "expectedVariant": "1 x set — Collagen rich lip treatment mask. Single application (Pink)",
+    "localImagePath": "public/images/products/kalahari/cmp01.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/lip-mask.jpg?v=1755111693",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Collagen Lip Mask; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "PRM20",
+    "productName": "Treatment Lip Glaze",
+    "brand": "Kalahari",
+    "expectedVariant": "18ml — Jojoba oil, Hyaluronic acid and Vitamin E - Earth Color (Available 1 Dec)",
+    "localImagePath": "public/images/products/kalahari/product-image-coming-soon.webp",
+    "sourceUrl": "",
+    "matchStatus": "missing",
+    "verificationNotes": "No reliable exact-SKU image found after checking the official catalogue, official product search, supplied catalogue assets and authorized stockist results. Neutral coming-soon image required. Best rejected match: Collagen Lip Mask."
+  },
+  {
+    "sku": "FK1170",
+    "productName": "Soothing Lips Wild Honey",
+    "brand": "Kalahari",
+    "expectedVariant": "5g — Wild Honey Blend",
+    "localImagePath": "public/images/products/kalahari/fk1170.webp",
+    "sourceUrl": "https://kalaharilifestyle.com/wp-content/uploads/2019/03/Soothing-lips-wild-honey.jpg",
+    "matchStatus": "verified",
+    "verificationNotes": "Manual packaging review approved: Soothing Lips Wild Honey; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1175",
+    "productName": "Buchu Kisses",
+    "brand": "Kalahari",
+    "expectedVariant": "5g — Buchu Fragrance",
+    "localImagePath": "public/images/products/kalahari/fk1175.webp",
+    "sourceUrl": "https://www.cosmetology.co.za/wp-content/uploads/2021/09/NEW-Soothing-Lips-Buchu-Kisses.png",
+    "matchStatus": "verified",
+    "verificationNotes": "Manual packaging review approved: Buchu Kisses; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1007",
+    "productName": "Lip Balm with SPF & Grapeseed",
+    "brand": "Kalahari",
+    "expectedVariant": "5g — Nourishing Lip Balm with SPF & Grapeseed",
+    "localImagePath": "public/images/products/kalahari/fk1007.webp",
+    "sourceUrl": "https://kalaharilifestyle.com/wp-content/uploads/2023/05/Lip-Balm-brown.jpg",
+    "matchStatus": "verified",
+    "verificationNotes": "Manual packaging review approved: Lip Balm with SPF & Grapeseed; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1180",
+    "productName": "Soothing Lips Desert Rose",
+    "brand": "Kalahari",
+    "expectedVariant": "5g — Lip Care Sheer Peach Tint",
+    "localImagePath": "public/images/products/kalahari/fk1180.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/products/SoothingLipsDesertRose.png?v=1755111805",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Soothing Lips Desert Rose; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1190",
+    "productName": "Soothing Lips Kalahari Sunset",
+    "brand": "Kalahari",
+    "expectedVariant": "5g — Lip Care Sheer Burgundy Tint",
+    "localImagePath": "public/images/products/kalahari/fk1190.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/products/SoothingLipsKalahariSunset.png?v=1755111804",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Soothing Lips Kalahari Sunset; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1025",
+    "productName": "Soothing Lips African Flowers",
+    "brand": "Kalahari",
+    "expectedVariant": "5g — Lip Care Sheer Pink Tint",
+    "localImagePath": "public/images/products/kalahari/fk1025.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/FullSizeRender_47d2bdf1-128a-4fbc-b2f3-a7c0222e6f6e.jpg?v=1755111616",
+    "matchStatus": "verified",
+    "verificationNotes": "Exact normalized supplier title: Soothing Lips African Flowers; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1200",
+    "productName": "Desert Rose Set",
+    "brand": "Kalahari",
+    "expectedVariant": "1 unit — Lip Care Collection",
+    "localImagePath": "public/images/products/kalahari/fk1200.webp",
+    "sourceUrl": "https://kalaharilifestyle.com/wp-content/uploads/2019/03/Desert-Rose-Set.png",
+    "matchStatus": "verified",
+    "verificationNotes": "Manual packaging review approved: Desert Rose Set; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "FK1201",
+    "productName": "Kalahari Sunset Set",
+    "brand": "Kalahari",
+    "expectedVariant": "1 unit — Lip Care Collection",
+    "localImagePath": "public/images/products/kalahari/fk1201.webp",
+    "sourceUrl": "https://kalaharilifestyle.com/wp-content/uploads/2019/03/Kalahari-Sunset-Set.png",
+    "matchStatus": "verified",
+    "verificationNotes": "Manual packaging review approved: Kalahari Sunset Set; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "PM022",
+    "productName": "Lip Pop Wild Honey",
+    "brand": "Kalahari",
+    "expectedVariant": "15ml — Mega Lip Pop Wild Honey Blend",
+    "localImagePath": "public/images/products/kalahari/pm022.webp",
+    "sourceUrl": "http://www.kalm-studio.co.za/cdn/shop/files/LipPopWildHoney_53ebceb5-3714-4185-a263-711f323158fb.jpg?v=1720734508",
+    "matchStatus": "verified",
+    "verificationNotes": "Manual packaging review approved: Lip Pop Wild Honey; SKU-specific WebP copied after title and variant guard."
+  },
+  {
+    "sku": "AP03",
+    "productName": "Shea Butter Lip Balm - Rose Round",
+    "brand": "Kalahari",
+    "expectedVariant": "1 unit — Lip Care Collection",
+    "localImagePath": "public/images/products/kalahari/ap03.webp",
+    "sourceUrl": "https://cdn.shopify.com/s/files/1/0271/8230/1257/files/image_84ddacf7-af07-41c6-a94d-41eab20647fa.png?v=1755111825",
+    "matchStatus": "verified",
+    "verificationNotes": "Manual packaging review approved: Shea Butter Lip Balm; SKU-specific WebP copied after title and variant guard."
+  }
+]

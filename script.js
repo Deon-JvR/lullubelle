@@ -351,18 +351,18 @@ const setupFeaturedProducts = (content) => {
     return;
   }
 
-  grid.innerHTML = featured.slice(0, 8).map((product) => `
-    <article class="featured-product-card home-product-card">
-      <a class="featured-product-image" href="${escapeHtml(productDetailUrl(product.id))}" aria-label="View ${escapeHtml(product.brand)} ${escapeHtml(product.name)}">
+  grid.innerHTML = featured.slice(0, 8).map((product, index) => `
+    <article class="product-card featured-product-card home-product-card">
+      <a class="product-card__image-wrap featured-product-image" href="${escapeHtml(productDetailUrl(product.id))}" aria-label="View ${escapeHtml(product.brand)} ${escapeHtml(product.name)}">
         ${product.bestSeller ? '<span class="product-status-badge">Best Seller</span>' : product.featured ? '<span class="product-status-badge">Featured</span>' : ""}
-        <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" width="650" height="650" decoding="async" loading="lazy">
+        <img class="product-card__image" src="${escapeHtml(product.image)}" alt="${escapeHtml(product.imageAlt)}" width="650" height="650" decoding="async" loading="${index < 4 ? "eager" : "lazy"}"${index < 4 ? ' fetchpriority="high"' : ""}>
       </a>
-      <div>
+      <div class="product-card__content">
         <span class="product-brand-badge" data-brand="${escapeHtml(product.brand.toLowerCase())}">${escapeHtml(product.brand)}</span>
-        <h3>${escapeHtml(product.name)}</h3>
-        <strong>${formatCurrency(product.price)}</strong>
+        <h3 class="product-card__title" title="${escapeHtml(product.name)}">${escapeHtml(product.name)}</h3>
+        <strong class="product-card__price">${formatCurrency(product.price)}</strong>
         <p class="product-description">${escapeHtml(product.benefit)}</p>
-        <div class="featured-product-actions">
+        <div class="product-card__actions featured-product-actions">
           <button class="button secondary" type="button" data-managed-cart-add data-product-id="${escapeHtml(product.id)}" data-product-name="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" data-product-price="${Number(product.price)}" data-product-image="${escapeHtml(product.image)}"${isPurchasable(product) ? "" : " disabled"}>${isPurchasable(product) ? "Add to Cart" : escapeHtml(stockLabel(product.stockStatus))}</button>
           <a class="text-link" href="${escapeHtml(productDetailUrl(product.id))}">View Product</a>
         </div>
@@ -626,22 +626,24 @@ const bindProductButtons = (scope = document) => {
   });
 };
 
-const renderManagedProductCard = (product) => {
+const renderManagedProductCard = (product, index = 0) => {
   const disabled = isPurchasable(product) ? "" : " disabled";
   const label = isPurchasable(product) ? "Add to cart" : stockLabel(product.stockStatus);
   const badge = product.bestSeller ? "Best Seller" : product.featured ? "Featured" : "";
   return `
-    <article class="kalahari-item" data-product-id="${escapeHtml(product.id)}" data-product-sku="${escapeHtml(product.sku)}" data-product-category="${escapeHtml(slugify(product.category))}">
+    <article class="product-card kalahari-item" data-product-id="${escapeHtml(product.id)}" data-product-sku="${escapeHtml(product.sku)}" data-product-category="${escapeHtml(slugify(product.category))}">
       ${badge ? `<span class="product-status-badge">${escapeHtml(badge)}</span>` : ""}
-      <div class="product-image-wrap"><img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.imageAlt)}" width="650" height="650" decoding="async" loading="lazy"></div>
-      <span class="product-brand-badge" data-brand="${escapeHtml(product.brand.toLowerCase())}">${escapeHtml(product.brand)}</span>
-      <h3>${escapeHtml(product.name)}</h3>
-      <strong>${formatCurrency(product.price)}</strong>
-      ${product.size ? `<span class="product-size">${escapeHtml(product.size)}</span>` : ""}
-      ${product.category ? `<a class="product-category-link" href="/shop?category=${encodeURIComponent(slugify(product.category))}">${escapeHtml(product.category)}</a>` : ""}
-      <p>${escapeHtml(product.benefit)}</p>
-      <span class="product-stock"><span aria-hidden="true"></span> ${escapeHtml(stockLabel(product.stockStatus))}</span>
-      <div class="product-card-actions">
+      <div class="product-card__image-wrap product-image-wrap"><img class="product-card__image" src="${escapeHtml(product.image)}" alt="${escapeHtml(product.imageAlt)}" width="650" height="650" decoding="async" loading="${index < 4 ? "eager" : "lazy"}"${index < 4 ? ' fetchpriority="high"' : ""}></div>
+      <div class="product-card__content">
+        <span class="product-brand-badge" data-brand="${escapeHtml(product.brand.toLowerCase())}">${escapeHtml(product.brand)}</span>
+        <h3 class="product-card__title" title="${escapeHtml(product.name)}">${escapeHtml(product.name)}</h3>
+        ${product.size ? `<span class="product-size">${escapeHtml(product.size)}</span>` : ""}
+        ${product.category ? `<a class="product-category-link" href="/shop?category=${encodeURIComponent(slugify(product.category))}">${escapeHtml(product.category)}</a>` : ""}
+        <p>${escapeHtml(product.benefit)}</p>
+        <strong class="product-card__price">${formatCurrency(product.price)}</strong>
+        <span class="product-stock"><span aria-hidden="true"></span> ${escapeHtml(stockLabel(product.stockStatus))}</span>
+      </div>
+      <div class="product-card__actions product-card-actions">
         <button class="button secondary" type="button" data-managed-cart-add data-product-id="${escapeHtml(product.id)}" data-product-sku="${escapeHtml(product.sku)}" data-product-name="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" data-product-price="${Number(product.price)}" data-product-image="${escapeHtml(product.image)}"${disabled}>${escapeHtml(label)}</button>
         <a class="text-link" href="${escapeHtml(productDetailUrl(product.slug))}">View Product</a>
       </div>
@@ -1474,7 +1476,7 @@ const renderCart = () => {
     const row = document.createElement("article");
     row.className = "cart-item";
     row.innerHTML = `
-      <img src="${escapeHtml(item.image || "lullubelle-logo.jpg")}" alt="">
+      <img src="${escapeHtml(item.image || "lullubelle-logo.jpg")}" alt="${escapeHtml(item.name)}" width="88" height="88" loading="lazy" decoding="async">
       <div>
         <h3>${escapeHtml(item.name)}</h3>
         <p>${formatCurrency(item.price)} each</p>

@@ -10,10 +10,10 @@ const valueAfter = (flag, fallback) => {
   const index = args.indexOf(flag);
   return index >= 0 && args[index + 1] ? args[index + 1] : fallback;
 };
-const pdfPath = resolve(root, valueAfter("--pdf", "Docs/Cataloques/kalahari 2025.pdf"));
+const pdfPath = resolve(root, valueAfter("--pdf", "Docs/Cataloques/Kalahari/kalahari 2025.pdf"));
 const productsPath = resolve(root, valueAfter("--products", "data/products.json"));
 const reportPath = resolve(root, valueAfter("--report", "reports/kalahari-2025-import.json"));
-const genericImage = "products/kalahari/catalogue-product.svg";
+const genericImage = "public/images/products/kalahari/product-image-coming-soon.webp";
 
 const identity = (value) => String(value || "").trim().toLowerCase();
 const slugify = (value) => String(value || "")
@@ -146,7 +146,7 @@ for (const source of catalogue) {
   let id = existing?.id || `kalahari-${slugify(source.name)}`;
   if (!existing && ids.has(identity(id))) id = `${id}-${identity(source.sku)}`;
   ids.add(identity(id));
-  const image = await resolveProductImage(id, source.name);
+  const image = existing?.image || await resolveProductImage(id, source.name);
   const next = {
     ...(existing || {}),
     id,
@@ -162,9 +162,9 @@ for (const source of catalogue) {
     price: source.price,
     searchKeywords: keywordsFor(source),
     image,
-    imageAlt: image === genericImage
-      ? `Kalahari ${source.name} catalogue product`
-      : `Kalahari ${source.name}`,
+    imageAlt: existing?.imageAlt || (image === genericImage
+      ? `Kalahari ${source.name} — product image coming soon`
+      : `Kalahari ${source.name}`),
     directions: existing?.directions || "Use as directed on the product packaging or by your skin therapist.",
     ingredients: existing?.ingredients || "Please confirm the current ingredient list with Lullubelle before purchase.",
     suitable: existing?.suitable || source.description,

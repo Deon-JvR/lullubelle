@@ -217,7 +217,7 @@ const invalidProductImage = (image) => {
   return !value
     || /(?:^|\/)(?:lullubelle-logo|placeholder|default-product|sample-product)(?:[._/?-]|$)/i.test(value)
     || /^(?:data|blob):/i.test(value)
-    || !/^(?:https?:\/\/|\/\.netlify\/functions\/admin-asset\?key=|\/?products\/)[^\s]+$/i.test(value);
+    || !/^(?:https?:\/\/|\/\.netlify\/functions\/admin-asset\?key=|\/?public\/images\/products\/|\/?products\/)[^\s]+$/i.test(value);
 };
 const productGallery = (product = {}) => (Array.isArray(product.galleryImages) ? product.galleryImages : []).map((item, index) => typeof item === "string"
   ? { id: `${product.id}-gallery-${index + 1}`, url: item, alt: "" }
@@ -358,7 +358,7 @@ const renderProductRows = (products) => {
           ${products.map((product) => `
             <tr class="${product.hidden ? "is-hidden" : ""}" data-product-row="${escapeHtml(product.id)}">
               <td data-label="Select"><input type="checkbox" data-product-select="${escapeHtml(product.id)}" ${state.productUi.selectedIds.has(product.id) ? "checked" : ""}></td>
-              <td data-label="Image"><button class="image-button" type="button" data-product-edit="${escapeHtml(product.id)}"><img class="product-list-thumb" src="${escapeHtml(adminImageSrc(product.image))}" alt="${escapeHtml(product.imageAlt || product.name || "Product image")}" loading="lazy"></button></td>
+              <td data-label="Image"><button class="image-button" type="button" data-product-edit="${escapeHtml(product.id)}"><img class="product-list-thumb" src="${escapeHtml(adminImageSrc(product.image))}" alt="${escapeHtml(product.imageAlt || `${product.brand || ""} ${product.name || "Product"}`.trim())}" width="64" height="64" loading="lazy" decoding="async"></button></td>
               <td data-label="Product">
                 <div class="product-row-title">
                   <div>

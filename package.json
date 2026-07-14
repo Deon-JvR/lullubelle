@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node --check script.js && node --check admin/admin.js && node --check tools/import-kalahari-catalogue.mjs && node --check netlify/functions/_discounts.mjs && node --check netlify/functions/_delivery.mjs && node --check netlify/functions/_gallery.mjs && node --check netlify/functions/_products.mjs && node --check netlify/functions/_services.mjs && node --check netlify/functions/_admin-shared.mjs && node --check netlify/functions/admin-api.mjs && node --check netlify/functions/admin-content.mjs && node --check netlify/functions/admin-booking.mjs && node --check netlify/functions/admin-order.mjs && node --check netlify/functions/admin-asset.mjs && node --check netlify/functions/storage-health.mjs && node --check netlify/functions/sitemap.mjs && node --check netlify/functions/ikhokha-checkout.mjs && node tools/test-discounts.mjs && node tools/test-ikhokha-signature.mjs && node tools/test-delivery.mjs && node tools/test-gallery.mjs && node tools/test-products.mjs && node tools/test-treatments.mjs && node tools/import-kalahari-catalogue.mjs --check",
+    "check": "node --check script.js && node --check admin/admin.js && node --check tools/import-kalahari-catalogue.mjs && node --check netlify/functions/_discounts.mjs && node --check netlify/functions/_delivery.mjs && node --check netlify/functions/_gallery.mjs && node --check netlify/functions/_products.mjs && node --check netlify/functions/_services.mjs && node --check netlify/functions/_admin-shared.mjs && node --check netlify/functions/admin-api.mjs && node --check netlify/functions/admin-content.mjs && node --check netlify/functions/admin-booking.mjs && node --check netlify/functions/admin-order.mjs && node --check netlify/functions/admin-asset.mjs && node --check netlify/functions/storage-health.mjs && node --check netlify/functions/sitemap.mjs && node --check netlify/functions/ikhokha-checkout.mjs && node tools/test-discounts.mjs && node tools/test-ikhokha-signature.mjs && node tools/test-delivery.mjs && node tools/test-gallery.mjs && node tools/test-products.mjs && node tools/test-product-images.mjs && node tools/test-treatments.mjs && node tools/import-kalahari-catalogue.mjs --check",
+    "audit:product-images": "node tools/trim-product-images.mjs",
+    "report:kalahari-images": "node tools/generate-kalahari-contact-sheet.mjs",
     "import:kalahari": "node tools/import-kalahari-catalogue.mjs",
     "test:ikhokha-signature": "node tools/test-ikhokha-signature.mjs",
     "admin:hash-password": "node tools/hash-admin-password.mjs"
@@ -12,5 +14,9 @@
   "dependencies": {
     "@netlify/blobs": "^10.7.9",
     "pdfjs-dist": "^6.1.200"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "sharp": "^0.35.3"
   }
 }
