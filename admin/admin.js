@@ -1189,6 +1189,28 @@ document.addEventListener("click", async (event) => {
   const target = event.target;
   if (target.closest?.("[data-product-quick]")) return;
 
+  const reconcileButton = target.closest?.("[data-reconcile-payment]");
+  if (reconcileButton) {
+    const orderCard = reconcileButton.closest("[data-record='orders']");
+    const order = state.orders.find((entry) => entry.id === orderCard?.dataset.id);
+    if (!order || reconcileButton.disabled) return;
+    reconcileButton.disabled = true;
+    reconcileButton.setAttribute("aria-busy", "true");
+    reconcileButton.textContent = "Verifying payment…";
+    try {
+      await request("reconcile-payment", { method: "POST", body: JSON.stringify({ orderNumber: order.orderNumber }) });
+      setStatus(`Payment verified for ${order.orderNumber}.`, "success");
+      await loadAll();
+    } catch (error) {
+      setStatus(error.message || "iKhokha payment could not be verified.", "error");
+    } finally {
+      reconcileButton.disabled = false;
+      reconcileButton.removeAttribute("aria-busy");
+      reconcileButton.textContent = "Verify payment with iKhokha";
+    }
+    return;
+  }
+
   if (target.matches("[data-tab]")) {
     if (state.dirty && !confirm("You have unsaved changes. Switch sections anyway?")) return;
     $$(".tabs button").forEach((button) => button.classList.toggle("is-active", button === target));
@@ -1196,19 +1218,6 @@ document.addEventListener("click", async (event) => {
   }
 
   if (target.matches("[data-add]")) addItem(target.dataset.add);
-
-  if (target.matches("[data-reconcile-payment]")) {
-    const orderCard = target.closest("[data-record='orders']");
-    const order = state.orders.find((entry) => entry.id === orderCard?.dataset.id);
-    if (order) {
-      target.disabled = true;
-      target.textContent = "Verifying…";
-      request("reconcile-payment", { method: "POST", body: JSON.stringify({ orderNumber: order.orderNumber }) })
-        .then(() => { setStatus(`Payment verified for ${order.orderNumber}.`, "success"); return loadAll(); })
-        .catch((error) => setStatus(error.message || "iKhokha payment could not be verified.", "error"))
-        .finally(() => { target.disabled = false; target.textContent = "Verify payment with iKhokha"; });
-    }
-  }
 
   if (target.matches("[data-add-discount]")) {
     state.discounts.unshift({ id: uid("discount"), code: "", name: "New promotion", description: "", type: "percentage", value: 10, active: true, startsAt: "", expiresAt: "", minimumOrderAmount: 0, maximumDiscountAmount: null, usageLimit: null, usageLimitPerCustomer: null, customerEmail: "", firstOrderOnly: false, scope: "order", brandIds: [], productIds: [], categories: [], excludedBrandIds: [], excludedProductIds: [], freeDelivery: false, timesUsed: 0 });

@@ -74,3 +74,21 @@ test("Orders captures a five-product collection view", async ({ page }) => {
   await expect(page.locator('[data-panel="orders"]')).toContainText("Collection from Lullubelle");
   await page.screenshot({ path: "reports/screenshots/admin-order-five-products-tablet.png", fullPage: true });
 });
+
+test("Verify payment delegates once and shows loading state", async ({ page }) => {
+  let calls = 0;
+  await page.route("**/.netlify/functions/admin-api**", async (route) => {
+    const action = new URL(route.request().url()).searchParams.get("action");
+    if (action === "reconcile-payment") { calls += 1; await new Promise((resolve) => setTimeout(resolve, 150)); return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true, reconciled: true }) }); }
+    const payload = action === "me" ? { authenticated: true } : action === "content" ? { brands: [], products: [], treatments: [], gallery: [], vouchers: [], deliverySettings: {} } : action === "orders" ? [order] : [];
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(payload) });
+  });
+  await page.goto(`${base}/admin/`, { waitUntil: "networkidle" });
+  await page.locator('[data-tab="orders"]').click();
+  const button = page.locator('[data-reconcile-payment]');
+  await button.click();
+  await page.evaluate(() => document.querySelector("[data-reconcile-payment]").click());
+  await expect(button).toHaveText("Verifying payment…");
+  await expect.poll(() => calls).toBe(1);
+  await expect(button).toHaveText("Verify payment with iKhokha");
+});
