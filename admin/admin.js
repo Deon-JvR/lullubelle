@@ -5,6 +5,7 @@ const state = {
   bookings: [],
   orders: [],
   orderFilter: "active",
+  orderDirtyIds: new Set(),
   discounts: [],
   discountSearch: "",
   discountFilter: "all",
@@ -661,6 +662,15 @@ const applyVerifiedArchiveState = (response) => {
   return [...confirmed.keys()];
 };
 
+const showOrderSaveMessage = (orderId, message, type) => {
+  const card = $(`[data-record="orders"][data-id="${cssEscape(orderId)}"]`);
+  const node = $("[data-order-save-message]", card);
+  if (!node) return;
+  node.className = `order-save-message is-${type}`;
+  node.textContent = message;
+  if (type === "success") setTimeout(() => { if (node.isConnected) node.textContent = ""; }, 2500);
+};
+
 const renderOrders = () => {
   const parseNested = (value, fallback) => {
     if (value === null || value === undefined || value === "") return fallback;
@@ -710,7 +720,7 @@ const renderOrders = () => {
       <header class="order-header"><div><label><input type="checkbox" data-order-select> Select</label><span class="order-kicker">Order ${item.archived ? "· Archived" : ""}</span><h3>${val(item.orderNumber || item.id)}</h3></div><strong class="order-total-pill">${moneyCell(item.total)}</strong></header>
       <div class="order-dashboard"><div class="order-column"><section class="order-panel"><h4>Customer</h4><div class="order-fields">${detail("Name", customer.name || customer.fullName || customer.customerName)}${detail("Email", customer.email || customer.emailAddress)}${detail("Phone", customer.phone || customer.telephone || customer.phoneNumber)}</div></section><section class="order-panel"><h4>Delivery</h4><div class="order-fields">${detail("Method", deliveryLabel)}${detail("Address", addressText, true)}</div></section><section class="order-panel"><h4>Billing</h4><div class="order-fields">${detail("Address", billingAddressText, true)}</div></section><section class="order-panel"><h4>Order notes & tracking</h4><div class="order-fields">${field("Notes", item.notes || customer.notes || "", "notes", "textarea", "wide")}${field("Tracking number", item.trackingNumber || "", "trackingNumber")}${field("Tracking information", item.trackingInformation || "", "trackingInformation", "textarea", "wide")}</div></section></div>
       <section class="order-panel order-products-panel"><h4>Products <span class="order-count">${products.length}</span></h4><div class="order-products">${productRows}</div></section>
-      <aside class="order-column"><section class="order-panel"><h4>Order summary</h4><dl class="order-summary"><dt>Order number</dt><dd>${val(item.orderNumber)}</dd><dt>Order date</dt><dd>${val(item.createdAt ? new Date(item.createdAt).toLocaleString() : "")}</dd><dt>Payment provider</dt><dd>${val(item.paymentProvider)}</dd><dt>Transaction</dt><dd>${val(item.transactionId || item.paymentReference)}</dd><dt>Paid date</dt><dd>${val(item.paidAt ? new Date(item.paidAt).toLocaleString() : "")}</dd><dt>Delivery method</dt><dd>${val(deliveryLabel)}</dd><dt>Promo code</dt><dd>${val(item.promoCode || item.discount?.code)}</dd><dt>Subtotal</dt><dd>${moneyCell(subtotal)}</dd><dt>Discount</dt><dd>${moneyCell(discount)}</dd><dt>Delivery</dt><dd>${moneyCell(item.deliveryFee ?? (typeof delivery === "object" ? delivery.fee : 0))}</dd>${item.tax != null ? `<dt>Tax</dt><dd>${moneyCell(item.tax)}</dd>` : ""}<dt class="summary-total">Total</dt><dd class="summary-total"><strong>${moneyCell(item.total)}</strong></dd></dl></section><section class="order-panel"><h4>Payment & status</h4><div class="order-status-controls"><label>Payment status${select("", item.paymentStatus || "Pending", "paymentStatus", statusOptions)}</label><label>Order status${select("", item.orderStatus || "New", "orderStatus", ["New", "Processing", "Ready", "Completed", "Cancelled"])}</label><button class="button secondary" type="button" data-reconcile-payment>Verify payment with iKhokha</button><button class="button secondary" type="button" data-order-archive>${item.archived ? "Restore order" : "Archive order"}</button></div></section></aside></div><div class="row-actions"><button class="button primary" type="button" data-save-order>Save Order</button></div></article>`;
+      <aside class="order-column"><section class="order-panel"><h4>Order summary</h4><dl class="order-summary"><dt>Order number</dt><dd>${val(item.orderNumber)}</dd><dt>Order date</dt><dd>${val(item.createdAt ? new Date(item.createdAt).toLocaleString() : "")}</dd><dt>Payment provider</dt><dd>${val(item.paymentProvider)}</dd><dt>Transaction</dt><dd>${val(item.transactionId || item.paymentReference)}</dd><dt>Paid date</dt><dd>${val(item.paidAt ? new Date(item.paidAt).toLocaleString() : "")}</dd><dt>Delivery method</dt><dd>${val(deliveryLabel)}</dd><dt>Promo code</dt><dd>${val(item.promoCode || item.discount?.code)}</dd><dt>Subtotal</dt><dd>${moneyCell(subtotal)}</dd><dt>Discount</dt><dd>${moneyCell(discount)}</dd><dt>Delivery</dt><dd>${moneyCell(item.deliveryFee ?? (typeof delivery === "object" ? delivery.fee : 0))}</dd>${item.tax != null ? `<dt>Tax</dt><dd>${moneyCell(item.tax)}</dd>` : ""}<dt class="summary-total">Total</dt><dd class="summary-total"><strong>${moneyCell(item.total)}</strong></dd></dl></section><section class="order-panel"><h4>Payment & status</h4><div class="order-status-controls"><label>Payment status${select("", item.paymentStatus || "Pending", "paymentStatus", statusOptions)}</label><label>Order status${select("", item.orderStatus || "New", "orderStatus", ["New", "Processing", "Ready", "Completed", "Cancelled"])}</label><button class="button secondary" type="button" data-reconcile-payment>${String(item.paymentStatus || "").toLowerCase() === "paid" ? "Re-check payment" : "Verify payment with iKhokha"}</button><button class="button secondary" type="button" data-order-archive>${item.archived ? "Restore order" : "Archive order"}</button><div class="order-save-area"><button class="button primary" type="button" data-save-order ${state.orderDirtyIds.has(item.id) ? "" : "disabled"}>Save Order</button><small class="order-save-message" data-order-save-message aria-live="polite"></small></div></div></section></aside></div></article>`;
   }).join("") || `<p>No orders have been captured yet.</p>`;
 };
 
@@ -800,6 +810,7 @@ const loadAll = async () => {
   }));
   state.bookings = await request("bookings");
   state.orders = await request("orders");
+  state.orderDirtyIds.clear();
   state.discounts = await request("discounts");
   setDirty(false);
   render();
@@ -1014,7 +1025,13 @@ const updateRecord = (card, key, value) => {
     }
   } else item[key] = value;
 
-  if (collection || recordType === "discounts") setDirty();
+  if (recordType === "orders") {
+    state.orderDirtyIds.add(item.id);
+    const saveButton = $("[data-save-order]", card);
+    if (saveButton) saveButton.disabled = false;
+    const message = $("[data-order-save-message]", card);
+    if (message) message.textContent = "";
+  } else if (collection || recordType === "discounts") setDirty();
 };
 
 const handleUploadInput = async (input) => {
@@ -1278,7 +1295,7 @@ document.addEventListener("click", async (event) => {
     } finally {
       reconcileButton.disabled = false;
       reconcileButton.removeAttribute("aria-busy");
-      reconcileButton.textContent = "Verify payment with iKhokha";
+      reconcileButton.textContent = String(order.paymentStatus || "").toLowerCase() === "paid" ? "Re-check payment" : "Verify payment with iKhokha";
     }
     return;
   }
@@ -1442,10 +1459,11 @@ document.addEventListener("click", async (event) => {
     try {
       const result = await request("save-order", { method: "POST", body: JSON.stringify({ order }) });
       state.orders = state.orders.map((item) => String(item.orderNumber) === String(result.order.orderNumber) ? result.order : item);
+      state.orderDirtyIds.delete(order.id);
       renderOrders();
-      setStatus(`Order ${result.order.orderNumber} saved.`, "success");
+      showOrderSaveMessage(order.id, "✓ Order saved", "success");
     } catch (error) {
-      setStatus(error.message || `Order ${order.orderNumber} could not be saved.`, "error");
+      showOrderSaveMessage(order.id, error.message || "Order could not be saved.", "error");
     } finally {
       if (target.isConnected) {
         target.disabled = false;

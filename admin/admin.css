@@ -95,6 +95,10 @@
 .order-summary-row.total strong { color: var(--leaf-dark); }
 .order-status-controls { display: grid; gap: 11px; }
 .order-status-controls .button { width: 100%; }
+.order-save-area { position:sticky; bottom:10px; display:grid; gap:7px; padding-top:4px; background:linear-gradient(transparent, var(--paper) 18%); }
+.order-save-message { min-height:1.2em; color:#526057; font-weight:800; text-align:center; }
+.order-save-message.is-success { color:#2f7148; }
+.order-save-message.is-error { color:#a33b3b; }
 
 @media (max-width: 820px) {
   .order-columns,

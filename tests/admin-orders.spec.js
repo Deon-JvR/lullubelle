@@ -95,11 +95,12 @@ test("Verify payment delegates once and shows loading state", async ({ page }) =
   await page.goto(`${base}/admin/`, { waitUntil: "networkidle" });
   await page.locator('[data-tab="orders"]').click();
   const button = page.locator('[data-reconcile-payment]');
+  await expect(button).toHaveText("Re-check payment");
   await button.click();
   await page.evaluate(() => document.querySelector("[data-reconcile-payment]").click());
   await expect(button).toHaveText("Verifying payment…");
   await expect.poll(() => calls).toBe(1);
-  await expect(button).toHaveText("Verify payment with iKhokha");
+  await expect(button).toHaveText("Re-check payment");
 });
 
 test("Each order has one Save Order action that persists only that complete order", async ({ page }) => {
@@ -125,9 +126,12 @@ test("Each order has one Save Order action that persists only that complete orde
   await expect(cards).toHaveCount(2);
   await expect(cards.nth(0).locator("[data-save-order]")).toHaveCount(1);
   await expect(cards.nth(1).locator("[data-save-order]")).toHaveCount(1);
+  await expect(cards.nth(0).locator("[data-save-order]")).toBeDisabled();
+  await expect(cards.nth(1).locator("[data-save-order]")).toBeDisabled();
   await expect(page.locator("[data-panel='orders'] [data-save-orders]")).toHaveCount(0);
   await expect(page.locator("[data-panel='orders'] button", { hasText: "Save changes" })).toHaveCount(0);
   await cards.nth(0).locator("[data-key='paymentStatus']").selectOption("Refunded");
+  await expect(cards.nth(0).locator("[data-save-order]")).toBeEnabled();
   await cards.nth(0).locator("[data-key='orderStatus']").selectOption("Completed");
   await cards.nth(0).locator("[data-key='notes']").fill("Customer contacted");
   await cards.nth(0).locator("[data-key='trackingNumber']").fill("TRACK-123");
@@ -139,7 +143,10 @@ test("Each order has one Save Order action that persists only that complete orde
   expect(savedBodies[0].order).toMatchObject({ paymentProvider: "iKhokha", paymentReference: "PAY-1" });
   expect(savedBodies[0].order.orderNumber).not.toBe("LB-SAVE-2");
   await expect(page.locator("[data-record='orders']").nth(1).locator("[data-key='notes']")).toHaveValue("Unsaved Order B note");
-  await expect(page.locator("[data-admin-status]")).toContainText("Order LB-SAVE-1 saved.");
+  const savedCard = page.locator("[data-record='orders']").nth(0);
+  await expect(savedCard.locator("[data-save-order]")).toBeDisabled();
+  await expect(savedCard.locator("[data-order-save-message]")).toHaveText("✓ Order saved");
+  await expect(savedCard.locator("[data-order-save-message]")).toHaveText("", { timeout: 4000 });
   await page.reload({ waitUntil: "networkidle" });
   await page.locator('[data-tab="orders"]').click();
   const reloaded = page.locator("[data-record='orders']").nth(0);
@@ -148,7 +155,33 @@ test("Each order has one Save Order action that persists only that complete orde
   await expect(reloaded.locator("[data-key='notes']")).toHaveValue("Customer contacted");
   await expect(reloaded.locator("[data-key='trackingNumber']")).toHaveValue("TRACK-123");
   await expect(reloaded.locator("[data-key='trackingInformation']")).toHaveValue("Collected by courier");
+  await expect(reloaded.locator("[data-save-order]")).toBeDisabled();
   await expect(page.locator("[data-record='orders']").nth(1).locator("[data-key='notes']")).toHaveValue("Leave unchanged");
+});
+
+test("Every editable order field enables Save Order", async ({ page }) => {
+  await page.route("**/.netlify/functions/admin-api**", async (route) => {
+    const action = new URL(route.request().url()).searchParams.get("action");
+    const payload = action === "me" ? { authenticated: true } : action === "content" ? { brands: [], products: [], treatments: [], gallery: [], vouchers: [], deliverySettings: {} } : action === "orders" ? [{ ...order, paymentStatus: "Pending", notes: "Old", trackingNumber: "OLD", trackingInformation: "Old tracking" }] : [];
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(payload) });
+  });
+  const changes = [
+    ["paymentStatus", "Paid"],
+    ["orderStatus", "Completed"],
+    ["notes", "New note"],
+    ["trackingNumber", "NEW-TRACK"],
+    ["trackingInformation", "New tracking information"],
+  ];
+  for (const [key, value] of changes) {
+    await page.goto(`${base}/admin/`, { waitUntil: "networkidle" });
+    await page.locator('[data-tab="orders"]').click();
+    const button = page.locator("[data-save-order]");
+    await expect(button).toBeDisabled();
+    const input = page.locator(`[data-key='${key}']`);
+    if (await input.evaluate((node) => node.tagName === "SELECT")) await input.selectOption(value);
+    else await input.fill(value);
+    await expect(button).toBeEnabled();
+  }
 });
 
 test("Failed mobile Save Order reports the error and restores the button", async ({ page }) => {
@@ -162,10 +195,13 @@ test("Failed mobile Save Order reports the error and restores the button", async
   await page.goto(`${base}/admin/`, { waitUntil: "networkidle" });
   await page.locator('[data-tab="orders"]').click();
   const button = page.locator("[data-save-order]");
+  await expect(button).toBeDisabled();
+  await page.locator("[data-key='notes']").fill("Retry this note");
+  await expect(button).toBeEnabled();
   await button.click();
   await expect(button).toBeDisabled();
   await expect(button).toHaveText("Saving Order…");
-  await expect(page.locator("[data-admin-status]")).toContainText("Order storage is temporarily unavailable.");
+  await expect(page.locator("[data-order-save-message]")).toContainText("Order storage is temporarily unavailable.");
   await expect(button).toBeEnabled();
   await expect(button).toHaveText("Save Order");
 });
