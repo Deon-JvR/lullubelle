@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { createHmac } from "node:crypto";
 import {
   escapeIkhokhaSignatureString,
+  createIkhokhaSignature,
   extractPaymentUrl,
   generateIkhokhaSignature,
 } from "../netlify/functions/ikhokha-checkout.mjs";
@@ -34,6 +35,17 @@ assert.equal(
   generateIkhokhaSignature({ path, requestBodyString, secret: ` ${secret} ` }),
   expected,
   "IK-SIGN must be HMAC_SHA256(escaped path + exact requestBodyString, trimmed IKHOKHA_API_SECRET).",
+);
+const statusUrl = "https://api.ikhokha.com/public-api/v1/api/getStatus/external?externalReference=LUL-TEST";
+assert.equal(
+  createIkhokhaSignature({ requestUrl: statusUrl, serializedBody: "", secret }),
+  createIkhokhaSignature({ requestUrl: statusUrl, serializedBody: "", secret }),
+  "Checkout and status signatures must share the URL-derived signing helper.",
+);
+assert.notEqual(
+  createIkhokhaSignature({ requestUrl: statusUrl, serializedBody: "", secret }),
+  createIkhokhaSignature({ requestUrl: statusUrl, serializedBody: "{}", secret }),
+  "GET status signatures must not include an implicit JSON body.",
 );
 
 assert.equal(

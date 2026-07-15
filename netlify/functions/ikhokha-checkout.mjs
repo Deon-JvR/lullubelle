@@ -122,13 +122,20 @@ export const escapeIkhokhaSignatureString = (value) => String(value)
   .replace(/[\\"']/g, "\\$&")
   .replace(/\u0000/g, "\\0");
 
+export const createIkhokhaSignature = ({ requestUrl, serializedBody = "", secret }) => {
+  const urlText = String(requestUrl);
+  const uri = urlText.includes("//") ? urlText.slice(urlText.indexOf("//") + 2) : urlText;
+  const slashIndex = uri.indexOf("/");
+  const basePath = slashIndex >= 0 ? uri.slice(slashIndex) : "/";
+  const signingPayload = basePath + serializedBody;
+  return createHmac("sha256", String(secret || "").trim())
+    .update(escapeIkhokhaSignatureString(signingPayload), "utf8")
+    .digest("hex");
+};
+
 export const generateIkhokhaSignature = ({ path, requestBody, requestBodyString, secret }) => {
   const bodyString = requestBodyString ?? JSON.stringify(requestBody);
-  const payloadToSign = `${path}${bodyString}`;
-  return createHmac("sha256", String(secret || "").trim())
-    .update(escapeIkhokhaSignatureString(payloadToSign))
-    .digest("hex")
-    .trim();
+  return createIkhokhaSignature({ requestUrl: `https://api.ikhokha.com${path}`, serializedBody: bodyString, secret });
 };
 
 export const buildIkhokhaPayload = ({ base, order }) => {
@@ -313,11 +320,7 @@ const callIkhokha = async ({ event, order, testMode }) => {
   const requestBodyString = JSON.stringify(payload);
   const payloadToSign = `${path}${requestBodyString}`;
   const applicationKey = String(process.env.IKHOKHA_API_KEY || "").trim();
-  const signature = generateIkhokhaSignature({
-    path,
-    requestBodyString,
-    secret: process.env.IKHOKHA_API_SECRET,
-  });
+  const signature = createIkhokhaSignature({ requestUrl, serializedBody: requestBodyString, secret: process.env.IKHOKHA_API_SECRET });
   const requestLog = {
     requestUrl,
     method: "POST",
@@ -327,6 +330,12 @@ const callIkhokha = async ({ event, order, testMode }) => {
     payloadToSign,
     escapedPayloadToSign: escapeIkhokhaSignatureString(payloadToSign),
     generatedSignatureLength: signature.length,
+    signingPath: new URL(requestUrl).pathname + new URL(requestUrl).search,
+    signingBodyLength: requestBodyString.length,
+    signingPayloadLength: (new URL(requestUrl).pathname + new URL(requestUrl).search).length + requestBodyString.length,
+    digestEncoding: "hex",
+    digestCharacterLength: signature.length,
+    secretByteLength: Buffer.byteLength(String(process.env.IKHOKHA_API_SECRET || "").trim(), "utf8"),
     body: payload,
   };
   logIkhokhaDiagnostic("info", "Creating iKhokha hosted checkout.", requestLog);
@@ -557,11 +566,12 @@ export const handleReconciliation = async (event, { trustedAdmin = false } = {})
   const requestBody = "";
   const baseUrl = ikhokhaBaseUrl();
   const appId = String(process.env.IKHOKHA_API_KEY || "").trim();
-  const signature = generateIkhokhaSignature({ path, requestBodyString: requestBody, secret: process.env.IKHOKHA_API_SECRET });
+  const requestUrl = `${baseUrl}${path}`;
+  const signature = createIkhokhaSignature({ requestUrl, serializedBody: requestBody, secret: process.env.IKHOKHA_API_SECRET });
   let response;
   try {
-    console.info("Sending verification request to iKhokha");
-    response = await fetch(`${baseUrl}${path}`, { method: "GET", headers: { Accept: "application/json", "IK-APPID": appId, "IK-SIGN": signature } });
+    console.info("Sending verification request to iKhokha", { signingPath: path, signingBodyLength: requestBody.length, signingPayloadLength: path.length + requestBody.length, digestEncoding: "hex", digestCharacterLength: signature.length, secretByteLength: Buffer.byteLength(String(process.env.IKHOKHA_API_SECRET || "").trim(), "utf8") });
+    response = await fetch(requestUrl, { method: "GET", headers: { Accept: "application/json", "IK-APPID": appId, "IK-SIGN": signature } });
   } catch (error) {
     console.error("iKhokha reconciliation network failure", { verificationBaseUrl: baseUrl, verificationPath: path, externalTransactionID: stored.orderNumber, requestHeaders: { Accept: "application/json" }, appIdPresent: Boolean(appId), signaturePresent: Boolean(signature), errorName: error?.name, errorCode: error?.code, errorMessage: error?.message });
     return json(502, { ok: false, code: "IKHOKHA_VERIFICATION_FAILED", error: "iKhokha verification request failed." });
