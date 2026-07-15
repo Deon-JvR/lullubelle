@@ -379,6 +379,7 @@ const callIkhokha = async ({ event, order, testMode }) => {
   } catch {
     data = { raw: text };
   }
+  console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "provider-response-parsed", orderNumber: order.orderNumber })}`);
 
   const responseLog = {
     step: "iKhokha checkout response received",
@@ -610,6 +611,7 @@ const wantsJson = (event) => {
 
 export const handler = async (event) => {
   connectBlobContext(event);
+  console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "handler-entered", method: event.httpMethod })}`);
   if (event.queryStringParameters?.action === "reconcile") return handleReconciliation(event);
   if (event.queryStringParameters?.action === "confirm") {
     return handleConfirmation(event);
@@ -620,6 +622,7 @@ export const handler = async (event) => {
   }
 
   const body = parseJson(event);
+  console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "request-body-parsed", method: event.httpMethod })}`);
   const address = {
     streetAddress: String(body.address?.streetAddress || body.customer?.address?.streetAddress || "").trim(),
     suburb: String(body.address?.suburb || body.customer?.address?.suburb || "").trim(),
@@ -692,10 +695,13 @@ export const handler = async (event) => {
       paymentReference,
       reservationId,
     });
+    console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "pending-order-created", orderNumber: order.orderNumber })}`);
     const testMode = toBoolean(process.env.IKHOKHA_TEST_MODE);
     let checkout;
     try {
+      console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "before-call", orderNumber: order.orderNumber })}`);
       checkout = await callIkhokha({ event, order, testMode });
+      console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "call-returned", orderNumber: order.orderNumber })}`);
     } catch (error) {
       await releaseRedemption(reservationId);
       const orders = await readList(ORDERS_KEY);
@@ -720,6 +726,7 @@ export const handler = async (event) => {
     if (!ikhokhaPaylinkId) console.warn(`iKhokha checkout response missing paylink ID ${JSON.stringify({ orderNumber: order.orderNumber })}`);
 
     if (!wantsJson(event)) {
+      console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "before-redirect", orderNumber: order.orderNumber })}`);
       return {
         statusCode: 303,
         headers: {
@@ -730,6 +737,7 @@ export const handler = async (event) => {
       };
     }
 
+    console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "before-success-response", orderNumber: order.orderNumber })}`);
     return json(200, {
       ok: true,
       orderNumber: order.orderNumber,
@@ -737,6 +745,7 @@ export const handler = async (event) => {
       testMode,
     });
   } catch (error) {
+    console.error(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "catch", errorName: error?.name || "Error", errorCode: error?.code || null })}`);
     return json(error.diagnostic ? 502 : 400, {
       error: error.message || "Unable to start iKhokha checkout.",
       diagnostic: error.diagnostic || {
