@@ -708,9 +708,9 @@ const renderOrders = () => {
     const productRows = products.map((p) => `<div class="order-product"><img class="order-product-image" src="${escapeHtml(adminImageSrc(p.image || p.imageUrl || ""))}" alt="${val(p.name)}" width="96" height="96" onerror="this.classList.add('is-missing')"><div class="order-product-info"><strong class="order-product-name">${val(p.name)}</strong><small class="order-product-meta">${val(p.brand)} · SKU ${val(p.sku)}</small><span class="order-product-meta">Quantity ${val(p.quantity)} · ${moneyCell(unitPrice(p))} each</span></div><b class="order-product-price">${moneyCell(productTotal(p))}</b></div>`).join("") || `<p>—</p>`;
     return `<article class="editor-card order-card" data-id="${escapeHtml(item.id)}" data-record="orders">
       <header class="order-header"><div><label><input type="checkbox" data-order-select> Select</label><span class="order-kicker">Order ${item.archived ? "· Archived" : ""}</span><h3>${val(item.orderNumber || item.id)}</h3></div><strong class="order-total-pill">${moneyCell(item.total)}</strong></header>
-      <div class="order-dashboard"><div class="order-column"><section class="order-panel"><h4>Customer</h4><div class="order-fields">${detail("Name", customer.name || customer.fullName || customer.customerName)}${detail("Email", customer.email || customer.emailAddress)}${detail("Phone", customer.phone || customer.telephone || customer.phoneNumber)}</div></section><section class="order-panel"><h4>Delivery</h4><div class="order-fields">${detail("Method", deliveryLabel)}${detail("Address", addressText, true)}</div></section><section class="order-panel"><h4>Billing</h4><div class="order-fields">${detail("Address", billingAddressText, true)}</div></section><section class="order-panel order-notes"><h4>Notes</h4><p>${val(item.notes || customer.notes)}</p></section></div>
+      <div class="order-dashboard"><div class="order-column"><section class="order-panel"><h4>Customer</h4><div class="order-fields">${detail("Name", customer.name || customer.fullName || customer.customerName)}${detail("Email", customer.email || customer.emailAddress)}${detail("Phone", customer.phone || customer.telephone || customer.phoneNumber)}</div></section><section class="order-panel"><h4>Delivery</h4><div class="order-fields">${detail("Method", deliveryLabel)}${detail("Address", addressText, true)}</div></section><section class="order-panel"><h4>Billing</h4><div class="order-fields">${detail("Address", billingAddressText, true)}</div></section><section class="order-panel"><h4>Order notes & tracking</h4><div class="order-fields">${field("Notes", item.notes || customer.notes || "", "notes", "textarea", "wide")}${field("Tracking number", item.trackingNumber || "", "trackingNumber")}${field("Tracking information", item.trackingInformation || "", "trackingInformation", "textarea", "wide")}</div></section></div>
       <section class="order-panel order-products-panel"><h4>Products <span class="order-count">${products.length}</span></h4><div class="order-products">${productRows}</div></section>
-      <aside class="order-column"><section class="order-panel"><h4>Order summary</h4><dl class="order-summary"><dt>Order number</dt><dd>${val(item.orderNumber)}</dd><dt>Order date</dt><dd>${val(item.createdAt ? new Date(item.createdAt).toLocaleString() : "")}</dd><dt>Payment provider</dt><dd>${val(item.paymentProvider)}</dd><dt>Transaction</dt><dd>${val(item.transactionId || item.paymentReference)}</dd><dt>Paid date</dt><dd>${val(item.paidAt ? new Date(item.paidAt).toLocaleString() : "")}</dd><dt>Delivery method</dt><dd>${val(deliveryLabel)}</dd><dt>Promo code</dt><dd>${val(item.promoCode || item.discount?.code)}</dd><dt>Subtotal</dt><dd>${moneyCell(subtotal)}</dd><dt>Discount</dt><dd>${moneyCell(discount)}</dd><dt>Delivery</dt><dd>${moneyCell(item.deliveryFee ?? (typeof delivery === "object" ? delivery.fee : 0))}</dd>${item.tax != null ? `<dt>Tax</dt><dd>${moneyCell(item.tax)}</dd>` : ""}<dt class="summary-total">Total</dt><dd class="summary-total"><strong>${moneyCell(item.total)}</strong></dd></dl></section><section class="order-panel"><h4>Payment & status</h4><div class="order-status-controls"><label>Payment status${select("", item.paymentStatus || "Pending", "paymentStatus", statusOptions)}</label><label>Order status${select("", item.orderStatus || "New", "orderStatus", ["New", "Processing", "Ready", "Completed", "Cancelled"])}</label><button class="button secondary" type="button" data-reconcile-payment>Verify payment with iKhokha</button><button class="button secondary" type="button" data-order-archive>${item.archived ? "Restore order" : "Archive order"}</button><button class="button primary" type="button" data-save-orders>Save changes</button></div></section></aside></div></article>`;
+      <aside class="order-column"><section class="order-panel"><h4>Order summary</h4><dl class="order-summary"><dt>Order number</dt><dd>${val(item.orderNumber)}</dd><dt>Order date</dt><dd>${val(item.createdAt ? new Date(item.createdAt).toLocaleString() : "")}</dd><dt>Payment provider</dt><dd>${val(item.paymentProvider)}</dd><dt>Transaction</dt><dd>${val(item.transactionId || item.paymentReference)}</dd><dt>Paid date</dt><dd>${val(item.paidAt ? new Date(item.paidAt).toLocaleString() : "")}</dd><dt>Delivery method</dt><dd>${val(deliveryLabel)}</dd><dt>Promo code</dt><dd>${val(item.promoCode || item.discount?.code)}</dd><dt>Subtotal</dt><dd>${moneyCell(subtotal)}</dd><dt>Discount</dt><dd>${moneyCell(discount)}</dd><dt>Delivery</dt><dd>${moneyCell(item.deliveryFee ?? (typeof delivery === "object" ? delivery.fee : 0))}</dd>${item.tax != null ? `<dt>Tax</dt><dd>${moneyCell(item.tax)}</dd>` : ""}<dt class="summary-total">Total</dt><dd class="summary-total"><strong>${moneyCell(item.total)}</strong></dd></dl></section><section class="order-panel"><h4>Payment & status</h4><div class="order-status-controls"><label>Payment status${select("", item.paymentStatus || "Pending", "paymentStatus", statusOptions)}</label><label>Order status${select("", item.orderStatus || "New", "orderStatus", ["New", "Processing", "Ready", "Completed", "Cancelled"])}</label><button class="button secondary" type="button" data-reconcile-payment>Verify payment with iKhokha</button><button class="button secondary" type="button" data-order-archive>${item.archived ? "Restore order" : "Archive order"}</button></div></section></aside></div><div class="row-actions"><button class="button primary" type="button" data-save-order>Save Order</button></div></article>`;
   }).join("") || `<p>No orders have been captured yet.</p>`;
 };
 
@@ -1433,9 +1433,25 @@ document.addEventListener("click", async (event) => {
     setStatus("Booking statuses saved.", "success");
   }
 
-  if (target.matches("[data-save-orders]")) {
-    await request("orders", { method: "PUT", body: JSON.stringify({ items: state.orders }) });
-    setStatus("Order statuses saved.", "success");
+  if (target.matches("[data-save-order]")) {
+    const orderCard = target.closest("[data-record='orders']");
+    const order = state.orders.find((item) => item.id === orderCard?.dataset.id);
+    if (!order || target.disabled) return;
+    target.disabled = true;
+    target.textContent = "Saving Order…";
+    try {
+      const result = await request("save-order", { method: "POST", body: JSON.stringify({ order }) });
+      state.orders = state.orders.map((item) => String(item.orderNumber) === String(result.order.orderNumber) ? result.order : item);
+      renderOrders();
+      setStatus(`Order ${result.order.orderNumber} saved.`, "success");
+    } catch (error) {
+      setStatus(error.message || `Order ${order.orderNumber} could not be saved.`, "error");
+    } finally {
+      if (target.isConnected) {
+        target.disabled = false;
+        target.textContent = "Save Order";
+      }
+    }
   }
 
   if (target.matches("[data-save-discounts]")) {

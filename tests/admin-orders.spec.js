@@ -42,7 +42,9 @@ test("Orders renders structured details without raw JSON", async ({ page }) => {
   await expect(panel).toContainText("Ada Lovelace");
   await expect(panel).toContainText("Hydrating Cleanser");
   await expect(panel).toContainText("WELCOME10");
-  await expect(panel.locator("textarea")).toHaveCount(0);
+  await expect(panel.locator("textarea")).toHaveCount(2);
+  await expect(panel.locator("[data-key='notes']")).toHaveCount(1);
+  await expect(panel.locator("[data-key='trackingInformation']")).toHaveCount(1);
   await expect(panel).not.toContainText('"customer"');
   await expect(panel).not.toContainText('"products"');
   await expect(panel).not.toContainText("/.netlify/functions/");
@@ -98,6 +100,74 @@ test("Verify payment delegates once and shows loading state", async ({ page }) =
   await expect(button).toHaveText("Verifying payment…");
   await expect.poll(() => calls).toBe(1);
   await expect(button).toHaveText("Verify payment with iKhokha");
+});
+
+test("Each order has one Save Order action that persists only that complete order", async ({ page }) => {
+  let storedOrders = [
+    { ...order, id: "ord_save_1", orderNumber: "LB-SAVE-1", notes: "Original note", trackingNumber: "", trackingInformation: "", paymentProvider: "iKhokha", paymentReference: "PAY-1" },
+    { ...order, id: "ord_save_2", orderNumber: "LB-SAVE-2", notes: "Leave unchanged" },
+  ];
+  const savedBodies = [];
+  await page.route("**/.netlify/functions/admin-api**", async (route) => {
+    const action = new URL(route.request().url()).searchParams.get("action");
+    if (action === "save-order") {
+      const body = route.request().postDataJSON();
+      savedBodies.push(body);
+      storedOrders = storedOrders.map((item) => item.orderNumber === body.order.orderNumber ? { ...item, ...body.order } : item);
+      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true, order: body.order }) });
+    }
+    const payload = action === "me" ? { authenticated: true } : action === "content" ? { brands: [], products: [], treatments: [], gallery: [], vouchers: [], deliverySettings: {} } : action === "orders" ? storedOrders : [];
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(payload) });
+  });
+  await page.goto(`${base}/admin/`, { waitUntil: "networkidle" });
+  await page.locator('[data-tab="orders"]').click();
+  const cards = page.locator("[data-record='orders']");
+  await expect(cards).toHaveCount(2);
+  await expect(cards.nth(0).locator("[data-save-order]")).toHaveCount(1);
+  await expect(cards.nth(1).locator("[data-save-order]")).toHaveCount(1);
+  await expect(page.locator("[data-panel='orders'] [data-save-orders]")).toHaveCount(0);
+  await expect(page.locator("[data-panel='orders'] button", { hasText: "Save changes" })).toHaveCount(0);
+  await cards.nth(0).locator("[data-key='paymentStatus']").selectOption("Refunded");
+  await cards.nth(0).locator("[data-key='orderStatus']").selectOption("Completed");
+  await cards.nth(0).locator("[data-key='notes']").fill("Customer contacted");
+  await cards.nth(0).locator("[data-key='trackingNumber']").fill("TRACK-123");
+  await cards.nth(0).locator("[data-key='trackingInformation']").fill("Collected by courier");
+  await cards.nth(1).locator("[data-key='notes']").fill("Unsaved Order B note");
+  await cards.nth(0).locator("[data-save-order]").click();
+  await expect.poll(() => savedBodies.length).toBe(1);
+  expect(savedBodies[0].order).toMatchObject({ orderNumber: "LB-SAVE-1", paymentStatus: "Refunded", orderStatus: "Completed", notes: "Customer contacted", trackingNumber: "TRACK-123", trackingInformation: "Collected by courier" });
+  expect(savedBodies[0].order).toMatchObject({ paymentProvider: "iKhokha", paymentReference: "PAY-1" });
+  expect(savedBodies[0].order.orderNumber).not.toBe("LB-SAVE-2");
+  await expect(page.locator("[data-record='orders']").nth(1).locator("[data-key='notes']")).toHaveValue("Unsaved Order B note");
+  await expect(page.locator("[data-admin-status]")).toContainText("Order LB-SAVE-1 saved.");
+  await page.reload({ waitUntil: "networkidle" });
+  await page.locator('[data-tab="orders"]').click();
+  const reloaded = page.locator("[data-record='orders']").nth(0);
+  await expect(reloaded.locator("[data-key='paymentStatus']")).toHaveValue("Refunded");
+  await expect(reloaded.locator("[data-key='orderStatus']")).toHaveValue("Completed");
+  await expect(reloaded.locator("[data-key='notes']")).toHaveValue("Customer contacted");
+  await expect(reloaded.locator("[data-key='trackingNumber']")).toHaveValue("TRACK-123");
+  await expect(reloaded.locator("[data-key='trackingInformation']")).toHaveValue("Collected by courier");
+  await expect(page.locator("[data-record='orders']").nth(1).locator("[data-key='notes']")).toHaveValue("Leave unchanged");
+});
+
+test("Failed mobile Save Order reports the error and restores the button", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.route("**/.netlify/functions/admin-api**", async (route) => {
+    const action = new URL(route.request().url()).searchParams.get("action");
+    if (action === "save-order") { await new Promise((resolve) => setTimeout(resolve, 150)); return route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ message: "Order storage is temporarily unavailable." }) }); }
+    const payload = action === "me" ? { authenticated: true } : action === "content" ? { brands: [], products: [], treatments: [], gallery: [], vouchers: [], deliverySettings: {} } : action === "orders" ? [order] : [];
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(payload) });
+  });
+  await page.goto(`${base}/admin/`, { waitUntil: "networkidle" });
+  await page.locator('[data-tab="orders"]').click();
+  const button = page.locator("[data-save-order]");
+  await button.click();
+  await expect(button).toBeDisabled();
+  await expect(button).toHaveText("Saving Order…");
+  await expect(page.locator("[data-admin-status]")).toContainText("Order storage is temporarily unavailable.");
+  await expect(button).toBeEnabled();
+  await expect(button).toHaveText("Save Order");
 });
 
 test("Successful and repeated archive updates canonical counts without trusting a stale GET", async ({ page }) => {

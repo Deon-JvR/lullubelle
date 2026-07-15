@@ -156,10 +156,17 @@ export const handler = async (event) => {
     return json(200, await readList(ORDERS_KEY));
   }
 
-  if (method === "PUT" && action === "orders") {
-    const items = Array.isArray(body.items) ? body.items : [];
-    await writeList(ORDERS_KEY, items);
-    return json(200, { ok: true });
+  if (method === "POST" && action === "save-order") {
+    const incoming = body.order && typeof body.order === "object" ? body.order : null;
+    const orderNumber = String(incoming?.orderNumber || "").trim();
+    if (!orderNumber) return json(400, { ok: false, code: "ORDER_NUMBER_REQUIRED", message: "An order number is required." });
+    const orders = await readList(ORDERS_KEY);
+    const index = orders.findIndex((order) => String(order.orderNumber) === orderNumber);
+    if (index < 0) return json(404, { ok: false, code: "ORDER_NOT_FOUND", message: `No matching order was found for: ${orderNumber}.` });
+    const saved = { ...orders[index], ...incoming, id: orders[index].id, orderNumber: orders[index].orderNumber };
+    orders[index] = saved;
+    await writeList(ORDERS_KEY, orders);
+    return json(200, { ok: true, order: saved });
   }
 
   if (method === "POST" && ["archive-order", "restore-order", "archive-orders"].includes(action)) {
