@@ -10,7 +10,7 @@ import {
 } from "./_admin-shared.mjs";
 import { calculateDiscount, releaseRedemption, reserveRedemption, validatePromo } from "./_discounts.mjs";
 import { calculateDelivery, sanitiseDeliverySettings } from "./_delivery.mjs";
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
 
 const toBoolean = (value) => /^(1|true|yes|on)$/i.test(String(value || ""));
 
@@ -432,6 +432,8 @@ const markOrderPaid = async (orderNumber, providerPayload) => {
     currency: String(data.currency || "ZAR").toUpperCase(),
     paidAt: data.paidAt || now,
     paymentUpdatedAt: now,
+    paymentVerifiedAt: now,
+    verificationSource: data.reconciliation ? "reconciliation" : "webhook",
     providerConfirmation: safeProviderBody(providerPayload),
     paymentEvents: [...history, { timestamp: now, providerStatus: "paid", internalStatus: "Paid", transactionReference: transactionId || String(orderNumber), amount: money(Number(data.amount) >= 100 ? Number(data.amount) / 100 : data.amount), verificationResult: "verified", eventSource: "ikhokha-webhook", idempotencyKey: eventKey }],
   };
@@ -496,20 +498,28 @@ const verifySignature = (event) => {
 const isVerifiedIkhokhaConfirmation = (event) => verifySignature(event);
 
 const handleConfirmation = async (event) => {
+  const correlationId = event.headers["x-correlation-id"] || event.headers["X-Correlation-Id"] || randomUUID();
   const body = parseJson(event);
-  if (!isVerifiedIkhokhaConfirmation(event)) return json(401, { ok: false, error: "Invalid iKhokha signature." });
+  const signatureVerified = isVerifiedIkhokhaConfirmation(event);
+  if (!signatureVerified) {
+    console.warn("iKhokha payment callback", { correlationId, eventType: "callback", signatureVerified, responseStatus: 401 });
+    return json(401, { ok: false, error: "Invalid iKhokha signature." });
+  }
   const order = extractPaymentReference(body) || event.queryStringParameters?.order;
   if (!order) return json(400, { ok: false, error: "Missing payment reference." });
   const orders = await readList(ORDERS_KEY);
   const stored = orders.find((item) => normaliseReference(item.orderNumber) === normaliseReference(order));
-  if (!stored) return json(404, { ok: false, error: "Unknown payment reference." });
   const data = body.data && typeof body.data === "object" ? body.data : body;
+  const mapped = extractPaymentStatus(body);
+  const amountMatches = mapped === "Paid" && amountsMatch(stored?.total, data.amount);
+  const currencyMatches = String(data.currency || "ZAR").toUpperCase() === "ZAR";
+  console.info("iKhokha payment callback", { correlationId, eventType: "callback", orderNumber: String(order).slice(0, 80), providerStatus: mapped, signatureVerified, referenceMatched: Boolean(stored), amountMatched: amountMatches, currencyMatched: currencyMatches });
+  if (!stored) return json(404, { ok: false, error: "Unknown payment reference." });
   const currency = String(data.currency || "ZAR").toUpperCase();
   if (currency !== "ZAR") return json(409, { ok: false, error: "Payment currency mismatch." });
   if (extractPaymentStatus(body) === "Paid" && !amountsMatch(stored.total, data.amount)) return json(409, { ok: false, error: "Payment amount mismatch." });
-  const mapped = extractPaymentStatus(body);
   if (mapped === "Unknown") { console.warn("Unknown iKhokha payment status", { reference: String(order).slice(0, 80), status: String(data.status || data.event || "").slice(0, 40) }); return json(400, { ok: false, error: "Unknown payment status." }); }
-  if (mapped === "Paid") return json(200, { ok: true, paid: await markOrderPaid(order, body) });
+  if (mapped === "Paid") { const paid = await markOrderPaid(order, body); console.info("iKhokha payment callback persisted", { correlationId, finalInternalStatus: paid ? "Paid" : "Unchanged", responseStatus: 200 }); return json(200, { ok: true, paid }); }
   if (mapped === "Cancelled" || mapped === "Failed" || mapped === "Refunded" || mapped === "Partially Refunded") return json(200, { ok: true, paymentStatus: mapped, updated: await markOrderCancelled(order, body, mapped) });
   return json(200, { ok: true, paymentStatus: "Pending" });
 };
