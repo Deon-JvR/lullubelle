@@ -95,7 +95,7 @@
         </section>
 
         <section class="panel" data-panel="orders">
-          <div class="panel-heading"><h2>Orders</h2><button class="button primary" type="button" data-save-orders>Save order statuses</button></div>
+          <div class="panel-heading"><h2>Orders</h2><div class="row-actions"><select data-order-filter><option value="active">Active orders</option><option value="archived">Archived orders</option><option value="all">All orders</option><option value="abandoned">Likely abandoned</option></select><button class="button secondary" type="button" data-archive-selected>Archive selected (0)</button><button class="button primary" type="button" data-save-orders>Save order statuses</button></div></div>
           <p class="hint">Prepared for iKhokha order records. Payment integration can post orders to the order endpoint later.</p>
           <div class="editor-list" data-list="orders"></div>
         </section>

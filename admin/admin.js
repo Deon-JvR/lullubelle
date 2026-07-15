@@ -4,6 +4,7 @@ const state = {
   content: { brands: [], products: [], treatments: [], gallery: [], vouchers: [], deliverySettings: { freeDeliveryThreshold: 1000, standardPudoFee: 80, collectionEnabled: true } },
   bookings: [],
   orders: [],
+  orderFilter: "active",
   discounts: [],
   discountSearch: "",
   discountFilter: "all",
@@ -660,7 +661,14 @@ const renderOrders = () => {
   const val = (v) => (v === null || v === undefined || v === "" || typeof v === "object") ? "—" : escapeHtml(String(v));
   const detail = (label, value, wide = false) => `<div class="order-field${wide ? " wide" : ""}"><span class="order-field-label">${escapeHtml(label)}</span><span class="order-field-value">${val(value)}</span></div>`;
   const moneyCell = (v) => `R${money(Number(v) || 0)}`;
-  $("[data-list='orders']").innerHTML = state.orders.map((item) => {
+  const likelyAbandoned = (item) => {
+    if (item.archived === true || item.paidAt) return false;
+    const payment = String(item.paymentStatus || "").toLowerCase();
+    const date = new Date(item.createdAt || item.orderDate || item.date || 0).getTime();
+    return (payment.includes("pending") || payment.includes("awaiting") || payment.includes("unpaid")) && Number.isFinite(date) && date > 0 && Date.now() - date >= 86400000;
+  };
+  const visibleOrders = state.orders.filter((item) => state.orderFilter === "all" ? true : state.orderFilter === "archived" ? item.archived === true : state.orderFilter === "abandoned" ? likelyAbandoned(item) : item.archived !== true);
+  $("[data-list='orders']").innerHTML = visibleOrders.map((item) => {
     const customer = parseNested(item.customerDetails || item.customer, {}) || {};
     const delivery = parseNested(item.delivery, {}) || {};
     const address = parseNested(item.deliveryAddress || item.address || delivery.address || customer.address, {}) || {};
@@ -678,10 +686,10 @@ const renderOrders = () => {
     const statusOptions = [["Pending", "Awaiting payment confirmation"], ["Paid", "Paid"], ["Failed", "Failed"], ["Refunded", "Refunded"], ["Partially Refunded", "Partially refunded"], ["Cancelled", "Cancelled"]];
     const productRows = products.map((p) => `<div class="order-product"><img class="order-product-image" src="${escapeHtml(adminImageSrc(p.image || p.imageUrl || ""))}" alt="${val(p.name)}" width="96" height="96" onerror="this.classList.add('is-missing')"><div class="order-product-info"><strong class="order-product-name">${val(p.name)}</strong><small class="order-product-meta">${val(p.brand)} · SKU ${val(p.sku)}</small><span class="order-product-meta">Quantity ${val(p.quantity)} · ${moneyCell(unitPrice(p))} each</span></div><b class="order-product-price">${moneyCell(productTotal(p))}</b></div>`).join("") || `<p>—</p>`;
     return `<article class="editor-card order-card" data-id="${escapeHtml(item.id)}" data-record="orders">
-      <header class="order-header"><div><span class="order-kicker">Order</span><h3>${val(item.orderNumber || item.id)}</h3></div><strong class="order-total-pill">${moneyCell(item.total)}</strong></header>
+      <header class="order-header"><div><label><input type="checkbox" data-order-select> Select</label><span class="order-kicker">Order ${item.archived ? "· Archived" : ""}</span><h3>${val(item.orderNumber || item.id)}</h3></div><strong class="order-total-pill">${moneyCell(item.total)}</strong></header>
       <div class="order-dashboard"><div class="order-column"><section class="order-panel"><h4>Customer</h4><div class="order-fields">${detail("Name", customer.name || customer.fullName || customer.customerName)}${detail("Email", customer.email || customer.emailAddress)}${detail("Phone", customer.phone || customer.telephone || customer.phoneNumber)}</div></section><section class="order-panel"><h4>Delivery</h4><div class="order-fields">${detail("Method", deliveryLabel)}${detail("Address", addressText, true)}</div></section><section class="order-panel"><h4>Billing</h4><div class="order-fields">${detail("Address", billingAddressText, true)}</div></section><section class="order-panel order-notes"><h4>Notes</h4><p>${val(item.notes || customer.notes)}</p></section></div>
       <section class="order-panel order-products-panel"><h4>Products <span class="order-count">${products.length}</span></h4><div class="order-products">${productRows}</div></section>
-      <aside class="order-column"><section class="order-panel"><h4>Order summary</h4><dl class="order-summary"><dt>Order number</dt><dd>${val(item.orderNumber)}</dd><dt>Order date</dt><dd>${val(item.createdAt ? new Date(item.createdAt).toLocaleString() : "")}</dd><dt>Payment provider</dt><dd>${val(item.paymentProvider)}</dd><dt>Transaction</dt><dd>${val(item.transactionId || item.paymentReference)}</dd><dt>Paid date</dt><dd>${val(item.paidAt ? new Date(item.paidAt).toLocaleString() : "")}</dd><dt>Delivery method</dt><dd>${val(deliveryLabel)}</dd><dt>Promo code</dt><dd>${val(item.promoCode || item.discount?.code)}</dd><dt>Subtotal</dt><dd>${moneyCell(subtotal)}</dd><dt>Discount</dt><dd>${moneyCell(discount)}</dd><dt>Delivery</dt><dd>${moneyCell(item.deliveryFee ?? (typeof delivery === "object" ? delivery.fee : 0))}</dd>${item.tax != null ? `<dt>Tax</dt><dd>${moneyCell(item.tax)}</dd>` : ""}<dt class="summary-total">Total</dt><dd class="summary-total"><strong>${moneyCell(item.total)}</strong></dd></dl></section><section class="order-panel"><h4>Payment & status</h4><div class="order-status-controls"><label>Payment status${select("", item.paymentStatus || "Pending", "paymentStatus", statusOptions)}</label><label>Order status${select("", item.orderStatus || "New", "orderStatus", ["New", "Processing", "Ready", "Completed", "Cancelled"])}</label><button class="button secondary" type="button" data-reconcile-payment>Verify payment with iKhokha</button><button class="button primary" type="button" data-save-orders>Save changes</button></div></section></aside></div></article>`;
+      <aside class="order-column"><section class="order-panel"><h4>Order summary</h4><dl class="order-summary"><dt>Order number</dt><dd>${val(item.orderNumber)}</dd><dt>Order date</dt><dd>${val(item.createdAt ? new Date(item.createdAt).toLocaleString() : "")}</dd><dt>Payment provider</dt><dd>${val(item.paymentProvider)}</dd><dt>Transaction</dt><dd>${val(item.transactionId || item.paymentReference)}</dd><dt>Paid date</dt><dd>${val(item.paidAt ? new Date(item.paidAt).toLocaleString() : "")}</dd><dt>Delivery method</dt><dd>${val(deliveryLabel)}</dd><dt>Promo code</dt><dd>${val(item.promoCode || item.discount?.code)}</dd><dt>Subtotal</dt><dd>${moneyCell(subtotal)}</dd><dt>Discount</dt><dd>${moneyCell(discount)}</dd><dt>Delivery</dt><dd>${moneyCell(item.deliveryFee ?? (typeof delivery === "object" ? delivery.fee : 0))}</dd>${item.tax != null ? `<dt>Tax</dt><dd>${moneyCell(item.tax)}</dd>` : ""}<dt class="summary-total">Total</dt><dd class="summary-total"><strong>${moneyCell(item.total)}</strong></dd></dl></section><section class="order-panel"><h4>Payment & status</h4><div class="order-status-controls"><label>Payment status${select("", item.paymentStatus || "Pending", "paymentStatus", statusOptions)}</label><label>Order status${select("", item.orderStatus || "New", "orderStatus", ["New", "Processing", "Ready", "Completed", "Cancelled"])}</label><button class="button secondary" type="button" data-reconcile-payment>Verify payment with iKhokha</button><button class="button secondary" type="button" data-order-archive>${item.archived ? "Restore order" : "Archive order"}</button><button class="button primary" type="button" data-save-orders>Save changes</button></div></section></aside></div></article>`;
   }).join("") || `<p>No orders have been captured yet.</p>`;
 };
 
@@ -1096,6 +1104,20 @@ document.addEventListener("input", async (event) => {
 
 document.addEventListener("change", async (event) => {
   const input = event.target;
+  if (input.matches("[data-order-filter]")) {
+    state.orderFilter = input.value;
+    renderOrders();
+    return;
+  }
+  if (input.matches("[data-order-select], [data-order-select-all]")) {
+    if (input.matches("[data-order-select-all]")) {
+      $$('[data-order-select]:not(:disabled)').forEach((box) => { box.checked = input.checked; });
+    }
+    const count = $$('[data-order-select]:checked').length;
+    const button = $("[data-archive-selected]");
+    if (button) button.textContent = `Archive selected (${count})`;
+    return;
+  }
   if (input.matches("[data-discount-filter]")) {
     state.discountFilter = input.value;
     renderDiscounts();
@@ -1187,6 +1209,28 @@ document.addEventListener("change", async (event) => {
 
 document.addEventListener("click", async (event) => {
   const target = event.target;
+  const archiveButton = target.closest?.("[data-order-archive]");
+  if (archiveButton) {
+    const card = archiveButton.closest("[data-record='orders']");
+    const order = state.orders.find((item) => item.id === card?.dataset.id);
+    const important = order && (["paid", "refunded"].includes(String(order.paymentStatus || "").toLowerCase()) || ["processing", "completed", "refunded"].includes(String(order.orderStatus || "").toLowerCase()));
+    if (!order || !confirm(`${order.archived ? "Restore" : "Archive"} order ${order.orderNumber}? ${important ? "Warning: this order has an important payment or processing state. " : ""}Orders are archived, not deleted, and can be restored; payment and order data remain unchanged.`)) return;
+    try {
+      await request(order.archived ? "restore-order" : "archive-order", { method: "POST", body: JSON.stringify({ orderNumber: order.orderNumber }) });
+      state.orders = await request("orders");
+      renderOrders();
+      setStatus(`${order.orderNumber} ${order.archived ? "restored" : "archived"}.`, "success");
+    } catch (error) { setStatus(error.message, "error"); }
+    return;
+  }
+  if (target.matches("[data-archive-selected]")) {
+    const selected = $$('[data-order-select]:checked').map((input) => input.closest("[data-record='orders']")?.dataset.id).map((id) => state.orders.find((item) => item.id === id)).filter((item) => item && !item.archived);
+    const important = selected.filter((item) => ["paid", "refunded"].includes(String(item.paymentStatus || "").toLowerCase()) || ["processing", "completed", "refunded"].includes(String(item.orderStatus || "").toLowerCase())).length;
+    if (!selected.length || !confirm(`Archive ${selected.length} selected order(s)? ${important ? `Warning: ${important} selected order(s) have important payment or processing states. ` : ""}They are archived, not deleted, can be restored, and all payment and order data remains unchanged.`)) return;
+    try { await request("archive-orders", { method: "POST", body: JSON.stringify({ orderNumbers: selected.map((item) => item.orderNumber) }) }); state.orders = await request("orders"); renderOrders(); setStatus(`${selected.length} order(s) archived.`, "success"); } catch (error) { setStatus(error.message, "error"); }
+    return;
+  }
+  if (target.matches("[data-order-filter]")) return;
   if (target.closest?.("[data-product-quick]")) return;
 
   const reconcileButton = target.closest?.("[data-reconcile-payment]");

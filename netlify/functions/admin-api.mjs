@@ -162,6 +162,20 @@ export const handler = async (event) => {
     return json(200, { ok: true });
   }
 
+  if (method === "POST" && ["archive-order", "restore-order", "archive-orders"].includes(action)) {
+    const numbers = Array.isArray(body.orderNumbers) ? body.orderNumbers : [body.orderNumber];
+    const requested = new Set(numbers.map((value) => String(value || "").trim()).filter(Boolean));
+    if (!requested.size) return json(400, { ok: false, code: "ORDER_NUMBER_REQUIRED", message: "At least one order number is required." });
+    const orders = await readList(ORDERS_KEY);
+    const now = new Date().toISOString();
+    const matched = orders.filter((order) => requested.has(String(order.orderNumber)));
+    if (!matched.length) return json(404, { ok: false, code: "ORDER_NOT_FOUND", message: "No matching orders were found." });
+    const updated = orders.map((order) => requested.has(String(order.orderNumber)) ? { ...order, archived: action === "archive-order" || action === "archive-orders", archivedAt: action === "archive-order" || action === "archive-orders" ? (order.archivedAt || now) : null } : order);
+    const changed = updated.filter((order, index) => order !== orders[index]).length;
+    if (changed) await writeList(ORDERS_KEY, updated);
+    return json(200, { ok: true, changed });
+  }
+
   if (method === "POST" && action === "reconcile-payment") {
     const orderNumber = String(body.orderNumber || "").trim();
     if (!orderNumber) return json(400, { error: "Order number is required." });
