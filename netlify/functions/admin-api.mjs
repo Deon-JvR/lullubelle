@@ -158,13 +158,11 @@ export const handler = async (event) => {
 
   if (method === "PUT" && action === "orders") {
     const items = Array.isArray(body.items) ? body.items : [];
-    console.info(`Admin orders checkpoint ${JSON.stringify({ stage: "admin-full-orders-write", itemCount: items.length, targetOrderPresent: items.some((item) => Boolean(item?.orderNumber)), ordersWithPaylinkId: items.filter((item) => Boolean(item?.ikhokhaPaylinkId)).length })}`);
     await writeList(ORDERS_KEY, items);
     return json(200, { ok: true });
   }
 
   if (method === "POST" && action === "reconcile-payment") {
-    console.info("Entered reconcile-payment handler", { action, method: event.httpMethod });
     const orderNumber = String(body.orderNumber || "").trim();
     if (!orderNumber) return json(400, { error: "Order number is required." });
     return handleReconciliation({
