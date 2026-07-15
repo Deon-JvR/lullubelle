@@ -328,21 +328,14 @@ const callIkhokha = async ({ event, order, testMode }) => {
   const applicationKey = String(process.env.IKHOKHA_API_KEY || "").trim();
   const signature = createIkhokhaSignature({ requestUrl, serializedBody: requestBodyString, secret: process.env.IKHOKHA_API_SECRET });
   const requestLog = {
-    requestPath: new URL(requestUrl).pathname + new URL(requestUrl).search,
+    requestPath: path,
     method: "POST",
-    headers: maskedIkhokhaHeaders(),
-    authentication: maskedAuthDiagnostic(),
-    generatedSignatureLength: signature.length,
-    signingPath: new URL(requestUrl).pathname + new URL(requestUrl).search,
-    signingBodyLength: requestBodyString.length,
-    signingPayloadLength: (new URL(requestUrl).pathname + new URL(requestUrl).search).length + requestBodyString.length,
-    digestEncoding: "hex",
-    digestCharacterLength: signature.length,
-    secretByteLength: Buffer.byteLength(String(process.env.IKHOKHA_API_SECRET || "").trim(), "utf8"),
+    bodyLength: requestBodyString.length,
+    signatureLength: signature.length,
     apiKeyPresent: Boolean(applicationKey),
     apiSecretPresent: Boolean(process.env.IKHOKHA_API_SECRET),
   };
-  logIkhokhaDiagnostic("info", "Creating iKhokha hosted checkout.", requestLog);
+  console.info(`iKhokha checkout request metadata ${JSON.stringify(requestLog)}`);
 
   let response;
   try {
