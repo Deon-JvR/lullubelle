@@ -144,6 +144,11 @@
     Cache-Control = "no-store"
 
 [[headers]]
+  for = "/admin/admin.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
   for = "/*"
   [headers.values]
     X-Content-Type-Options = "nosniff"

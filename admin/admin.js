@@ -651,8 +651,11 @@ const renderBookings = () => {
 const renderOrders = () => {
   const parseNested = (value, fallback) => {
     if (value === null || value === undefined || value === "") return fallback;
-    if (typeof value !== "string") return value;
-    try { return JSON.parse(value); } catch { return value; }
+    let parsed = value;
+    for (let depth = 0; depth < 3 && typeof parsed === "string"; depth += 1) {
+      try { parsed = JSON.parse(parsed); } catch { break; }
+    }
+    return parsed;
   };
   const val = (v) => (v === null || v === undefined || v === "" || typeof v === "object") ? "—" : escapeHtml(String(v));
   const detail = (label, value, wide = false) => `<div class="order-field${wide ? " wide" : ""}"><span class="order-field-label">${escapeHtml(label)}</span><span class="order-field-value">${val(value)}</span></div>`;
