@@ -16,6 +16,7 @@ const state = {
     mode: "list",
     editingId: "",
     selectedIds: new Set(),
+    dirtyIds: new Set(),
     search: "",
     brand: "all",
     stock: "all",
@@ -240,7 +241,7 @@ const setSavingState = (saving) => {
     button.setAttribute("aria-busy", String(saving));
   });
   const saveState = $("[data-save-state]");
-  if (saveState && saving) saveState.textContent = "Saving and verifying…";
+  if (saveState) saveState.textContent = saving ? "Saving and verifying…" : state.dirty ? "Unsaved changes" : "All changes saved";
 };
 
 const getFilteredProducts = () => {
@@ -289,6 +290,14 @@ const productFilterControls = (products) => {
         ${options.map(([optionValue, optionLabel]) => `<option value="${escapeHtml(optionValue)}" ${optionValue === value ? "selected" : ""}>${escapeHtml(optionLabel)}</option>`).join("")}
       </select>
     </label>`;
+  const chips = [
+    state.productUi.search && ["search", `Search: ${state.productUi.search}`],
+    state.productUi.brand !== "all" && ["brand", `Brand: ${brands.find((brand) => brand.id === state.productUi.brand)?.name || state.productUi.brand}`],
+    state.productUi.stock !== "all" && ["stock", `Stock: ${state.productUi.stock}`],
+    state.productUi.visibility !== "all" && ["visibility", `Visibility: ${state.productUi.visibility}`],
+    state.productUi.featured !== "all" && ["featured", state.productUi.featured === "yes" ? "Featured" : "Not featured"],
+    state.productUi.bestSeller !== "all" && ["bestSeller", state.productUi.bestSeller === "yes" ? "Best seller" : "Not best seller"],
+  ].filter(Boolean);
 
   return `
     <nav class="brand-tabs" aria-label="Filter products by brand">
@@ -309,6 +318,8 @@ const productFilterControls = (products) => {
         ${filterSelect("Featured", "featured", state.productUi.featured, [["all", "All"], ["yes", "Featured"], ["no", "Not featured"]])}
         ${filterSelect("Best seller", "bestSeller", state.productUi.bestSeller, [["all", "All"], ["yes", "Best sellers"], ["no", "Not best sellers"]])}
       </div>
+      ${chips.length ? `<div class="product-filter-chips" aria-label="Active product filters">${chips.map(([key, label]) => `<button type="button" data-product-filter-clear="${escapeHtml(key)}" title="Remove ${escapeHtml(label)}">${escapeHtml(label)} <span aria-hidden="true">×</span></button>`).join("")}</div>` : ""}
+      <p class="product-save-hint">Inline edits are pending until you use <strong>Save changes</strong> at the top.</p>
     </div>`;
 };
 
@@ -322,8 +333,11 @@ const renderProductRows = (products) => {
       <label class="check-row"><input type="checkbox" data-product-select-all ${allShownSelected ? "checked" : ""}> Select all shown</label>
       <span>${state.productUi.selectedIds.size} selected</span>
       <div class="bulk-action-buttons" ${state.productUi.selectedIds.size ? "" : "hidden"}>
-        <button class="button secondary" type="button" data-product-bulk="hide">Hide</button>
         <button class="button secondary" type="button" data-product-bulk="show">Show</button>
+        <button class="button secondary" type="button" data-product-bulk="hide">Hide</button>
+        <button class="button secondary" type="button" data-product-bulk="in-stock">In Stock</button>
+        <button class="button secondary" type="button" data-product-bulk="out-of-stock">Out of Stock</button>
+        <button class="button danger" type="button" data-product-bulk="delete">Delete</button>
         <button class="button secondary" type="button" data-product-bulk="feature">Featured</button>
         <button class="button secondary" type="button" data-product-bulk="unfeature">Unfeatured</button>
         <button class="button secondary" type="button" data-product-bulk="bestseller">Best Seller</button>
@@ -364,9 +378,9 @@ const renderProductRows = (products) => {
               <td data-label="Product">
                 <div class="product-row-title">
                   <div>
-                    <strong data-product-name="${escapeHtml(product.id)}">${escapeHtml(product.name || "Unnamed product")}</strong>
-                    <small data-product-slug="${escapeHtml(product.id)}">${escapeHtml(product.id || "")}</small>
-                    <small>${escapeHtml([product.sku && `SKU ${product.sku}`, product.category, product.size].filter(Boolean).join(" · "))}</small>
+                    <button class="product-name-button" type="button" data-product-edit="${escapeHtml(product.id)}" data-product-name="${escapeHtml(product.id)}">${escapeHtml(product.name || "Unnamed product")}</button>
+                    <small data-product-slug="${escapeHtml(product.id)}" title="${escapeHtml(product.id || "")}">${escapeHtml(product.id || "")}</small>
+                    <small title="${escapeHtml(product.sku ? `SKU ${product.sku}` : "")}">${escapeHtml([product.sku && `SKU ${product.sku}`, product.category, product.size].filter(Boolean).join(" · "))}</small>
                   </div>
                 </div>
               </td>
@@ -533,7 +547,7 @@ const renderProducts = ({ preserveScroll = false } = {}) => {
   state.productUi.editingId = "";
   const filteredProducts = getFilteredProducts();
   list.innerHTML = `
-    ${productFilterControls(state.content.products)}
+    <div class="product-list-sticky">${productFilterControls(state.content.products)}</div>
     <div class="product-list-summary">
       <strong>${filteredProducts.length}</strong> of ${state.content.products.length} products shown
     </div>
@@ -587,6 +601,15 @@ const updateProductRow = (product) => {
   if (hideLabel) hideLabel.textContent = product.hidden ? "Show" : "Hide";
 };
 
+const highlightSavedProductRows = (productIds) => {
+  productIds.forEach((id) => {
+    const row = $(`[data-product-row="${cssEscape(id)}"]`);
+    if (!row) return;
+    row.classList.add("is-saved");
+    setTimeout(() => { if (row.isConnected) row.classList.remove("is-saved"); }, 1900);
+  });
+};
+
 const updateProductQuickControl = (input) => {
   const item = getProductById(input.dataset.productQuick);
   if (!item) return;
@@ -594,6 +617,7 @@ const updateProductQuickControl = (input) => {
   if (key === "price") item.price = Number(input.value) || 0;
   else if (key === "hidden") item.hidden = input.value === "true";
   else item[key] = input.value;
+  state.productUi.dirtyIds.add(item.id);
   setDirty();
   updateProductRow(item);
 };
@@ -808,6 +832,7 @@ const loadAll = async () => {
     ...product,
     galleryImages: productGallery(product),
   }));
+  state.productUi.dirtyIds.clear();
   state.bookings = await request("bookings");
   state.orders = await request("orders");
   state.orderDirtyIds.clear();
@@ -871,8 +896,21 @@ const applyProductBulkAction = (action) => {
     unfeature: "remove featured from",
     bestseller: "mark as best seller",
     unbestseller: "remove best seller from",
+    "in-stock": "mark as in stock",
+    "out-of-stock": "mark as out of stock",
+    delete: "delete",
   };
   if (!confirm(`Are you sure you want to ${labels[action]} ${selected.length} selected product(s)?`)) return;
+  if (action === "delete") {
+    const protectedIds = new Set(selected.filter((product) => product.catalogueSource === "Kalahari Retail Price List 2025").map((product) => product.id));
+    const deletedIds = new Set(selected.filter((product) => !protectedIds.has(product.id)).map((product) => product.id));
+    state.content.products = state.content.products.filter((product) => !deletedIds.has(product.id));
+    deletedIds.forEach((id) => state.productUi.selectedIds.delete(id));
+    setDirty();
+    renderProducts({ preserveScroll: true });
+    setStatus(`${deletedIds.size} product(s) deleted${protectedIds.size ? `; ${protectedIds.size} required catalogue product(s) kept` : ""}. Remember to save changes.`, "success");
+    return;
+  }
   selected.forEach((product) => {
     if (action === "hide") product.hidden = true;
     if (action === "show") product.hidden = false;
@@ -880,6 +918,9 @@ const applyProductBulkAction = (action) => {
     if (action === "unfeature") product.featured = false;
     if (action === "bestseller") product.bestSeller = true;
     if (action === "unbestseller") product.bestSeller = false;
+    if (action === "in-stock") product.stockStatus = "In stock";
+    if (action === "out-of-stock") product.stockStatus = "Out of stock";
+    state.productUi.dirtyIds.add(product.id);
     updateProductRow(product);
   });
   setDirty();
@@ -981,6 +1022,7 @@ const persistWebsiteContent = async (successMessage) => {
   }
 
   const submitted = JSON.parse(JSON.stringify(state.content));
+  const changedProductIds = [...state.productUi.dirtyIds];
   setSavingState(true);
   setStatus("Saving product data and image references…");
   try {
@@ -988,8 +1030,10 @@ const persistWebsiteContent = async (successMessage) => {
     const authoritative = await reloadPersistedContent(submitted);
     state.content = authoritative;
     state.content.products = state.content.products.map((product) => ({ ...product, galleryImages: productGallery(product) }));
+    state.productUi.dirtyIds.clear();
     setDirty(false);
     render();
+    highlightSavedProductRows(changedProductIds);
     setStatus(successMessage, "success");
   } catch (error) {
     console.error("[Admin content save] Persistence verification failed", error);
@@ -1031,7 +1075,10 @@ const updateRecord = (card, key, value) => {
     if (saveButton) saveButton.disabled = false;
     const message = $("[data-order-save-message]", card);
     if (message) message.textContent = "";
-  } else if (collection || recordType === "discounts") setDirty();
+  } else if (collection || recordType === "discounts") {
+    if (collection === "products") state.productUi.dirtyIds.add(item.id);
+    setDirty();
+  }
 };
 
 const handleUploadInput = async (input) => {
@@ -1333,6 +1380,15 @@ document.addEventListener("click", async (event) => {
     renderProducts({ preserveScroll: true });
   }
 
+  const productFilterChip = target.closest?.("[data-product-filter-clear]");
+  if (productFilterChip) {
+    const key = productFilterChip.dataset.productFilterClear;
+    state.productUi[key] = key === "search" ? "" : "all";
+    if (key === "brand") state.productUi.selectedIds.clear();
+    renderProducts({ preserveScroll: true });
+    return;
+  }
+
   if (target.matches("[data-manage-brands]")) openBrandManager();
   if (target.matches("[data-brand-manager-close]")) closeBrandManager();
   if (target.matches("[data-brand-add]")) {
@@ -1383,6 +1439,7 @@ document.addEventListener("click", async (event) => {
     const item = getProductById(target.dataset.productHide);
     if (item && confirm(`${item.hidden ? "Show" : "Hide"} this product?`)) {
       item.hidden = !item.hidden;
+      state.productUi.dirtyIds.add(item.id);
       setDirty();
       updateProductRow(item);
     }
@@ -1404,6 +1461,7 @@ document.addEventListener("click", async (event) => {
     const item = getProductById(target.dataset.productToggle);
     if (item) {
       item[target.dataset.productKey] = !item[target.dataset.productKey];
+      state.productUi.dirtyIds.add(item.id);
       setDirty();
       updateProductRow(item);
     }
