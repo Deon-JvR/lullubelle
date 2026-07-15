@@ -1103,6 +1103,14 @@ const saveCart = (items) => {
   localStorage.setItem(CART_KEY, JSON.stringify(items));
 };
 
+const clearCart = () => {
+  saveCart([]);
+  appliedPromo = { code: "", discountAmount: 0, productDiscount: 0, deliveryFee: null, total: null };
+  localStorage.removeItem(PROMO_KEY);
+  updateCartCount();
+  renderCart();
+};
+
 const getCartTotals = (items = getCart()) => items.reduce(
   (total, item) => ({
     quantity: total.quantity + (Number(item.quantity) || 0),
@@ -1393,7 +1401,7 @@ const startIkhokhaCheckout = async () => {
       }),
     });
     const data = await readCheckoutResponse(response);
-    if (!response.ok || !data.paymentUrl) {
+    if (!response.ok || !data.paymentUrl || !data.orderNumber) {
       console.error("iKhokha checkout API returned an error.", {
         status: response.status,
         response: data,
@@ -1410,6 +1418,7 @@ const startIkhokhaCheckout = async () => {
       orderNumber: data.orderNumber,
       testMode: data.testMode,
     });
+    clearCart();
     window.location.href = data.paymentUrl;
   } catch (error) {
     console.error("Unable to start iKhokha checkout.", error);
