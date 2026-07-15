@@ -92,3 +92,28 @@ test("Verify payment delegates once and shows loading state", async ({ page }) =
   await expect.poll(() => calls).toBe(1);
   await expect(button).toHaveText("Verify payment with iKhokha");
 });
+
+test("Archive persistence failures show the server message and keep the order visible", async ({ page }) => {
+  const activeOrder = { ...order, paymentStatus: "Pending", orderStatus: "New" };
+  await page.route("**/.netlify/functions/admin-api**", async (route) => {
+    const action = new URL(route.request().url()).searchParams.get("action");
+    if (action === "archive-order") {
+      return route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: JSON.stringify({ ok: false, code: "ARCHIVE_PERSISTENCE_UNVERIFIED", message: "The archive change could not be verified in storage. Please try again." }),
+      });
+    }
+    const payload = action === "me" ? { authenticated: true }
+      : action === "content" ? { brands: [], products: [], treatments: [], gallery: [], vouchers: [], deliverySettings: {} }
+        : action === "orders" ? [activeOrder] : [];
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(payload) });
+  });
+  page.on("dialog", (dialog) => dialog.accept());
+  await page.goto(`${base}/admin/`, { waitUntil: "networkidle" });
+  await page.locator('[data-tab="orders"]').click();
+  await page.locator("[data-order-archive]").click();
+  await expect(page.locator("[data-admin-status]")).toContainText("The archive change could not be verified in storage. Please try again.");
+  await expect(page.locator('[data-panel="orders"]')).toContainText(activeOrder.orderNumber);
+  await expect(page.locator("[data-order-archive]")).toHaveText("Archive order");
+});

@@ -169,10 +169,32 @@ export const handler = async (event) => {
     const orders = await readList(ORDERS_KEY);
     const now = new Date().toISOString();
     const matched = orders.filter((order) => requested.has(String(order.orderNumber)));
-    if (!matched.length) return json(404, { ok: false, code: "ORDER_NOT_FOUND", message: "No matching orders were found." });
-    const updated = orders.map((order) => requested.has(String(order.orderNumber)) ? { ...order, archived: action === "archive-order" || action === "archive-orders", archivedAt: action === "archive-order" || action === "archive-orders" ? (order.archivedAt || now) : null } : order);
+    const matchedNumbers = new Set(matched.map((order) => String(order.orderNumber)));
+    const missingNumbers = [...requested].filter((orderNumber) => !matchedNumbers.has(orderNumber));
+    if (missingNumbers.length) return json(404, { ok: false, code: "ORDER_NOT_FOUND", message: `No matching order was found for: ${missingNumbers.join(", ")}.` });
+    const expectedArchived = action !== "restore-order";
+    const updated = orders.map((order) => {
+      if (!requested.has(String(order.orderNumber))) return order;
+      const archivedAt = expectedArchived ? (order.archivedAt || now) : null;
+      if (order.archived === expectedArchived && order.archivedAt === archivedAt) return order;
+      return { ...order, archived: expectedArchived, archivedAt };
+    });
     const changed = updated.filter((order, index) => order !== orders[index]).length;
     if (changed) await writeList(ORDERS_KEY, updated);
+    if (changed) {
+      const delays = [0, 100, 250, 500];
+      let verified = false;
+      for (const delay of delays) {
+        if (delay) await new Promise((resolve) => setTimeout(resolve, delay));
+        const readBack = await readList(ORDERS_KEY);
+        const fieldsMatch = [...requested].every((orderNumber) => {
+          const found = readBack.find((order) => String(order.orderNumber) === orderNumber);
+          return found && found.archived === expectedArchived && (expectedArchived ? Boolean(found.archivedAt) : found.archivedAt == null);
+        });
+        if (fieldsMatch) { verified = true; break; }
+      }
+      if (!verified) return json(503, { ok: false, code: "ARCHIVE_PERSISTENCE_UNVERIFIED", message: "The archive change could not be verified in storage. Please try again." });
+    }
     return json(200, { ok: true, changed });
   }
 
