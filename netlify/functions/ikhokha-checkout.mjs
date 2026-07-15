@@ -325,17 +325,13 @@ const callIkhokha = async ({ event, order, testMode }) => {
   const path = checkoutEndpoint();
   const requestUrl = `${ikhokhaBaseUrl()}${path}`;
   const requestBodyString = JSON.stringify(payload);
-  const payloadToSign = `${path}${requestBodyString}`;
   const applicationKey = String(process.env.IKHOKHA_API_KEY || "").trim();
   const signature = createIkhokhaSignature({ requestUrl, serializedBody: requestBodyString, secret: process.env.IKHOKHA_API_SECRET });
   const requestLog = {
-    requestUrl,
+    requestPath: new URL(requestUrl).pathname + new URL(requestUrl).search,
     method: "POST",
     headers: maskedIkhokhaHeaders(),
     authentication: maskedAuthDiagnostic(),
-    requestBodyString,
-    payloadToSign,
-    escapedPayloadToSign: escapeIkhokhaSignatureString(payloadToSign),
     generatedSignatureLength: signature.length,
     signingPath: new URL(requestUrl).pathname + new URL(requestUrl).search,
     signingBodyLength: requestBodyString.length,
@@ -343,7 +339,8 @@ const callIkhokha = async ({ event, order, testMode }) => {
     digestEncoding: "hex",
     digestCharacterLength: signature.length,
     secretByteLength: Buffer.byteLength(String(process.env.IKHOKHA_API_SECRET || "").trim(), "utf8"),
-    body: payload,
+    apiKeyPresent: Boolean(applicationKey),
+    apiSecretPresent: Boolean(process.env.IKHOKHA_API_SECRET),
   };
   logIkhokhaDiagnostic("info", "Creating iKhokha hosted checkout.", requestLog);
 
@@ -369,6 +366,7 @@ const callIkhokha = async ({ event, order, testMode }) => {
     logIkhokhaDiagnostic("error", "iKhokha network request failed.", diagnostic);
     const detail = new Error(`Unable to reach iKhokha API at ${requestUrl}: ${diagnostic.error}`);
     detail.diagnostic = diagnostic;
+    console.error(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "throw-network", httpStatus: null, errorName: detail.name, errorCode: detail.code || null, responseType: "network-error" })}`);
     throw detail;
   }
 
@@ -390,6 +388,7 @@ const callIkhokha = async ({ event, order, testMode }) => {
     responseHeaders: responseHeadersObject(response.headers),
     responseShape: providerShape(data),
   };
+  console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "before-http-status-validation", httpStatus: response.status, responseType: typeof data })}`);
   logIkhokhaDiagnostic(
     response.ok ? "info" : "error",
     response.ok ? "iKhokha checkout response received." : "iKhokha checkout request rejected.",
@@ -397,6 +396,7 @@ const callIkhokha = async ({ event, order, testMode }) => {
   );
 
   if (!response.ok) {
+    console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "before-throw-http-status", httpStatus: response.status, errorName: "IkhokhaHttpError", errorCode: `HTTP_${response.status}`, responseType: typeof data })}`);
     const diagnostic = {
       step: "iKhokha rejected checkout request",
       ...requestLog,
@@ -411,9 +411,13 @@ const callIkhokha = async ({ event, order, testMode }) => {
     detail.diagnostic = diagnostic;
     throw detail;
   }
+  console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "after-http-status-validation", httpStatus: response.status, responseType: typeof data })}`);
 
+  console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "before-payment-url-extraction", httpStatus: response.status, responseType: typeof data })}`);
   const paymentUrl = extractPaymentUrl(data);
+  console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "after-payment-url-extraction", httpStatus: response.status, hasPaymentUrl: Boolean(paymentUrl) })}`);
   if (!paymentUrl) {
+    console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "before-throw-missing-payment-url", httpStatus: response.status, errorName: "MissingPaymentUrlError", errorCode: "PAYMENT_URL_MISSING", responseType: typeof data })}`);
     const diagnostic = {
       step: "iKhokha response missing payment URL",
       ...requestLog,
@@ -430,6 +434,7 @@ const callIkhokha = async ({ event, order, testMode }) => {
     throw detail;
   }
 
+  console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "before-provider-response-return", httpStatus: response.status, responseType: typeof data })}`);
   return { paymentUrl, providerResponse: data };
 };
 
