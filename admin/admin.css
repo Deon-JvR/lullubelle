@@ -118,6 +118,7 @@
 .order-kicker,.order-count { color:#6c756e; font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; }
 .order-total-pill { padding:9px 14px; border-radius:999px; background:var(--mist); color:var(--leaf-dark); font-size:1.1rem; }
 .order-layout { grid-template-columns:minmax(230px, .75fr) minmax(330px, 1fr) minmax(260px, .75fr); gap:20px; }
+.order-dashboard { display:grid; grid-template-columns:1fr 1.4fr 1fr; gap:24px; align-items:start; }
 .order-layout > section,.order-layout > aside { min-width:0; padding:0; border:0; background:transparent; }
 .order-column { gap:16px; }
 .order-panel { padding:20px; border-radius:15px; box-shadow:0 8px 24px rgba(17,21,18,.06); }
@@ -140,6 +141,8 @@
 .order-status-controls select { width:100%; }
 @media (max-width:1050px) { .order-layout { grid-template-columns:1fr 1fr; } .order-layout > section:nth-child(2) { grid-column:2; grid-row:1 / span 2; } .order-layout > aside { grid-column:1 / -1; grid-row:3; display:grid; grid-template-columns:1fr 1fr; gap:16px; } }
 @media (max-width:680px) { .order-card { padding:16px; } .order-layout,.order-layout > aside { display:grid; grid-template-columns:1fr; } .order-layout > section:nth-child(2),.order-layout > aside { grid-column:auto; grid-row:auto; } .order-product { grid-template-columns:72px minmax(0,1fr); } .order-product-image { width:72px; height:72px; } .order-product-price { grid-column:2; text-align:left; } }
+@media (max-width:1050px) { .order-dashboard { grid-template-columns:1fr 1fr; } .order-dashboard > .order-column:nth-child(1) { grid-column:1; } .order-dashboard > .order-products-panel { grid-column:2; grid-row:1 / span 2; } .order-dashboard > aside { grid-column:1 / -1; display:grid; grid-template-columns:1fr 1fr; gap:16px; } }
+@media (max-width:680px) { .order-dashboard { grid-template-columns:1fr; gap:16px; } .order-dashboard > .order-products-panel,.order-dashboard > aside { grid-column:auto; grid-row:auto; display:grid; grid-template-columns:1fr; } }
 
 * { box-sizing: border-box; }
 
