@@ -553,7 +553,7 @@ export const handleReconciliation = async (event, { trustedAdmin = false } = {})
   const verifyEndpoint = "/public-api/v1/api/getStatus/external";
   const missingConfiguration = ["IKHOKHA_API_KEY", "IKHOKHA_API_SECRET"].filter((name) => !String(process.env[name] || "").trim());
   if (missingConfiguration.length) return json(503, { ok: false, code: "RECONCILIATION_CONFIG_MISSING", error: "Payment reconciliation is not configured on the server.", missing: missingConfiguration });
-  const path = `${verifyEndpoint}?externalTransactionID=${encodeURIComponent(stored.orderNumber)}`;
+  const path = `${verifyEndpoint}?externalReference=${encodeURIComponent(stored.orderNumber)}`;
   const responseBody = {};
   const baseUrl = ikhokhaBaseUrl();
   const appId = String(process.env.IKHOKHA_API_KEY || "").trim();
@@ -566,13 +566,14 @@ export const handleReconciliation = async (event, { trustedAdmin = false } = {})
     return json(502, { ok: false, code: "IKHOKHA_VERIFICATION_FAILED", error: "iKhokha verification request failed." });
   }
   const responseText = await response.text();
+  const contentType = response.headers.get("content-type") || "";
   let body = {};
-  try { body = responseText ? JSON.parse(responseText) : {}; } catch (error) {
+  try { body = responseText && /json/i.test(contentType) ? JSON.parse(responseText) : {}; } catch (error) {
     console.error("iKhokha reconciliation response JSON parse failure", { verificationBaseUrl: baseUrl, verificationPath: path, externalTransactionID: stored.orderNumber, httpStatus: response.status, responseBodyLength: responseText.length, errorName: error?.name });
   }
-  const responseSummary = body && typeof body === "object" ? { status: body.status || body.paymentStatus || body.transactionStatus, responseCode: body.responseCode, message: body.message, error: body.error, keys: Object.keys(body).slice(0, 30) } : { type: typeof body };
-  console.info("iKhokha reconciliation response", { httpStatus: response.status, verificationBaseUrl: baseUrl, verificationPath: path, externalTransactionID: stored.orderNumber, requestHeaders: { Accept: "application/json" }, appIdPresent: Boolean(appId), signaturePresent: Boolean(signature), responseBody: responseSummary, responseBodyLength: responseText.length });
-  if (!response.ok) return json(502, { ok: false, code: "IKHOKHA_VERIFICATION_FAILED", error: "iKhokha verification request failed." });
+  const responseSummary = body && typeof body === "object" && Object.keys(body).length ? { status: body.status || body.paymentStatus || body.transactionStatus, responseCode: body.responseCode, message: body.message, error: body.error, keys: Object.keys(body).slice(0, 30) } : { contentType, bodyLength: responseText.length, summary: responseText.replace(/[^\w .-]/g, " ").slice(0, 120) };
+  console.info("iKhokha reconciliation response", { httpStatus: response.status, contentType, verificationBaseUrl: baseUrl, verificationPath: path, externalTransactionID: stored.orderNumber, requestHeaders: { Accept: "application/json" }, appIdPresent: Boolean(appId), signaturePresent: Boolean(signature), responseBody: responseSummary, responseBodyLength: responseText.length });
+  if (!response.ok) return json(502, { ok: false, code: response.status === 400 ? "IKHOKHA_BAD_REQUEST" : "IKHOKHA_VERIFICATION_FAILED", message: response.status === 400 ? "iKhokha rejected the payment-status request." : "iKhokha verification request failed.", error: response.status === 400 ? "iKhokha rejected the payment-status request." : "iKhokha verification request failed." });
   const status = extractPaymentStatus(body);
   const data = body.data && typeof body.data === "object" ? body.data : body;
   if (status !== "Paid" || String(data.currency || "ZAR").toUpperCase() !== "ZAR" || !amountsMatch(stored.total, data.amount)) return json(409, { ok: false, code: "IKHOKHA_VERIFICATION_FAILED", error: "iKhokha could not confirm this transaction." });
