@@ -162,6 +162,7 @@ export const handler = async (event) => {
   }
 
   if (method === "POST" && action === "reconcile-payment") {
+    console.info("Entered reconcile-payment handler", { action, method: event.httpMethod });
     const orderNumber = String(body.orderNumber || "").trim();
     if (!orderNumber) return json(400, { error: "Order number is required." });
     return handleReconciliation({

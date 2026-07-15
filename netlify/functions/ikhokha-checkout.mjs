@@ -560,6 +560,7 @@ export const handleReconciliation = async (event, { trustedAdmin = false } = {})
   const signature = generateIkhokhaSignature({ path, requestBody: responseBody, secret: process.env.IKHOKHA_API_SECRET });
   let response;
   try {
+    console.info("Sending verification request to iKhokha");
     response = await fetch(`${baseUrl}${path}`, { headers: { Accept: "application/json", "IK-APPID": appId, "IK-SIGN": signature } });
   } catch (error) {
     console.error("iKhokha reconciliation network failure", { verificationBaseUrl: baseUrl, verificationPath: path, externalTransactionID: stored.orderNumber, requestHeaders: { Accept: "application/json" }, appIdPresent: Boolean(appId), signaturePresent: Boolean(signature), errorName: error?.name, errorCode: error?.code, errorMessage: error?.message });
