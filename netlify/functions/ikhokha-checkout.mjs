@@ -318,6 +318,21 @@ const createPendingOrder = async ({ customer, delivery, address, notes, products
   return order;
 };
 
+const persistPaylinkOrder = async (pendingOrder, paylinkId) => {
+  const latestOrders = await readList(ORDERS_KEY);
+  const index = latestOrders.findIndex((item) => item.orderNumber === pendingOrder.orderNumber);
+  const enriched = index >= 0
+    ? { ...latestOrders[index], ikhokhaPaylinkId: paylinkId }
+    : { ...pendingOrder, ikhokhaPaylinkId: paylinkId };
+  const nextOrders = index >= 0
+    ? latestOrders.map((item, itemIndex) => itemIndex === index ? enriched : item)
+    : [enriched, ...latestOrders.filter((item) => item.orderNumber !== pendingOrder.orderNumber)].slice(0, 500);
+  await writeList(ORDERS_KEY, nextOrders);
+  const verified = (await readList(ORDERS_KEY)).find((item) => item.orderNumber === pendingOrder.orderNumber);
+  if (!verified || verified.ikhokhaPaylinkId !== paylinkId) throw new Error("Unable to verify iKhokha paylink persistence.");
+  return verified;
+};
+
 const callIkhokha = async ({ event, order, testMode }) => {
   const base = siteUrl(event);
   const payload = buildIkhokhaPayload({ base, order, testMode });
@@ -396,7 +411,6 @@ const callIkhokha = async ({ event, order, testMode }) => {
     testMode,
     status: response.status,
     statusText: response.statusText,
-    responseHeaders: safeResponseHeaders,
     responseShape: safeProviderShape,
   };
   console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "after-response-log-construction" })}`);
@@ -415,7 +429,6 @@ const callIkhokha = async ({ event, order, testMode }) => {
       testMode,
       status: response.status,
       statusText: response.statusText,
-      responseHeaders: responseHeadersObject(response.headers),
       responseShape: providerShape(data),
     };
     const message = providerErrorMessage(data, `iKhokha checkout failed with status ${response.status}.`);
@@ -436,7 +449,6 @@ const callIkhokha = async ({ event, order, testMode }) => {
       testMode,
       status: response.status,
       statusText: response.statusText,
-      responseHeaders: responseHeadersObject(response.headers),
       responseShape: providerShape(data),
     };
     logIkhokhaDiagnostic("error", "iKhokha did not return a hosted payment URL.", diagnostic);
@@ -735,18 +747,7 @@ export const handler = async (event) => {
 
     const ikhokhaPaylinkId = extractPaylinkId(checkout.providerResponse);
     console.info(`iKhokha checkout provider response shape ${JSON.stringify({ orderNumber: order.orderNumber, shape: providerShape(checkout.providerResponse) })}`);
-    const persistedOrders = await readList(ORDERS_KEY);
-    const persistedIndex = persistedOrders.findIndex((item) => item.id === order.id);
-    console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "paylink-persistence-read", orderNumber: order.orderNumber, ordersCount: persistedOrders.length, persistedIndex, paylinkIdPresent: Boolean(ikhokhaPaylinkId) })}`);
-    if (persistedIndex >= 0) {
-      persistedOrders[persistedIndex] = { ...persistedOrders[persistedIndex], ikhokhaPaylinkId: ikhokhaPaylinkId || null };
-      console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "before-paylink-write", orderNumber: order.orderNumber, persistedIndex, paylinkIdPresentOnUpdatedOrder: Boolean(persistedOrders[persistedIndex].ikhokhaPaylinkId) })}`);
-      await writeList(ORDERS_KEY, persistedOrders);
-      console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "paylink-write-complete", orderNumber: order.orderNumber })}`);
-      const readBackOrders = await readList(ORDERS_KEY);
-      const readBackOrder = readBackOrders.find((item) => item.id === order.id);
-      console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "paylink-read-back", orderNumber: order.orderNumber, found: Boolean(readBackOrder), paylinkIdPresent: Boolean(readBackOrder?.ikhokhaPaylinkId), paylinkIdMatchesExpected: Boolean(ikhokhaPaylinkId && readBackOrder?.ikhokhaPaylinkId === ikhokhaPaylinkId) })}`);
-    }
+    if (ikhokhaPaylinkId) await persistPaylinkOrder(order, ikhokhaPaylinkId);
     if (!ikhokhaPaylinkId) console.warn(`iKhokha checkout response missing paylink ID ${JSON.stringify({ orderNumber: order.orderNumber })}`);
 
     if (!wantsJson(event)) {
