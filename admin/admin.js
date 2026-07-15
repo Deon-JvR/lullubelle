@@ -649,24 +649,31 @@ const renderBookings = () => {
 };
 
 const renderOrders = () => {
-  $("[data-list='orders']").innerHTML = state.orders.map((item) => `
-    <article class="editor-card" data-id="${escapeHtml(item.id)}" data-record="orders">
-      <div class="panel-heading"><h3>${escapeHtml(item.orderNumber || item.id)}</h3><strong>R${money(item.total)}</strong></div>
-      <div class="form-grid">
-        ${field("Order number", item.orderNumber || "", "orderNumber")}
-        ${field("Customer details", JSON.stringify(item.customer || {}, null, 2), "customerText", "textarea")}
-        ${field("Products", JSON.stringify(item.products || [], null, 2), "productsText", "textarea")}
-        ${field("Delivery / collection", item.delivery?.option === "collection" ? "Collect from Lullubelle – Centurion" : item.delivery?.label || "", "deliveryLabel")}
-        ${field("Promo code", item.promoCode || "", "promoCode")}
-        ${field("Original subtotal", item.originalSubtotal ?? item.subtotal ?? 0, "originalSubtotal", "number")}
-        ${field("Discount amount", item.discountAmount || 0, "discountAmount", "number")}
-        ${field("Delivery fee", item.deliveryFee || 0, "deliveryFee", "number")}
-        ${field("Free delivery applied", item.freeDeliveryApplied ? "Yes" : "No", "freeDeliveryApplied")}
-        ${field("Total", item.total || 0, "total", "number")}
-        ${select("Payment status", item.paymentStatus || "Pending", "paymentStatus", ["Pending", "Paid", "Failed", "Refunded"])}
-        ${select("Order status", item.orderStatus || "New", "orderStatus", ["New", "Processing", "Ready", "Completed", "Cancelled"])}
-      </div>
-    </article>`).join("") || `<p>No orders have been captured yet.</p>`;
+  const parseNested = (value, fallback) => {
+    if (value === null || value === undefined || value === "") return fallback;
+    if (typeof value !== "string") return value;
+    try { return JSON.parse(value); } catch { return value; }
+  };
+  const val = (v) => (v === null || v === undefined || v === "" || typeof v === "object") ? "—" : escapeHtml(String(v));
+  const detail = (label, value, wide = false) => `<div class="order-field${wide ? " wide" : ""}"><span class="order-field-label">${escapeHtml(label)}</span><span class="order-field-value">${val(value)}</span></div>`;
+  const moneyCell = (v) => `R${money(Number(v) || 0)}`;
+  $("[data-list='orders']").innerHTML = state.orders.map((item) => {
+    const customer = parseNested(item.customerDetails || item.customer, {}) || {};
+    const delivery = parseNested(item.delivery, {}) || {};
+    const address = parseNested(item.address || delivery.address || customer.address, {}) || {};
+    const productsValue = parseNested(item.products, []);
+    const products = Array.isArray(productsValue) ? productsValue : [];
+    const addressText = [address.streetAddress || address.street, address.suburb, address.city, address.province, address.postalCode || address.postCode].filter(Boolean).join(", ");
+    const deliveryLabel = typeof delivery === "string" ? delivery : (delivery.label || delivery.option);
+    const productTotal = (p) => Number(p.lineTotal ?? p.total ?? ((p.unitPrice ?? p.price ?? 0) * (p.quantity ?? 0))) || 0;
+    const unitPrice = (p) => Number(p.unitPrice ?? p.price ?? (productTotal(p) / Math.max(1, Number(p.quantity) || 1))) || 0;
+    const subtotal = item.subtotal ?? item.originalSubtotal ?? products.reduce((s,p) => s + productTotal(p), 0);
+    const discount = item.discountAmount ?? item.discount?.amount ?? 0;
+    return `<article class="editor-card order-card" data-id="${escapeHtml(item.id)}" data-record="orders">
+      <div class="panel-heading"><h3>${val(item.orderNumber || item.id)}</h3><strong>${moneyCell(item.total)}</strong></div>
+      <div class="order-layout"><section><h4>Customer</h4><div class="order-fields">${detail("Customer name", customer.name || customer.fullName || customer.customerName)}${detail("Email address", customer.email || customer.emailAddress)}${detail("Phone number", customer.phone || customer.telephone || customer.phoneNumber)}${detail("Collection / delivery", deliveryLabel)}${detail("Delivery address", typeof address === "string" ? address : addressText, true)}${detail("Notes", item.notes || customer.notes, true)}</div></section>
+      <section><h4>Products</h4><div class="order-products">${products.map((p) => `<div class="order-product"><img class="order-product-image" src="${escapeHtml(adminImageSrc(p.image || p.imageUrl || ""))}" alt="${val(p.name)}" width="80" height="80" onerror="this.classList.add('is-missing')"><div class="order-product-info"><strong class="order-product-name">${val(p.name)}</strong><small class="order-product-meta">${val(p.brand)} · SKU ${val(p.sku)}</small><span class="order-product-meta">Qty ${val(p.quantity)} × ${moneyCell(unitPrice(p))}</span></div><b class="order-product-price">${moneyCell(productTotal(p))}</b></div>`).join("") || `<p>—</p>`}</div><h4>Order summary</h4><dl class="order-summary"><dt>Order number</dt><dd>${val(item.orderNumber)}</dd><dt>Order date</dt><dd>${val(item.createdAt ? new Date(item.createdAt).toLocaleString() : "")}</dd><dt>Payment status</dt><dd>${select("", item.paymentStatus || "Pending", "paymentStatus", ["Pending", "Paid", "Failed", "Refunded"])}</dd><dt>Order status</dt><dd>${select("", item.orderStatus || "New", "orderStatus", ["New", "Processing", "Ready", "Completed", "Cancelled"])}</dd><dt>Delivery method</dt><dd>${val(deliveryLabel)}</dd><dt>Promo code</dt><dd>${val(item.promoCode || item.discount?.code)}</dd><dt>Subtotal</dt><dd>${moneyCell(subtotal)}</dd><dt>Discount</dt><dd>${moneyCell(discount)}</dd><dt>Delivery fee</dt><dd>${moneyCell(item.deliveryFee ?? (typeof delivery === "object" ? delivery.fee : 0))}</dd>${item.tax != null ? `<dt>Tax</dt><dd>${moneyCell(item.tax)}</dd>` : ""}<dt>Total</dt><dd><strong>${moneyCell(item.total)}</strong></dd></dl></section></div></article>`;
+  }).join("") || `<p>No orders have been captured yet.</p>`;
 };
 
 const renderDiscounts = () => {
@@ -959,10 +966,8 @@ const updateRecord = (card, key, value) => {
   } else if (key === "id" && collection !== "products") {
     item.id = String(value || "").trim();
     card.dataset.id = item.id;
-  } else if (key === "customerText") {
-    try { item.customer = JSON.parse(value || "{}"); } catch { item.customer = {}; }
-  } else if (key === "productsText") {
-    try { item.products = JSON.parse(value || "[]"); } catch { item.products = []; }
+  } else if (recordType === "orders" && ["customerName","customerEmail","customerPhone"].includes(key)) {
+    item.customer = { ...(item.customer || item.customerDetails || {}), [key.replace("customer", "").toLowerCase()]: value };
   } else if (collection === "products" && key === "brandId") {
     const brand = state.content.brands.find((entry) => entry.id === value);
     if (brand) {
