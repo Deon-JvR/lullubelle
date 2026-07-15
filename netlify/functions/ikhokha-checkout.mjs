@@ -33,6 +33,35 @@ const checkoutEndpoint = () => {
 
 const money = (value) => Math.round((Number(value) || 0) * 100) / 100;
 
+export const mapIkhokhaStatus = (value) => {
+  const status = String(value || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+  if (["successful", "success", "paid", "completed", "approved", "paymentlink_paid"].includes(status)) return "Paid";
+  if (["pending", "processing", "paymentlink_created"].includes(status)) return "Pending";
+  if (["failed", "failure", "declined", "rejected", "paymentlink_failed"].includes(status)) return "Failed";
+  if (["cancelled", "canceled", "expired"].includes(status)) return "Cancelled";
+  if (["refunded"].includes(status)) return "Refunded";
+  if (["partially_refunded", "partial_refund"].includes(status)) return "Partially Refunded";
+  return "Unknown";
+};
+
+const normaliseReference = (value) => String(value ?? "").trim().toLowerCase();
+export const extractPaymentReference = (payload = {}) => {
+  const data = payload.data && typeof payload.data === "object" ? payload.data : payload;
+  return [data.externalTransactionID, data.merchantReference, data.orderNumber, data.orderId, data.paymentReference, data.reference, payload.externalTransactionID, payload.merchantReference, payload.orderNumber, payload.orderId, payload.paymentReference, payload.reference]
+    .find((value) => String(value ?? "").trim()) || "";
+};
+export const extractPaymentStatus = (payload = {}) => {
+  const data = payload.data && typeof payload.data === "object" ? payload.data : payload;
+  return mapIkhokhaStatus(data.status || data.paymentStatus || data.transactionStatus || data.result || data.event || payload.status || payload.paymentStatus || payload.transactionStatus || payload.result || payload.event);
+};
+export const amountsMatch = (expected, received) => {
+  if (received === undefined || received === null || received === "") return false;
+  const value = Number(received);
+  if (!Number.isFinite(value)) return false;
+  const receivedAmount = Math.abs(value) >= 100 ? value / 100 : value;
+  return Math.abs(money(expected) - money(receivedAmount)) <= 0.01;
+};
+
 const safeProviderBody = (data) => {
   if (!data || typeof data !== "object") return data;
   const blocked = new Set(["authorization", "Authorization", "token", "secret", "apiKey", "apiSecret", "password"]);
@@ -383,33 +412,53 @@ const callIkhokha = async ({ event, order, testMode }) => {
 
 const markOrderPaid = async (orderNumber, providerPayload) => {
   const orders = await readList(ORDERS_KEY);
-  const index = orders.findIndex((order) => order.orderNumber === orderNumber);
+  const index = orders.findIndex((order) => normaliseReference(order.orderNumber) === normaliseReference(orderNumber));
   if (index === -1) return false;
-
+  const order = orders[index];
+  const data = providerPayload.data && typeof providerPayload.data === "object" ? providerPayload.data : providerPayload;
+  const transactionId = String(data.transactionID || data.transactionId || data.transaction_id || data.paylinkID || data.paylinkId || "").trim();
+  const eventKey = transactionId || normaliseReference(orderNumber);
+  const history = Array.isArray(order.paymentEvents) ? order.paymentEvents : [];
+  if (history.some((event) => event.idempotencyKey === eventKey)) return true;
+  const now = new Date().toISOString();
   orders[index] = {
-    ...orders[index],
+    ...order,
     paymentStatus: "Paid",
-    orderStatus: orders[index].orderStatus === "New" ? "Processing" : orders[index].orderStatus,
-    paidAt: new Date().toISOString(),
-    providerConfirmation: providerPayload,
+    orderStatus: order.orderStatus === "New" ? "Processing" : order.orderStatus,
+    paymentProvider: "iKhokha iK Pay",
+    paymentReference: String(extractPaymentReference(providerPayload) || order.orderNumber),
+    transactionId,
+    paidAmount: money(Number(data.amount) >= 100 ? Number(data.amount) / 100 : data.amount),
+    currency: String(data.currency || "ZAR").toUpperCase(),
+    paidAt: data.paidAt || now,
+    paymentUpdatedAt: now,
+    providerConfirmation: safeProviderBody(providerPayload),
+    paymentEvents: [...history, { timestamp: now, providerStatus: "paid", internalStatus: "Paid", transactionReference: transactionId || String(orderNumber), amount: money(Number(data.amount) >= 100 ? Number(data.amount) / 100 : data.amount), verificationResult: "verified", eventSource: "ikhokha-webhook", idempotencyKey: eventKey }],
   };
   await writeList(ORDERS_KEY, orders);
   return true;
 };
 
-const markOrderCancelled = async (orderNumber, providerPayload) => {
+const markOrderCancelled = async (orderNumber, providerPayload, internalStatus = "Cancelled") => {
   const orders = await readList(ORDERS_KEY);
-  const index = orders.findIndex((order) => order.orderNumber === orderNumber);
+  const index = orders.findIndex((order) => normaliseReference(order.orderNumber) === normaliseReference(orderNumber));
   if (index === -1) return false;
 
   await releaseRedemption(orders[index].discountReservationId);
 
+  if (orders[index].paymentStatus === "Paid") return true;
+  const now = new Date().toISOString();
+  const history = Array.isArray(orders[index].paymentEvents) ? orders[index].paymentEvents : [];
+  const data = providerPayload.data && typeof providerPayload.data === "object" ? providerPayload.data : providerPayload;
+  const transactionId = String(data.transactionID || data.transactionId || data.transaction_id || data.paylinkID || "").trim();
   orders[index] = {
     ...orders[index],
-    paymentStatus: "Unpaid",
-    orderStatus: "Cancelled",
-    cancelledAt: new Date().toISOString(),
-    providerConfirmation: providerPayload,
+    paymentStatus: internalStatus,
+    orderStatus: internalStatus === "Cancelled" ? "Cancelled" : orders[index].orderStatus,
+    cancelledAt: internalStatus === "Cancelled" ? now : orders[index].cancelledAt,
+    paymentUpdatedAt: now,
+    providerConfirmation: safeProviderBody(providerPayload),
+    paymentEvents: [...history, { timestamp: now, providerStatus: internalStatus.toLowerCase(), internalStatus, transactionReference: transactionId || String(orderNumber), amount: money(Number(data.amount) >= 100 ? Number(data.amount) / 100 : data.amount), verificationResult: "verified", eventSource: "ikhokha-webhook", idempotencyKey: transactionId || `${normaliseReference(orderNumber)}:${internalStatus}` }],
   };
   await writeList(ORDERS_KEY, orders);
   return true;
@@ -427,40 +476,63 @@ const verifySignature = (event) => {
     || event.headers["x-ik-signature"]
     || event.headers["X-iK-Signature"]
     || event.headers["x-signature"]
-    || event.headers["X-Signature"];
+    || event.headers["X-Signature"]
+    || event.headers["ik-sign"]
+    || event.headers["IK-SIGN"]
+    || event.headers["ik-signature"]
+    || event.headers["IK-Signature"];
   if (!signature || !process.env.IKHOKHA_API_SECRET) return false;
 
   const body = event.body || "";
-  const hex = createHmac("sha256", process.env.IKHOKHA_API_SECRET).update(body).digest("hex");
-  const base64 = createHmac("sha256", process.env.IKHOKHA_API_SECRET).update(body).digest("base64");
+  const secret = String(process.env.IKHOKHA_API_SECRET).trim();
+  const hex = createHmac("sha256", secret).update(body).digest("hex");
+  const base64 = createHmac("sha256", secret).update(body).digest("base64");
+  const path = event.path || "/.netlify/functions/ikhokha-checkout";
+  const pathHex = createHmac("sha256", secret).update(escapeIkhokhaSignatureString(`${path}${body}`)).digest("hex");
   const cleaned = String(signature).replace(/^sha256=/i, "");
-  return safeCompare(cleaned, hex) || safeCompare(cleaned, base64);
+  return safeCompare(cleaned, hex) || safeCompare(cleaned, base64) || safeCompare(cleaned, pathHex);
 };
 
 const isVerifiedIkhokhaConfirmation = (event) => verifySignature(event);
 
 const handleConfirmation = async (event) => {
   const body = parseJson(event);
-  const order = event.queryStringParameters?.order || body.orderNumber || body.merchantReference || body.reference;
-  const status = String(body.status || body.paymentStatus || body.result || "").toLowerCase();
-  const paid = ["paid", "success", "successful", "approved", "completed"].includes(status);
-  const cancelled = ["cancelled", "canceled", "failed", "failure", "declined", "rejected", "expired"].includes(status);
+  if (!isVerifiedIkhokhaConfirmation(event)) return json(401, { ok: false, error: "Invalid iKhokha signature." });
+  const order = extractPaymentReference(body) || event.queryStringParameters?.order;
+  if (!order) return json(400, { ok: false, error: "Missing payment reference." });
+  const orders = await readList(ORDERS_KEY);
+  const stored = orders.find((item) => normaliseReference(item.orderNumber) === normaliseReference(order));
+  if (!stored) return json(404, { ok: false, error: "Unknown payment reference." });
+  const data = body.data && typeof body.data === "object" ? body.data : body;
+  const currency = String(data.currency || "ZAR").toUpperCase();
+  if (currency !== "ZAR") return json(409, { ok: false, error: "Payment currency mismatch." });
+  if (extractPaymentStatus(body) === "Paid" && !amountsMatch(stored.total, data.amount)) return json(409, { ok: false, error: "Payment amount mismatch." });
+  const mapped = extractPaymentStatus(body);
+  if (mapped === "Unknown") { console.warn("Unknown iKhokha payment status", { reference: String(order).slice(0, 80), status: String(data.status || data.event || "").slice(0, 40) }); return json(400, { ok: false, error: "Unknown payment status." }); }
+  if (mapped === "Paid") return json(200, { ok: true, paid: await markOrderPaid(order, body) });
+  if (mapped === "Cancelled" || mapped === "Failed" || mapped === "Refunded" || mapped === "Partially Refunded") return json(200, { ok: true, paymentStatus: mapped, updated: await markOrderCancelled(order, body, mapped) });
+  return json(200, { ok: true, paymentStatus: "Pending" });
+};
 
-  if (!order || !isVerifiedIkhokhaConfirmation(event)) {
-    return json(202, { ok: true, paid: false });
-  }
-
-  if (paid) {
-    const updated = await markOrderPaid(order, body);
-    return json(200, { ok: true, paid: updated });
-  }
-
-  if (cancelled) {
-    const updated = await markOrderCancelled(order, body);
-    return json(200, { ok: true, paid: false, cancelled: updated });
-  }
-
-  return json(202, { ok: true, paid: false });
+export const handleReconciliation = async (event) => {
+  const token = event.headers["x-reconciliation-token"] || event.headers["X-Reconciliation-Token"];
+  if (!process.env.IKHOKHA_RECONCILIATION_TOKEN || token !== process.env.IKHOKHA_RECONCILIATION_TOKEN) return json(401, { ok: false, error: "Reconciliation authentication required." });
+  const requested = String(event.queryStringParameters?.order || parseJson(event).orderNumber || "").trim();
+  if (!requested) return json(400, { ok: false, error: "Order number is required." });
+  const orders = await readList(ORDERS_KEY);
+  const stored = orders.find((item) => normaliseReference(item.orderNumber) === normaliseReference(requested));
+  if (!stored) return json(404, { ok: false, error: "Unknown order number." });
+  const verifyPath = process.env.IKHOKHA_TRANSACTION_VERIFY_PATH;
+  if (!verifyPath) return json(503, { ok: false, error: "iKhokha transaction verification is not configured." });
+  const path = `${verifyPath}${verifyPath.includes("?") ? "&" : "?"}externalTransactionID=${encodeURIComponent(stored.orderNumber)}`;
+  const response = await fetch(`${ikhokhaBaseUrl()}${path}`, { headers: { Accept: "application/json", "IK-APPID": String(process.env.IKHOKHA_API_KEY || "").trim(), "IK-SIGN": generateIkhokhaSignature({ path: verifyPath, requestBody: {} , secret: process.env.IKHOKHA_API_SECRET }) } });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) return json(502, { ok: false, error: "iKhokha verification request failed." });
+  const status = extractPaymentStatus(body);
+  const data = body.data && typeof body.data === "object" ? body.data : body;
+  if (status !== "Paid" || String(data.currency || "ZAR").toUpperCase() !== "ZAR" || !amountsMatch(stored.total, data.amount)) return json(409, { ok: false, error: "iKhokha did not verify a matching paid transaction." });
+  const updated = await markOrderPaid(stored.orderNumber, { ...body, data: { ...data, reconciliation: true } });
+  return json(200, { ok: true, reconciled: updated, orderNumber: stored.orderNumber });
 };
 
 const wantsJson = (event) => {
@@ -470,6 +542,7 @@ const wantsJson = (event) => {
 
 export const handler = async (event) => {
   connectBlobContext(event);
+  if (event.queryStringParameters?.action === "reconcile") return handleReconciliation(event);
   if (event.queryStringParameters?.action === "confirm") {
     return handleConfirmation(event);
   }

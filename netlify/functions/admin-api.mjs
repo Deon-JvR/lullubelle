@@ -19,6 +19,7 @@ import { DISCOUNTS_KEY, sanitiseDiscount, validateDiscountRecord } from "./_disc
 import { sanitiseDeliverySettings } from "./_delivery.mjs";
 import { validateProductCatalogue, verifyPersistedProducts } from "./_products.mjs";
 import { validateServiceCatalogue } from "./_services.mjs";
+import { handleReconciliation } from "./ikhokha-checkout.mjs";
 
 const requireAuth = (event) => {
   const session = requireSession(event);
@@ -158,6 +159,18 @@ export const handler = async (event) => {
   if (method === "PUT" && action === "orders") {
     await writeList(ORDERS_KEY, body.items || []);
     return json(200, { ok: true });
+  }
+
+  if (method === "POST" && action === "reconcile-payment") {
+    const orderNumber = String(body.orderNumber || "").trim();
+    if (!orderNumber) return json(400, { error: "Order number is required." });
+    return handleReconciliation({
+      ...event,
+      httpMethod: "POST",
+      headers: { ...event.headers, "x-reconciliation-token": process.env.IKHOKHA_RECONCILIATION_TOKEN || "" },
+      body: JSON.stringify({ orderNumber }),
+      queryStringParameters: { action: "reconcile", order: orderNumber },
+    });
   }
 
   if (method === "GET" && action === "discounts") {

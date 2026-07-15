@@ -86,6 +86,8 @@
 .order-summary dd { text-align: right; overflow-wrap: anywhere; }
 .order-summary dt,
 .order-summary dd { padding: 2px 0; }
+.order-summary dt:nth-of-type(3),
+.order-summary dt:nth-of-type(3) + dd { display: none; }
 .order-summary { grid-template-columns: minmax(0, 1fr) auto; }
 .order-summary-row { display: flex; justify-content: space-between; gap: 12px; color: #5e6760; }
 .order-summary-row strong { color: #111512; text-align: right; }

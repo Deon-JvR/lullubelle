@@ -40,7 +40,7 @@ test("Orders renders structured details without raw JSON", async ({ page }) => {
   await expect(panel).not.toContainText('"products"');
   await expect(panel).not.toContainText("/.netlify/functions/");
   await expect(panel.locator("img").first()).toHaveAttribute("src", /d008a/);
-  await expect(panel.locator("[data-key='paymentStatus']")).toHaveValue("Paid");
+  await expect(panel.locator("[data-key='paymentStatus']").last()).toHaveValue("Paid");
   await expect(panel.locator("[data-key='orderStatus']")).toHaveValue("Processing");
   expect(errors).toEqual([]);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
