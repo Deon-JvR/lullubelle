@@ -472,6 +472,18 @@ const safeCompare = (left, right) => {
   return a.length > 0 && a.length === b.length && timingSafeEqual(a, b);
 };
 
+// Keep the provider-specific string-to-sign isolated here. Replace only this
+// function when iKhokha supplies its official webhook specification.
+export const callbackSignatureCandidates = ({ rawBodyBytes, eventPath, signatureSecret }) => {
+  const body = Buffer.from(rawBodyBytes);
+  const secret = String(signatureSecret || "").trim();
+  return [
+    createHmac("sha256", secret).update(body).digest("hex"),
+    createHmac("sha256", secret).update(body).digest("base64"),
+    createHmac("sha256", secret).update(escapeIkhokhaSignatureString(`${eventPath}${body.toString("utf8")}`)).digest("hex"),
+  ];
+};
+
 const verifySignature = (event) => {
   const signature = event.headers["x-ikhokha-signature"]
     || event.headers["X-iKhokha-Signature"]
@@ -485,26 +497,23 @@ const verifySignature = (event) => {
     || event.headers["IK-Signature"];
   if (!signature || !process.env.IKHOKHA_API_SECRET) return false;
 
-  const body = event.body || "";
-  const secret = String(process.env.IKHOKHA_API_SECRET).trim();
-  const hex = createHmac("sha256", secret).update(body).digest("hex");
-  const base64 = createHmac("sha256", secret).update(body).digest("base64");
+  const body = event.isBase64Encoded ? Buffer.from(event.body || "", "base64") : Buffer.from(event.body || "", "utf8");
   const path = event.path || "/.netlify/functions/ikhokha-checkout";
-  const pathHex = createHmac("sha256", secret).update(escapeIkhokhaSignatureString(`${path}${body}`)).digest("hex");
   const cleaned = String(signature).replace(/^sha256=/i, "");
-  return safeCompare(cleaned, hex) || safeCompare(cleaned, base64) || safeCompare(cleaned, pathHex);
+  return callbackSignatureCandidates({ rawBodyBytes: body, eventPath: path, signatureSecret: process.env.IKHOKHA_API_SECRET })
+    .some((candidate) => safeCompare(cleaned, candidate));
 };
 
 const isVerifiedIkhokhaConfirmation = (event) => verifySignature(event);
 
 const handleConfirmation = async (event) => {
   const correlationId = event.headers["x-correlation-id"] || event.headers["X-Correlation-Id"] || randomUUID();
-  const body = parseJson(event);
   const signatureVerified = isVerifiedIkhokhaConfirmation(event);
   if (!signatureVerified) {
     console.warn("iKhokha payment callback", { correlationId, eventType: "callback", signatureVerified, responseStatus: 401 });
     return json(401, { ok: false, error: "Invalid iKhokha signature." });
   }
+  const body = parseJson(event);
   const order = extractPaymentReference(body) || event.queryStringParameters?.order;
   if (!order) return json(400, { ok: false, error: "Missing payment reference." });
   const orders = await readList(ORDERS_KEY);
