@@ -94,11 +94,11 @@ test("Verify payment delegates once and shows loading state", async ({ page }) =
 });
 
 test("Successful archive updates Active and Archived views without trusting a stale GET", async ({ page }) => {
-  const activeOrder = { ...order, paymentStatus: "Pending", orderStatus: "New" };
+  const activeOrder = { ...order, orderNumber: "LUL-1784149490045", paymentStatus: "Pending", orderStatus: "New" };
   let ordersGets = 0;
   await page.route("**/.netlify/functions/admin-api**", async (route) => {
     const action = new URL(route.request().url()).searchParams.get("action");
-    if (action === "archive-order") return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true, changed: 1, orderNumber: activeOrder.orderNumber, archived: true, archivedAt: "2026-07-16T10:00:00.000Z" }) });
+    if (action === "archive-order") return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true, changed: 1, orderNumber: "LUL-1784149490045", archived: true, archivedAt: "2026-07-15T23:05:24.907Z" }) });
     if (action === "orders") ordersGets += 1;
     const payload = action === "me" ? { authenticated: true } : action === "content" ? { brands: [], products: [], treatments: [], gallery: [], vouchers: [], deliverySettings: {} } : action === "orders" ? [activeOrder] : [];
     await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(payload) });
