@@ -649,6 +649,18 @@ const renderBookings = () => {
     </article>`).join("") || `<p>No appointment requests have been captured yet.</p>`;
 };
 
+const applyVerifiedArchiveState = (response) => {
+  const archiveStates = Array.isArray(response.archiveStates) ? response.archiveStates : [response];
+  const confirmed = new Map(archiveStates
+    .filter((item) => item && item.orderNumber && typeof item.archived === "boolean")
+    .map((item) => [String(item.orderNumber), item]));
+  state.orders = state.orders.map((order) => {
+    const archiveState = confirmed.get(String(order.orderNumber));
+    return archiveState ? { ...order, archived: archiveState.archived, archivedAt: archiveState.archived ? archiveState.archivedAt : null } : order;
+  });
+  return [...confirmed.keys()];
+};
+
 const renderOrders = () => {
   const parseNested = (value, fallback) => {
     if (value === null || value === undefined || value === "") return fallback;
@@ -1216,8 +1228,8 @@ document.addEventListener("click", async (event) => {
     const important = order && (["paid", "refunded"].includes(String(order.paymentStatus || "").toLowerCase()) || ["processing", "completed", "refunded"].includes(String(order.orderStatus || "").toLowerCase()));
     if (!order || !confirm(`${order.archived ? "Restore" : "Archive"} order ${order.orderNumber}? ${important ? "Warning: this order has an important payment or processing state. " : ""}Orders are archived, not deleted, and can be restored; payment and order data remain unchanged.`)) return;
     try {
-      await request(order.archived ? "restore-order" : "archive-order", { method: "POST", body: JSON.stringify({ orderNumber: order.orderNumber }) });
-      state.orders = await request("orders");
+      const response = await request(order.archived ? "restore-order" : "archive-order", { method: "POST", body: JSON.stringify({ orderNumber: order.orderNumber }) });
+      applyVerifiedArchiveState(response);
       renderOrders();
       setStatus(`${order.orderNumber} ${order.archived ? "restored" : "archived"}.`, "success");
     } catch (error) { setStatus(error.message, "error"); }
@@ -1227,7 +1239,14 @@ document.addEventListener("click", async (event) => {
     const selected = $$('[data-order-select]:checked').map((input) => input.closest("[data-record='orders']")?.dataset.id).map((id) => state.orders.find((item) => item.id === id)).filter((item) => item && !item.archived);
     const important = selected.filter((item) => ["paid", "refunded"].includes(String(item.paymentStatus || "").toLowerCase()) || ["processing", "completed", "refunded"].includes(String(item.orderStatus || "").toLowerCase())).length;
     if (!selected.length || !confirm(`Archive ${selected.length} selected order(s)? ${important ? `Warning: ${important} selected order(s) have important payment or processing states. ` : ""}They are archived, not deleted, can be restored, and all payment and order data remains unchanged.`)) return;
-    try { await request("archive-orders", { method: "POST", body: JSON.stringify({ orderNumbers: selected.map((item) => item.orderNumber) }) }); state.orders = await request("orders"); renderOrders(); setStatus(`${selected.length} order(s) archived.`, "success"); } catch (error) { setStatus(error.message, "error"); }
+    try {
+      const response = await request("archive-orders", { method: "POST", body: JSON.stringify({ orderNumbers: selected.map((item) => item.orderNumber) }) });
+      const confirmed = applyVerifiedArchiveState(response);
+      renderOrders();
+      const button = $("[data-archive-selected]");
+      if (button) button.textContent = "Archive selected (0)";
+      setStatus(`${confirmed.length} order(s) archived.`, "success");
+    } catch (error) { setStatus(error.message, "error"); }
     return;
   }
   if (target.matches("[data-order-filter]")) return;

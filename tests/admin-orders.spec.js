@@ -93,6 +93,74 @@ test("Verify payment delegates once and shows loading state", async ({ page }) =
   await expect(button).toHaveText("Verify payment with iKhokha");
 });
 
+test("Successful archive updates Active and Archived views without trusting a stale GET", async ({ page }) => {
+  const activeOrder = { ...order, paymentStatus: "Pending", orderStatus: "New" };
+  let ordersGets = 0;
+  await page.route("**/.netlify/functions/admin-api**", async (route) => {
+    const action = new URL(route.request().url()).searchParams.get("action");
+    if (action === "archive-order") return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true, changed: 1, orderNumber: activeOrder.orderNumber, archived: true, archivedAt: "2026-07-16T10:00:00.000Z" }) });
+    if (action === "orders") ordersGets += 1;
+    const payload = action === "me" ? { authenticated: true } : action === "content" ? { brands: [], products: [], treatments: [], gallery: [], vouchers: [], deliverySettings: {} } : action === "orders" ? [activeOrder] : [];
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(payload) });
+  });
+  page.on("dialog", (dialog) => dialog.accept());
+  await page.goto(`${base}/admin/`, { waitUntil: "networkidle" });
+  await page.locator('[data-tab="orders"]').click();
+  await page.locator("[data-order-archive]").click();
+  await expect(page.locator('[data-panel="orders"]')).not.toContainText(activeOrder.orderNumber);
+  await expect.poll(() => ordersGets).toBe(1);
+  await page.locator("[data-order-filter]").selectOption("archived");
+  await expect(page.locator('[data-panel="orders"]')).toContainText(activeOrder.orderNumber);
+  await expect(page.locator("[data-order-archive]")).toHaveText("Restore order");
+});
+
+test("Successful restore returns an order to Active without trusting a stale GET", async ({ page }) => {
+  const archivedOrder = { ...order, archived: true, archivedAt: "2026-07-15T10:00:00.000Z", paymentStatus: "Pending", orderStatus: "New" };
+  let ordersGets = 0;
+  await page.route("**/.netlify/functions/admin-api**", async (route) => {
+    const action = new URL(route.request().url()).searchParams.get("action");
+    if (action === "restore-order") return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true, changed: 1, orderNumber: archivedOrder.orderNumber, archived: false, archivedAt: null }) });
+    if (action === "orders") ordersGets += 1;
+    const payload = action === "me" ? { authenticated: true } : action === "content" ? { brands: [], products: [], treatments: [], gallery: [], vouchers: [], deliverySettings: {} } : action === "orders" ? [archivedOrder] : [];
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(payload) });
+  });
+  page.on("dialog", (dialog) => dialog.accept());
+  await page.goto(`${base}/admin/`, { waitUntil: "networkidle" });
+  await page.locator('[data-tab="orders"]').click();
+  await page.locator("[data-order-filter]").selectOption("archived");
+  await page.locator("[data-order-archive]").click();
+  await expect(page.locator('[data-panel="orders"]')).not.toContainText(archivedOrder.orderNumber);
+  await expect.poll(() => ordersGets).toBe(1);
+  await page.locator("[data-order-filter]").selectOption("active");
+  await expect(page.locator('[data-panel="orders"]')).toContainText(archivedOrder.orderNumber);
+  await expect(page.locator("[data-order-archive]")).toHaveText("Archive order");
+});
+
+test("Bulk archive updates only confirmed orders and clears selection", async ({ page }) => {
+  const orders = [
+    { ...order, id: "ord_bulk_1", orderNumber: "LB-BULK-1", paymentStatus: "Pending", orderStatus: "New" },
+    { ...order, id: "ord_bulk_2", orderNumber: "LB-BULK-2", paymentStatus: "Pending", orderStatus: "New" },
+    { ...order, id: "ord_bulk_3", orderNumber: "LB-BULK-3", paymentStatus: "Pending", orderStatus: "New" },
+  ];
+  await page.route("**/.netlify/functions/admin-api**", async (route) => {
+    const action = new URL(route.request().url()).searchParams.get("action");
+    if (action === "archive-orders") return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true, changed: 1, orderNumbers: [orders[0].orderNumber], archived: true, archiveStates: [{ orderNumber: orders[0].orderNumber, archived: true, archivedAt: "2026-07-16T10:00:00.000Z" }] }) });
+    const payload = action === "me" ? { authenticated: true } : action === "content" ? { brands: [], products: [], treatments: [], gallery: [], vouchers: [], deliverySettings: {} } : action === "orders" ? orders : [];
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(payload) });
+  });
+  page.on("dialog", (dialog) => dialog.accept());
+  await page.goto(`${base}/admin/`, { waitUntil: "networkidle" });
+  await page.locator('[data-tab="orders"]').click();
+  await page.locator("[data-order-select]").nth(0).check();
+  await page.locator("[data-order-select]").nth(1).check();
+  await page.locator("[data-archive-selected]").click();
+  await expect(page.locator('[data-panel="orders"]')).not.toContainText(orders[0].orderNumber);
+  await expect(page.locator('[data-panel="orders"]')).toContainText(orders[1].orderNumber);
+  await expect(page.locator('[data-panel="orders"]')).toContainText(orders[2].orderNumber);
+  await expect(page.locator("[data-order-select]:checked")).toHaveCount(0);
+  await expect(page.locator("[data-archive-selected]")).toHaveText("Archive selected (0)");
+});
+
 test("Archive persistence failures show the server message and keep the order visible", async ({ page }) => {
   const activeOrder = { ...order, paymentStatus: "Pending", orderStatus: "New" };
   await page.route("**/.netlify/functions/admin-api**", async (route) => {

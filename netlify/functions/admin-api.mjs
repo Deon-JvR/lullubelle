@@ -181,21 +181,22 @@ export const handler = async (event) => {
     });
     const changed = updated.filter((order, index) => order !== orders[index]).length;
     if (changed) await writeList(ORDERS_KEY, updated);
+    let verifiedOrders = matched;
     if (changed) {
       const delays = [0, 100, 250, 500];
-      let verified = false;
+      verifiedOrders = [];
       for (const delay of delays) {
         if (delay) await new Promise((resolve) => setTimeout(resolve, delay));
         const readBack = await readList(ORDERS_KEY);
-        const fieldsMatch = [...requested].every((orderNumber) => {
-          const found = readBack.find((order) => String(order.orderNumber) === orderNumber);
-          return found && found.archived === expectedArchived && (expectedArchived ? Boolean(found.archivedAt) : found.archivedAt == null);
-        });
-        if (fieldsMatch) { verified = true; break; }
+        const foundOrders = [...requested].map((orderNumber) => readBack.find((order) => String(order.orderNumber) === orderNumber));
+        const fieldsMatch = foundOrders.every((found) => found && found.archived === expectedArchived && (expectedArchived ? Boolean(found.archivedAt) : found.archivedAt == null));
+        if (fieldsMatch) { verifiedOrders = foundOrders; break; }
       }
-      if (!verified) return json(503, { ok: false, code: "ARCHIVE_PERSISTENCE_UNVERIFIED", message: "The archive change could not be verified in storage. Please try again." });
+      if (!verifiedOrders.length) return json(503, { ok: false, code: "ARCHIVE_PERSISTENCE_UNVERIFIED", message: "The archive change could not be verified in storage. Please try again." });
     }
-    return json(200, { ok: true, changed });
+    const archiveStates = verifiedOrders.map((order) => ({ orderNumber: String(order.orderNumber), archived: expectedArchived, archivedAt: expectedArchived ? order.archivedAt : null }));
+    if (action === "archive-orders") return json(200, { ok: true, changed, orderNumbers: archiveStates.map((order) => order.orderNumber), archived: expectedArchived, archiveStates });
+    return json(200, { ok: true, changed, ...archiveStates[0] });
   }
 
   if (method === "POST" && action === "reconcile-payment") {
