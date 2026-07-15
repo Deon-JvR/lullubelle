@@ -379,15 +379,34 @@ const callIkhokha = async ({ event, order, testMode }) => {
   }
   console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "provider-response-parsed", orderNumber: order.orderNumber })}`);
 
+  console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "before-response-headers-shape" })}`);
+  let safeResponseHeaders;
+  try {
+    safeResponseHeaders = responseHeadersObject(response.headers);
+  } catch (error) {
+    console.error(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "response-headers-shape-failed", errorName: error?.name || "Error", errorCode: error?.code || null })}`);
+    throw error;
+  }
+  console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "after-response-headers-shape" })}`);
+  console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "before-provider-shape" })}`);
+  let safeProviderShape;
+  try {
+    safeProviderShape = providerShape(data);
+  } catch (error) {
+    console.error(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "provider-shape-failed", errorName: error?.name || "Error", errorCode: error?.code || null })}`);
+    throw error;
+  }
+  console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "after-provider-shape" })}`);
   const responseLog = {
     step: "iKhokha checkout response received",
     ...requestLog,
     testMode,
     status: response.status,
     statusText: response.statusText,
-    responseHeaders: responseHeadersObject(response.headers),
-    responseShape: providerShape(data),
+    responseHeaders: safeResponseHeaders,
+    responseShape: safeProviderShape,
   };
+  console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "after-response-log-construction" })}`);
   console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "before-http-status-validation", httpStatus: response.status, responseType: typeof data })}`);
   logIkhokhaDiagnostic(
     response.ok ? "info" : "error",
