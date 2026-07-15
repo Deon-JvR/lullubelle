@@ -79,6 +79,9 @@ const safeProviderBody = (data) => {
     blocked.has(key) ? "[masked]" : value,
   ]));
 };
+const providerShape = (value) => value && typeof value === "object"
+  ? Object.fromEntries(Object.entries(value).map(([key, child]) => [key, child && typeof child === "object" && !Array.isArray(child) ? providerShape(child) : Array.isArray(child) ? `[array:${child.length}]` : typeof child]))
+  : typeof value;
 
 const maskedIkhokhaHeaders = () => ({
   Accept: "application/json",
@@ -384,8 +387,7 @@ const callIkhokha = async ({ event, order, testMode }) => {
     status: response.status,
     statusText: response.statusText,
     responseHeaders: responseHeadersObject(response.headers),
-    responseBody: data,
-    rawResponseBody: text,
+    responseShape: providerShape(data),
   };
   logIkhokhaDiagnostic(
     response.ok ? "info" : "error",
@@ -401,8 +403,7 @@ const callIkhokha = async ({ event, order, testMode }) => {
       status: response.status,
       statusText: response.statusText,
       responseHeaders: responseHeadersObject(response.headers),
-      responseBody: data,
-      rawResponseBody: text,
+      responseShape: providerShape(data),
     };
     const message = providerErrorMessage(data, `iKhokha checkout failed with status ${response.status}.`);
     const detail = new Error(message);
@@ -419,8 +420,7 @@ const callIkhokha = async ({ event, order, testMode }) => {
       status: response.status,
       statusText: response.statusText,
       responseHeaders: responseHeadersObject(response.headers),
-      responseBody: data,
-      rawResponseBody: text,
+      responseShape: providerShape(data),
     };
     logIkhokhaDiagnostic("error", "iKhokha did not return a hosted payment URL.", diagnostic);
     const detail = new Error("iKhokha did not return a hosted payment URL.");
@@ -710,6 +710,7 @@ export const handler = async (event) => {
     }
 
     const ikhokhaPaylinkId = extractPaylinkId(checkout.providerResponse);
+    console.info("iKhokha checkout provider response shape", { orderNumber: order.orderNumber, shape: providerShape(checkout.providerResponse) });
     const persistedOrders = await readList(ORDERS_KEY);
     const persistedIndex = persistedOrders.findIndex((item) => item.id === order.id);
     if (persistedIndex >= 0) {
