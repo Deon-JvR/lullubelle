@@ -710,14 +710,14 @@ export const handler = async (event) => {
     }
 
     const ikhokhaPaylinkId = extractPaylinkId(checkout.providerResponse);
-    console.info("iKhokha checkout provider response shape", { orderNumber: order.orderNumber, shape: providerShape(checkout.providerResponse) });
+    console.info(`iKhokha checkout provider response shape ${JSON.stringify({ orderNumber: order.orderNumber, shape: providerShape(checkout.providerResponse) })}`);
     const persistedOrders = await readList(ORDERS_KEY);
     const persistedIndex = persistedOrders.findIndex((item) => item.id === order.id);
     if (persistedIndex >= 0) {
       persistedOrders[persistedIndex] = { ...persistedOrders[persistedIndex], ikhokhaPaylinkId: ikhokhaPaylinkId || null };
       await writeList(ORDERS_KEY, persistedOrders);
     }
-    if (!ikhokhaPaylinkId) console.warn("iKhokha checkout response missing paylink ID", { orderNumber: order.orderNumber, paymentUrlReturned: Boolean(checkout.paymentUrl) });
+    if (!ikhokhaPaylinkId) console.warn(`iKhokha checkout response missing paylink ID ${JSON.stringify({ orderNumber: order.orderNumber })}`);
 
     if (!wantsJson(event)) {
       return {
