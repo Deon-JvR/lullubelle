@@ -122,14 +122,14 @@ export const escapeIkhokhaSignatureString = (value) => String(value)
   .replace(/[\\"']/g, "\\$&")
   .replace(/\u0000/g, "\\0");
 
-export const createIkhokhaSignature = ({ requestUrl, serializedBody = "", secret }) => {
+export const createIkhokhaSignature = ({ requestUrl, serializedBody = "", secret, escapePayload = true }) => {
   const urlText = String(requestUrl);
   const uri = urlText.includes("//") ? urlText.slice(urlText.indexOf("//") + 2) : urlText;
   const slashIndex = uri.indexOf("/");
   const basePath = slashIndex >= 0 ? uri.slice(slashIndex) : "/";
   const signingPayload = basePath + serializedBody;
   return createHmac("sha256", String(secret || "").trim())
-    .update(escapeIkhokhaSignatureString(signingPayload), "utf8")
+    .update(escapePayload ? escapeIkhokhaSignatureString(signingPayload) : signingPayload, "utf8")
     .digest("hex");
 };
 
@@ -222,6 +222,10 @@ export const extractPaymentUrl = (payload) => {
   const candidates = collectHostedPaymentUrlCandidates(payload);
   const preferred = candidates.find((candidate) => /payment|pay|checkout/i.test(candidate.path));
   return preferred?.value || candidates[0]?.value || "";
+};
+export const extractPaylinkId = (payload = {}) => {
+  const data = payload.data && typeof payload.data === "object" ? payload.data : payload;
+  return String(data.paylinkID || data.paylinkId || "").trim();
 };
 
 const buildCatalog = async () => {
@@ -434,6 +438,8 @@ const markOrderPaid = async (orderNumber, providerPayload) => {
   if (index === -1) return false;
   const order = orders[index];
   const data = providerPayload.data && typeof providerPayload.data === "object" ? providerPayload.data : providerPayload;
+  const callbackPaylinkId = String(data.paylinkID || data.paylinkId || "").trim();
+  if (callbackPaylinkId && order.ikhokhaPaylinkId && callbackPaylinkId !== order.ikhokhaPaylinkId) console.warn("iKhokha paylink ID conflict", { orderNumber, stored: order.ikhokhaPaylinkId, received: callbackPaylinkId });
   const transactionId = String(data.transactionID || data.transactionId || data.transaction_id || data.paylinkID || data.paylinkId || "").trim();
   const eventKey = transactionId || normaliseReference(orderNumber);
   const history = Array.isArray(order.paymentEvents) ? order.paymentEvents : [];
@@ -441,6 +447,7 @@ const markOrderPaid = async (orderNumber, providerPayload) => {
   const now = new Date().toISOString();
   orders[index] = {
     ...order,
+    ikhokhaPaylinkId: order.ikhokhaPaylinkId || callbackPaylinkId || null,
     paymentStatus: "Paid",
     orderStatus: order.orderStatus === "New" ? "Processing" : order.orderStatus,
     paymentProvider: "iKhokha iK Pay",
@@ -470,9 +477,11 @@ const markOrderCancelled = async (orderNumber, providerPayload, internalStatus =
   const now = new Date().toISOString();
   const history = Array.isArray(orders[index].paymentEvents) ? orders[index].paymentEvents : [];
   const data = providerPayload.data && typeof providerPayload.data === "object" ? providerPayload.data : providerPayload;
+  const callbackPaylinkId = String(data.paylinkID || data.paylinkId || "").trim();
   const transactionId = String(data.transactionID || data.transactionId || data.transaction_id || data.paylinkID || "").trim();
   orders[index] = {
     ...orders[index],
+    ikhokhaPaylinkId: orders[index].ikhokhaPaylinkId || callbackPaylinkId || null,
     paymentStatus: internalStatus,
     orderStatus: internalStatus === "Cancelled" ? "Cancelled" : orders[index].orderStatus,
     cancelledAt: internalStatus === "Cancelled" ? now : orders[index].cancelledAt,
@@ -559,15 +568,17 @@ export const handleReconciliation = async (event, { trustedAdmin = false } = {})
   const orders = await readList(ORDERS_KEY);
   const stored = orders.find((item) => normaliseReference(item.orderNumber) === normaliseReference(requested));
   if (!stored) return json(404, { ok: false, error: "Unknown order number." });
-  const verifyEndpoint = "/public-api/v1/api/getStatus/external";
+  const verifyEndpoint = "/public-api/v1/api/getStatus";
   const missingConfiguration = ["IKHOKHA_API_KEY", "IKHOKHA_API_SECRET"].filter((name) => !String(process.env[name] || "").trim());
   if (missingConfiguration.length) return json(503, { ok: false, code: "RECONCILIATION_CONFIG_MISSING", error: "Payment reconciliation is not configured on the server.", missing: missingConfiguration });
-  const path = `${verifyEndpoint}?externalReference=${encodeURIComponent(stored.orderNumber)}`;
+  const paylinkId = String(stored.ikhokhaPaylinkId || "").trim();
+  if (!paylinkId) return json(409, { ok: false, code: "IKHOKHA_PAYLINK_ID_MISSING", error: "This order has no stored iKhokha paylink ID and cannot be queried through the documented status endpoint." });
+  const path = `${verifyEndpoint}/${encodeURIComponent(paylinkId)}`;
   const requestBody = "";
   const baseUrl = ikhokhaBaseUrl();
   const appId = String(process.env.IKHOKHA_API_KEY || "").trim();
   const requestUrl = `${baseUrl}${path}`;
-  const signature = createIkhokhaSignature({ requestUrl, serializedBody: requestBody, secret: process.env.IKHOKHA_API_SECRET });
+  const signature = createIkhokhaSignature({ requestUrl, serializedBody: requestBody, secret: process.env.IKHOKHA_API_SECRET, escapePayload: false });
   let response;
   try {
     console.info("Sending verification request to iKhokha", { signingPath: path, signingBodyLength: requestBody.length, signingPayloadLength: path.length + requestBody.length, digestEncoding: "hex", digestCharacterLength: signature.length, secretByteLength: Buffer.byteLength(String(process.env.IKHOKHA_API_SECRET || "").trim(), "utf8") });
@@ -697,6 +708,15 @@ export const handler = async (event) => {
       }
       throw error;
     }
+
+    const ikhokhaPaylinkId = extractPaylinkId(checkout.providerResponse);
+    const persistedOrders = await readList(ORDERS_KEY);
+    const persistedIndex = persistedOrders.findIndex((item) => item.id === order.id);
+    if (persistedIndex >= 0) {
+      persistedOrders[persistedIndex] = { ...persistedOrders[persistedIndex], ikhokhaPaylinkId: ikhokhaPaylinkId || null };
+      await writeList(ORDERS_KEY, persistedOrders);
+    }
+    if (!ikhokhaPaylinkId) console.warn("iKhokha checkout response missing paylink ID", { orderNumber: order.orderNumber, paymentUrlReturned: Boolean(checkout.paymentUrl) });
 
     if (!wantsJson(event)) {
       return {
