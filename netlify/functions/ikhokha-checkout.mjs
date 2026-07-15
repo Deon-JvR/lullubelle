@@ -14,6 +14,16 @@ import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
 
 const toBoolean = (value) => /^(1|true|yes|on)$/i.test(String(value || ""));
 
+const logConfigurationStatus = () => {
+  console.info("iKhokha configuration", {
+    IKHOKHA_API_KEY: process.env.IKHOKHA_API_KEY ? "present" : "missing",
+    IKHOKHA_API_SECRET: process.env.IKHOKHA_API_SECRET ? "present" : "missing",
+    IKHOKHA_TRANSACTION_VERIFY_PATH: process.env.IKHOKHA_TRANSACTION_VERIFY_PATH ? "present" : "missing",
+    IKHOKHA_API_BASE_URL: process.env.IKHOKHA_API_BASE_URL ? "present" : "missing",
+  });
+};
+logConfigurationStatus();
+
 const siteUrl = (event) => {
   const configured = process.env.URL || process.env.DEPLOY_PRIME_URL;
   if (configured) return configured.replace(/\/$/, "");
@@ -542,7 +552,8 @@ export const handleReconciliation = async (event, { trustedAdmin = false } = {})
   const stored = orders.find((item) => normaliseReference(item.orderNumber) === normaliseReference(requested));
   if (!stored) return json(404, { ok: false, error: "Unknown order number." });
   const verifyPath = process.env.IKHOKHA_TRANSACTION_VERIFY_PATH;
-  if (!verifyPath) return json(503, { ok: false, code: "RECONCILIATION_CONFIG_MISSING", error: "Payment reconciliation is not configured on the server." });
+  const missingConfiguration = ["IKHOKHA_API_KEY", "IKHOKHA_API_SECRET", "IKHOKHA_TRANSACTION_VERIFY_PATH"].filter((name) => !String(process.env[name] || "").trim());
+  if (missingConfiguration.length) return json(503, { ok: false, code: "RECONCILIATION_CONFIG_MISSING", error: "Payment reconciliation is not configured on the server.", missing: missingConfiguration });
   const path = `${verifyPath}${verifyPath.includes("?") ? "&" : "?"}externalTransactionID=${encodeURIComponent(stored.orderNumber)}`;
   const response = await fetch(`${ikhokhaBaseUrl()}${path}`, { headers: { Accept: "application/json", "IK-APPID": String(process.env.IKHOKHA_API_KEY || "").trim(), "IK-SIGN": generateIkhokhaSignature({ path: verifyPath, requestBody: {} , secret: process.env.IKHOKHA_API_SECRET }) } });
   const body = await response.json().catch(() => ({}));
