@@ -106,7 +106,7 @@ export const handler = async (event) => {
 
   const session = requireAuth(event);
   if (!session && method === "GET" && action === "me") return json(200, { ok: false, authenticated: false });
-  if (!session) return json(401, { error: "Admin login required." });
+  if (!session) return json(401, { ok: false, code: "ADMIN_AUTH_REQUIRED", message: "Your admin session has expired. Please sign in again." });
 
   if (method === "GET" && action === "me") {
     return json(200, { ok: true, authenticated: true, username: session.username });
@@ -167,10 +167,9 @@ export const handler = async (event) => {
     return handleReconciliation({
       ...event,
       httpMethod: "POST",
-      headers: { ...event.headers, "x-reconciliation-token": process.env.IKHOKHA_RECONCILIATION_TOKEN || "" },
       body: JSON.stringify({ orderNumber }),
       queryStringParameters: { action: "reconcile", order: orderNumber },
-    });
+    }, { trustedAdmin: true });
   }
 
   if (method === "GET" && action === "discounts") {

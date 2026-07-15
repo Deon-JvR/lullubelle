@@ -533,23 +533,23 @@ const handleConfirmation = async (event) => {
   return json(200, { ok: true, paymentStatus: "Pending" });
 };
 
-export const handleReconciliation = async (event) => {
+export const handleReconciliation = async (event, { trustedAdmin = false } = {}) => {
   const token = event.headers["x-reconciliation-token"] || event.headers["X-Reconciliation-Token"];
-  if (!process.env.IKHOKHA_RECONCILIATION_TOKEN || token !== process.env.IKHOKHA_RECONCILIATION_TOKEN) return json(401, { ok: false, error: "Reconciliation authentication required." });
+  if (!trustedAdmin && (!process.env.IKHOKHA_RECONCILIATION_TOKEN || token !== process.env.IKHOKHA_RECONCILIATION_TOKEN)) return json(401, { ok: false, code: "RECONCILIATION_AUTH_REQUIRED", error: "Reconciliation authentication required." });
   const requested = String(event.queryStringParameters?.order || parseJson(event).orderNumber || "").trim();
   if (!requested) return json(400, { ok: false, error: "Order number is required." });
   const orders = await readList(ORDERS_KEY);
   const stored = orders.find((item) => normaliseReference(item.orderNumber) === normaliseReference(requested));
   if (!stored) return json(404, { ok: false, error: "Unknown order number." });
   const verifyPath = process.env.IKHOKHA_TRANSACTION_VERIFY_PATH;
-  if (!verifyPath) return json(503, { ok: false, error: "iKhokha transaction verification is not configured." });
+  if (!verifyPath) return json(503, { ok: false, code: "RECONCILIATION_CONFIG_MISSING", error: "Payment reconciliation is not configured on the server." });
   const path = `${verifyPath}${verifyPath.includes("?") ? "&" : "?"}externalTransactionID=${encodeURIComponent(stored.orderNumber)}`;
   const response = await fetch(`${ikhokhaBaseUrl()}${path}`, { headers: { Accept: "application/json", "IK-APPID": String(process.env.IKHOKHA_API_KEY || "").trim(), "IK-SIGN": generateIkhokhaSignature({ path: verifyPath, requestBody: {} , secret: process.env.IKHOKHA_API_SECRET }) } });
   const body = await response.json().catch(() => ({}));
-  if (!response.ok) return json(502, { ok: false, error: "iKhokha verification request failed." });
+  if (!response.ok) return json(502, { ok: false, code: "IKHOKHA_VERIFICATION_FAILED", error: "iKhokha verification request failed." });
   const status = extractPaymentStatus(body);
   const data = body.data && typeof body.data === "object" ? body.data : body;
-  if (status !== "Paid" || String(data.currency || "ZAR").toUpperCase() !== "ZAR" || !amountsMatch(stored.total, data.amount)) return json(409, { ok: false, error: "iKhokha did not verify a matching paid transaction." });
+  if (status !== "Paid" || String(data.currency || "ZAR").toUpperCase() !== "ZAR" || !amountsMatch(stored.total, data.amount)) return json(409, { ok: false, code: "IKHOKHA_VERIFICATION_FAILED", error: "iKhokha could not confirm this transaction." });
   const updated = await markOrderPaid(stored.orderNumber, { ...body, data: { ...data, reconciliation: true } });
   return json(200, { ok: true, reconciled: updated, orderNumber: stored.orderNumber });
 };
