@@ -328,9 +328,17 @@ const persistPaylinkOrder = async (pendingOrder, paylinkId) => {
     ? latestOrders.map((item, itemIndex) => itemIndex === index ? enriched : item)
     : [enriched, ...latestOrders.filter((item) => item.orderNumber !== pendingOrder.orderNumber)].slice(0, 500);
   await writeList(ORDERS_KEY, nextOrders);
-  const verified = (await readList(ORDERS_KEY)).find((item) => item.orderNumber === pendingOrder.orderNumber);
-  if (!verified || verified.ikhokhaPaylinkId !== paylinkId) throw new Error("Unable to verify iKhokha paylink persistence.");
-  return verified;
+  const delays = [0, 100, 250, 500, 1000];
+  for (let attempt = 0; attempt < delays.length; attempt += 1) {
+    if (delays[attempt]) await new Promise((resolve) => setTimeout(resolve, delays[attempt]));
+    const verified = (await readList(ORDERS_KEY)).find((item) => item.orderNumber === pendingOrder.orderNumber);
+    const found = Boolean(verified);
+    const present = Boolean(verified?.ikhokhaPaylinkId);
+    const matches = Boolean(present && verified.ikhokhaPaylinkId === paylinkId);
+    console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "paylink-read-back", orderNumber: pendingOrder.orderNumber, attempt: attempt + 1, found, paylinkIdPresent: present, paylinkIdMatchesExpected: matches })}`);
+    if (matches) return verified;
+  }
+  throw new Error("Unable to verify iKhokha paylink persistence.");
 };
 
 const callIkhokha = async ({ event, order, testMode }) => {
