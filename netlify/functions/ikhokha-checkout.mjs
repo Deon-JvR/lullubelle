@@ -554,14 +554,14 @@ export const handleReconciliation = async (event, { trustedAdmin = false } = {})
   const missingConfiguration = ["IKHOKHA_API_KEY", "IKHOKHA_API_SECRET"].filter((name) => !String(process.env[name] || "").trim());
   if (missingConfiguration.length) return json(503, { ok: false, code: "RECONCILIATION_CONFIG_MISSING", error: "Payment reconciliation is not configured on the server.", missing: missingConfiguration });
   const path = `${verifyEndpoint}?externalReference=${encodeURIComponent(stored.orderNumber)}`;
-  const responseBody = {};
+  const requestBody = "";
   const baseUrl = ikhokhaBaseUrl();
   const appId = String(process.env.IKHOKHA_API_KEY || "").trim();
-  const signature = generateIkhokhaSignature({ path, requestBody: responseBody, secret: process.env.IKHOKHA_API_SECRET });
+  const signature = generateIkhokhaSignature({ path, requestBodyString: requestBody, secret: process.env.IKHOKHA_API_SECRET });
   let response;
   try {
     console.info("Sending verification request to iKhokha");
-    response = await fetch(`${baseUrl}${path}`, { headers: { Accept: "application/json", "IK-APPID": appId, "IK-SIGN": signature } });
+    response = await fetch(`${baseUrl}${path}`, { method: "GET", headers: { Accept: "application/json", "IK-APPID": appId, "IK-SIGN": signature } });
   } catch (error) {
     console.error("iKhokha reconciliation network failure", { verificationBaseUrl: baseUrl, verificationPath: path, externalTransactionID: stored.orderNumber, requestHeaders: { Accept: "application/json" }, appIdPresent: Boolean(appId), signaturePresent: Boolean(signature), errorName: error?.name, errorCode: error?.code, errorMessage: error?.message });
     return json(502, { ok: false, code: "IKHOKHA_VERIFICATION_FAILED", error: "iKhokha verification request failed." });
