@@ -679,6 +679,15 @@ const renderOrders = () => {
     const date = new Date(item.createdAt || item.orderDate || item.date || 0).getTime();
     return (payment.includes("pending") || payment.includes("awaiting") || payment.includes("unpaid")) && Number.isFinite(date) && date > 0 && Date.now() - date >= 86400000;
   };
+  const counts = {
+    active: state.orders.filter((item) => item.archived !== true).length,
+    archived: state.orders.filter((item) => item.archived === true).length,
+    all: state.orders.length,
+    abandoned: state.orders.filter(likelyAbandoned).length,
+  };
+  const filter = $("[data-order-filter]");
+  const labels = { active: "Active orders", archived: "Archived orders", all: "All orders", abandoned: "Likely abandoned" };
+  Array.from(filter?.options || []).forEach((option) => { option.textContent = `${labels[option.value]} (${counts[option.value]})`; });
   const visibleOrders = state.orders.filter((item) => state.orderFilter === "all" ? true : state.orderFilter === "archived" ? item.archived === true : state.orderFilter === "abandoned" ? likelyAbandoned(item) : item.archived !== true);
   $("[data-list='orders']").innerHTML = visibleOrders.map((item) => {
     const customer = parseNested(item.customerDetails || item.customer, {}) || {};

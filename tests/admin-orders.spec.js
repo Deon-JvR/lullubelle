@@ -18,6 +18,13 @@ const order = {
   deliveryFee: 80, total: 692, paymentStatus: "Paid", orderStatus: "Processing",
 };
 const fiveProductOrder = { ...order, id: "ord_test_5", orderNumber: "LB-1005", delivery: { option: "collection", label: "Collection from Lullubelle – Centurion", fee: 0 }, promoCode: "", discountAmount: 0, deliveryFee: 0, total: 1200, products: Array.from({ length: 5 }, (_, index) => ({ name: `Product ${index + 1}`, brand: "Kalahari", sku: `SKU${index + 1}`, quantity: 1, unitPrice: 240, lineTotal: 240, image: "public/images/products/kalahari/d008a.webp" })) };
+const expectOrderCounts = async (page, { active, archived, all, abandoned }) => {
+  const filter = page.locator("[data-order-filter]");
+  await expect(filter.locator('option[value="active"]')).toHaveText(`Active orders (${active})`);
+  await expect(filter.locator('option[value="archived"]')).toHaveText(`Archived orders (${archived})`);
+  await expect(filter.locator('option[value="all"]')).toHaveText(`All orders (${all})`);
+  await expect(filter.locator('option[value="abandoned"]')).toHaveText(`Likely abandoned (${abandoned})`);
+};
 
 test("Orders renders structured details without raw JSON", async ({ page }) => {
   const errors = [];
@@ -93,12 +100,13 @@ test("Verify payment delegates once and shows loading state", async ({ page }) =
   await expect(button).toHaveText("Verify payment with iKhokha");
 });
 
-test("Successful archive updates Active and Archived views without trusting a stale GET", async ({ page }) => {
+test("Successful and repeated archive updates canonical counts without trusting a stale GET", async ({ page }) => {
   const activeOrder = { ...order, orderNumber: "LUL-1784149490045", paymentStatus: "Pending", orderStatus: "New" };
   let ordersGets = 0;
+  let archiveCalls = 0;
   await page.route("**/.netlify/functions/admin-api**", async (route) => {
     const action = new URL(route.request().url()).searchParams.get("action");
-    if (action === "archive-order") return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true, changed: 1, orderNumber: "LUL-1784149490045", archived: true, archivedAt: "2026-07-15T23:05:24.907Z" }) });
+    if (action === "archive-order") { archiveCalls += 1; const callNumber = archiveCalls; await new Promise((resolve) => setTimeout(resolve, 100)); return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true, changed: callNumber === 1 ? 1 : 0, orderNumber: "LUL-1784149490045", archived: true, archivedAt: "2026-07-15T23:05:24.907Z" }) }); }
     if (action === "orders") ordersGets += 1;
     const payload = action === "me" ? { authenticated: true } : action === "content" ? { brands: [], products: [], treatments: [], gallery: [], vouchers: [], deliverySettings: {} } : action === "orders" ? [activeOrder] : [];
     await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(payload) });
@@ -106,12 +114,16 @@ test("Successful archive updates Active and Archived views without trusting a st
   page.on("dialog", (dialog) => dialog.accept());
   await page.goto(`${base}/admin/`, { waitUntil: "networkidle" });
   await page.locator('[data-tab="orders"]').click();
-  await page.locator("[data-order-archive]").click();
+  await expectOrderCounts(page, { active: 1, archived: 0, all: 1, abandoned: 0 });
+  await page.evaluate(() => { const button = document.querySelector("[data-order-archive]"); button.click(); button.click(); });
+  await expect.poll(() => archiveCalls).toBe(2);
   await expect(page.locator('[data-panel="orders"]')).not.toContainText(activeOrder.orderNumber);
+  await expectOrderCounts(page, { active: 0, archived: 1, all: 1, abandoned: 0 });
   await expect.poll(() => ordersGets).toBe(1);
   await page.locator("[data-order-filter]").selectOption("archived");
   await expect(page.locator('[data-panel="orders"]')).toContainText(activeOrder.orderNumber);
   await expect(page.locator("[data-order-archive]")).toHaveText("Restore order");
+  await expectOrderCounts(page, { active: 0, archived: 1, all: 1, abandoned: 0 });
 });
 
 test("Successful restore returns an order to Active without trusting a stale GET", async ({ page }) => {
@@ -128,8 +140,10 @@ test("Successful restore returns an order to Active without trusting a stale GET
   await page.goto(`${base}/admin/`, { waitUntil: "networkidle" });
   await page.locator('[data-tab="orders"]').click();
   await page.locator("[data-order-filter]").selectOption("archived");
+  await expectOrderCounts(page, { active: 0, archived: 1, all: 1, abandoned: 0 });
   await page.locator("[data-order-archive]").click();
   await expect(page.locator('[data-panel="orders"]')).not.toContainText(archivedOrder.orderNumber);
+  await expectOrderCounts(page, { active: 1, archived: 0, all: 1, abandoned: 0 });
   await expect.poll(() => ordersGets).toBe(1);
   await page.locator("[data-order-filter]").selectOption("active");
   await expect(page.locator('[data-panel="orders"]')).toContainText(archivedOrder.orderNumber);
@@ -159,6 +173,7 @@ test("Bulk archive updates only confirmed orders and clears selection", async ({
   await expect(page.locator('[data-panel="orders"]')).toContainText(orders[2].orderNumber);
   await expect(page.locator("[data-order-select]:checked")).toHaveCount(0);
   await expect(page.locator("[data-archive-selected]")).toHaveText("Archive selected (0)");
+  await expectOrderCounts(page, { active: 2, archived: 1, all: 3, abandoned: 0 });
 });
 
 test("Archive persistence failures show the server message and keep the order visible", async ({ page }) => {
