@@ -585,6 +585,7 @@ export const handleReconciliation = async (event, { trustedAdmin = false } = {})
   if (!requested) return json(400, { ok: false, error: "Order number is required." });
   const orders = await readList(ORDERS_KEY);
   const stored = orders.find((item) => normaliseReference(item.orderNumber) === normaliseReference(requested));
+  console.info(`iKhokha reconciliation checkpoint ${JSON.stringify({ stage: "order-read", orderNumber: requested, found: Boolean(stored), paylinkIdPresent: Boolean(stored?.ikhokhaPaylinkId) })}`);
   if (!stored) return json(404, { ok: false, error: "Unknown order number." });
   const verifyEndpoint = "/public-api/v1/api/getStatus";
   const missingConfiguration = ["IKHOKHA_API_KEY", "IKHOKHA_API_SECRET"].filter((name) => !String(process.env[name] || "").trim());
@@ -736,9 +737,15 @@ export const handler = async (event) => {
     console.info(`iKhokha checkout provider response shape ${JSON.stringify({ orderNumber: order.orderNumber, shape: providerShape(checkout.providerResponse) })}`);
     const persistedOrders = await readList(ORDERS_KEY);
     const persistedIndex = persistedOrders.findIndex((item) => item.id === order.id);
+    console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "paylink-persistence-read", orderNumber: order.orderNumber, ordersCount: persistedOrders.length, persistedIndex, paylinkIdPresent: Boolean(ikhokhaPaylinkId) })}`);
     if (persistedIndex >= 0) {
       persistedOrders[persistedIndex] = { ...persistedOrders[persistedIndex], ikhokhaPaylinkId: ikhokhaPaylinkId || null };
+      console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "before-paylink-write", orderNumber: order.orderNumber, persistedIndex, paylinkIdPresentOnUpdatedOrder: Boolean(persistedOrders[persistedIndex].ikhokhaPaylinkId) })}`);
       await writeList(ORDERS_KEY, persistedOrders);
+      console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "paylink-write-complete", orderNumber: order.orderNumber })}`);
+      const readBackOrders = await readList(ORDERS_KEY);
+      const readBackOrder = readBackOrders.find((item) => item.id === order.id);
+      console.info(`iKhokha checkout checkpoint ${JSON.stringify({ stage: "paylink-read-back", orderNumber: order.orderNumber, found: Boolean(readBackOrder), paylinkIdPresent: Boolean(readBackOrder?.ikhokhaPaylinkId), paylinkIdMatchesExpected: Boolean(ikhokhaPaylinkId && readBackOrder?.ikhokhaPaylinkId === ikhokhaPaylinkId) })}`);
     }
     if (!ikhokhaPaylinkId) console.warn(`iKhokha checkout response missing paylink ID ${JSON.stringify({ orderNumber: order.orderNumber })}`);
 
