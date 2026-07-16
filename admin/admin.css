@@ -127,6 +127,7 @@
 .order-column { gap:16px; }
 .order-panel { padding:20px; border-radius:15px; box-shadow:0 8px 24px rgba(17,21,18,.06); }
 .order-panel h4 { margin:0 0 16px; font-size:1rem; color:var(--leaf-dark); }
+.order-card > .order-processing-notice { display:grid; gap:4px; margin:0 0 14px; padding:11px 14px; border:1px solid rgba(49,91,60,.2); border-radius:10px; color:var(--leaf-dark); background:#f1f7f2; font-size:.84rem; line-height:1.45; }
 .order-fields { gap:14px; grid-template-columns:1fr; }
 .order-field { display:block; }
 .order-field-label { display:block; margin-bottom:4px; font-size:.72rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase; color:#7a837c; }

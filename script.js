@@ -394,6 +394,12 @@ const setupFeaturedProducts = (content) => {
 };
 
 const CART_KEY = "lullubelleCart";
+const CHECKOUT_FULFILMENT_KEY = "lullubelleCheckoutFulfilment";
+const isDigitalOnlyItem = (item) => /^(gift-voucher-|online-skin-consultation)/i.test(String(item?.id || ""));
+const requiresPhysicalFulfilment = (items) => Array.isArray(items) && items.some((item) => !isDigitalOnlyItem(item));
+const processingDetail = (deliveryOption) => deliveryOption === "pudo"
+  ? "Delivery transit time begins only after your order has been dispatched."
+  : "Collection is available only after we notify you that your order is ready.";
 const PROMO_KEY = "lullubellePromoCode";
 const IKHOKHA_CHECKOUT_ENDPOINT = "/.netlify/functions/ikhokha-checkout";
 const DEFAULT_DELIVERY_SETTINGS = { freeDeliveryThreshold: 1000, standardPudoFee: 80, collectionEnabled: true };
@@ -1124,6 +1130,27 @@ const getSelectedDeliveryOption = () => {
   return selected === "pudo" ? "pudo" : "collection";
 };
 
+const updateOrderProcessingNotices = (items = getCart()) => {
+  const physical = requiresPhysicalFulfilment(items);
+  const detail = processingDetail(getSelectedDeliveryOption());
+  document.querySelectorAll("[data-order-processing-notice], [data-checkout-processing-notice]").forEach((notice) => {
+    notice.hidden = !physical;
+    const detailNode = notice.querySelector("[data-order-processing-detail], [data-checkout-processing-detail]");
+    if (detailNode) detailNode.textContent = detail;
+  });
+};
+
+const renderConfirmationProcessingNotice = () => {
+  const notice = document.querySelector("[data-confirmation-processing-notice]");
+  if (!notice) return;
+  let fulfilment = null;
+  try { fulfilment = JSON.parse(sessionStorage.getItem(CHECKOUT_FULFILMENT_KEY) || "null"); } catch { fulfilment = null; }
+  notice.hidden = !fulfilment?.physical;
+  const detail = notice.querySelector("[data-confirmation-processing-detail]");
+  if (detail && fulfilment?.physical) detail.textContent = processingDetail(fulfilment.deliveryOption);
+  sessionStorage.removeItem(CHECKOUT_FULFILMENT_KEY);
+};
+
 const qualifyingProductSubtotal = (subtotal) => Math.max(0, subtotal - (Number(appliedPromo.productDiscount) || 0));
 const qualifiesForFreeDelivery = (subtotal, deliveryOption = getSelectedDeliveryOption()) => deliveryOption === "pudo"
   && qualifyingProductSubtotal(subtotal) >= deliverySettings.freeDeliveryThreshold;
@@ -1418,6 +1445,10 @@ const startIkhokhaCheckout = async () => {
       orderNumber: data.orderNumber,
       testMode: data.testMode,
     });
+    sessionStorage.setItem(CHECKOUT_FULFILMENT_KEY, JSON.stringify({
+      physical: requiresPhysicalFulfilment(items),
+      deliveryOption: delivery.option,
+    }));
     clearCart();
     window.location.href = data.paymentUrl;
   } catch (error) {
@@ -1476,6 +1507,7 @@ const renderCart = () => {
 
   const items = getCart();
   updateDeliveryUi();
+  updateOrderProcessingNotices(items);
   const totals = getOrderTotals(items);
 
   container.innerHTML = "";
@@ -1638,6 +1670,7 @@ document.addEventListener("change", (event) => {
 
 updateCartCount();
 renderCart();
+renderConfirmationProcessingNotice();
 if (document.querySelector("[data-cart-page]")) {
   loadManagedContent().then((content) => {
     deliverySettings = { ...DEFAULT_DELIVERY_SETTINGS, ...(content.deliverySettings || {}) };

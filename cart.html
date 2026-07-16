@@ -22,7 +22,7 @@
     <link rel="icon" href="favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
-    <link rel="stylesheet" href="styles.css?v=20260712c">
+    <link rel="stylesheet" href="styles.css?v=20260716d">
     <script>
       window.LULLUBELLE_CONFIG = {
         googleAnalyticsId: "G-7PG6BZR9QV",
@@ -81,6 +81,10 @@
               </div>
             </div>
             <div class="cart-items" data-cart-items aria-live="polite" aria-relevant="additions removals text"></div>
+            <aside class="order-processing-notice" data-order-processing-notice hidden>
+              <strong>Orders are processed within 5–10 business days before collection or dispatch.</strong>
+              <span data-order-processing-detail></span>
+            </aside>
             <div class="cart-delivery-card">
               <h2>Delivery or collection</h2>
               <fieldset class="checkout-delivery-options" form="checkout-details-form">
@@ -89,12 +93,12 @@
                   <input type="radio" name="deliveryOption" value="collection" form="checkout-details-form" checked>
                   <span>Collect from Lullubelle (Centurion) — <strong>R0</strong></span>
                 </label>
-                <p class="checkout-option-note" data-delivery-note="collection">We'll confirm your Centurion collection details after payment.</p>
+                <p class="checkout-option-note" data-delivery-note="collection">Collection is available only after we notify you that your order is ready.</p>
                 <label data-pudo-option>
                   <input type="radio" name="deliveryOption" value="pudo" form="checkout-details-form">
                   <span>PUDO Locker Delivery — <strong data-pudo-fee>R80</strong></span>
                 </label>
-                <p class="checkout-option-note" data-delivery-note="pudo" hidden>Estimated delivery: 5–10 working days after payment confirmation.</p>
+                <p class="checkout-option-note" data-delivery-note="pudo" hidden>Delivery transit time begins only after your order has been dispatched.</p>
               </fieldset>
               <p class="form-status" data-free-delivery-message aria-live="polite"></p>
             </div>
@@ -180,6 +184,10 @@
                   <span data-checkout-button-label>Pay Securely Online</span>
                 </button>
               </div>
+              <aside class="order-processing-notice compact" data-checkout-processing-notice hidden>
+                <strong>Orders are processed within 5–10 business days before collection or dispatch.</strong>
+                <span data-checkout-processing-detail></span>
+              </aside>
               <p class="form-status" data-cart-status aria-live="polite"></p>
               <p class="cart-note">You will be redirected to iKhokha to complete secure online payment.</p>
               <p class="cart-trust-note">Secure payment powered by iKhokha.</p>
@@ -199,6 +207,6 @@
     <aside class="conversion-dock" aria-label="Book with Lullubelle">
       <a class="button primary" href="/book-appointment" data-track-event="booking_dock_click">Book Appointment</a>
     </aside>
-    <script defer src="script.js?v=20260715a"></script>
+    <script defer src="script.js?v=20260716a"></script>
   </body>
 </html>

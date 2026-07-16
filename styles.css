@@ -1695,6 +1695,22 @@ h3 {
   line-height: 1.4;
 }
 
+.order-processing-notice {
+  display: grid;
+  gap: 4px;
+  margin: 14px 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(49, 91, 60, .2);
+  border-radius: 10px;
+  color: #315b3c;
+  background: #f1f7f2;
+  font-size: .88rem;
+  line-height: 1.45;
+}
+
+.order-processing-notice[hidden] { display: none; }
+.order-processing-notice.compact { margin-bottom: 4px; font-size: .82rem; }
+
 .checkout-wide-field {
   grid-column: 1 / -1;
 }

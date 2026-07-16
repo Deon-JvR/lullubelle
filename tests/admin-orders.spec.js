@@ -51,10 +51,23 @@ test("Orders renders structured details without raw JSON", async ({ page }) => {
   await expect(panel.locator("img").first()).toHaveAttribute("src", /d008a/);
   await expect(panel.locator("[data-key='paymentStatus']").last()).toHaveValue("Paid");
   await expect(panel.locator("[data-key='orderStatus']")).toHaveValue("Processing");
+  await expect(panel.locator(".order-processing-notice")).toContainText("Orders are processed within 5–10 business days before collection or dispatch.");
   expect(errors).toEqual([]);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
   expect(overflow).toBeFalsy();
   await page.screenshot({ path: "reports/screenshots/admin-order-one-product-desktop.png", fullPage: true });
+});
+
+test("voucher-only admin orders exclude the physical processing notice", async ({ page }) => {
+  const voucherOrder = { ...order, id: "ord_voucher", orderNumber: "LB-VOUCHER", products: [{ id: "gift-voucher-500", name: "Lullubelle Gift Voucher R500", quantity: 1, unitPrice: 500, lineTotal: 500 }] };
+  await page.route("**/.netlify/functions/admin-api**", async (route) => {
+    const action = new URL(route.request().url()).searchParams.get("action");
+    const payload = action === "me" ? { authenticated: true } : action === "content" ? { brands: [], products: [], treatments: [], gallery: [], vouchers: [], deliverySettings: {} } : action === "orders" ? [voucherOrder] : [];
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(payload) });
+  });
+  await page.goto(`${base}/admin/`, { waitUntil: "networkidle" });
+  await page.locator('[data-tab="orders"]').click();
+  await expect(page.locator('[data-panel="orders"] .order-processing-notice')).toHaveCount(0);
 });
 
 test("Orders remains single-column on mobile", async ({ page }) => {
