@@ -9,7 +9,7 @@ import {
   writeList,
 } from "./_admin-shared.mjs";
 import { calculateDiscount, releaseRedemption, reserveRedemption, validatePromo } from "./_discounts.mjs";
-import { calculateDelivery, sanitiseDeliverySettings } from "./_delivery.mjs";
+import { DOOR_TO_DOOR_FEE, DOOR_TO_DOOR_METHOD, calculateDelivery, normaliseDeliveryMethod, sanitiseDeliverySettings } from "./_delivery.mjs";
 import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
 
 const toBoolean = (value) => /^(1|true|yes|on)$/i.test(String(value || ""));
@@ -290,6 +290,7 @@ const createPendingOrder = async ({ customer, delivery, address, notes, products
     createdAt: new Date().toISOString(),
     customer,
     delivery,
+    deliveryMethod: delivery.option,
     address,
     notes,
     products,
@@ -656,9 +657,12 @@ export const handler = async (event) => {
     address,
     notes: String(body.customer?.notes || body.notes || "").trim(),
   };
-  const deliveryOption = String(body.delivery?.option || body.deliveryOption || "collection").toLowerCase() === "pudo"
-    ? "pudo"
-    : "collection";
+  let deliveryOption;
+  try {
+    deliveryOption = normaliseDeliveryMethod(body.delivery?.option || body.deliveryOption || "collection");
+  } catch (error) {
+    return json(400, { error: error.message });
+  }
   const content = await readContent();
   const deliverySettings = sanitiseDeliverySettings(content.deliverySettings);
   if (deliveryOption === "collection" && !deliverySettings.collectionEnabled) {
@@ -666,16 +670,20 @@ export const handler = async (event) => {
   }
   const delivery = {
     option: deliveryOption,
-    label: deliveryOption === "pudo" ? "Pudo Locker Delivery" : "Collect from Lullubelle – Centurion",
-    fee: deliveryOption === "pudo" ? deliverySettings.standardPudoFee : 0,
+    label: deliveryOption === "pudo"
+      ? "Pudo Locker Delivery"
+      : deliveryOption === DOOR_TO_DOOR_METHOD ? "Door-to-Door Delivery" : "Collect from Lullubelle – Centurion",
+    fee: deliveryOption === "pudo" ? deliverySettings.standardPudoFee : deliveryOption === DOOR_TO_DOOR_METHOD ? DOOR_TO_DOOR_FEE : 0,
   };
 
-  if (!customer.name || !customer.email || !customer.phone) {
-    return json(400, { error: "Customer name, email and phone are required." });
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer.email);
+  const phoneValid = customer.phone.replace(/\D/g, "").length >= 7;
+  if (!customer.name || !emailValid || !phoneValid) {
+    return json(400, { error: "A valid customer name, email address and mobile number are required." });
   }
 
-  if (delivery.option === "pudo" && (!address.streetAddress || !address.suburb || !address.city || !address.province || !address.postalCode)) {
-    return json(400, { error: "Street address, suburb, city, province and postal code are required for Pudo Locker Delivery." });
+  if (delivery.option !== "collection" && (!address.streetAddress || !address.suburb || !address.city || !address.province || !address.postalCode)) {
+    return json(400, { error: `Street address, suburb, city, province and postal code are required for ${delivery.label}.` });
   }
 
   try {
@@ -684,7 +692,10 @@ export const handler = async (event) => {
     const standardDeliveryFee = money(delivery.fee);
     let discount = body.promoCode ? await validatePromo({ code: body.promoCode, email: customer.email, products, subtotal, deliveryFee: standardDeliveryFee }) : null;
     const deliveryCalculation = calculateDelivery({ productSubtotal: subtotal, productDiscount: discount?.productDiscount || 0, deliveryOption, settings: deliverySettings });
-    if (discount) discount = { discount: discount.discount, ...calculateDiscount({ discount: discount.discount, products, subtotal, deliveryFee: deliveryCalculation.deliveryFee }) };
+    if (discount) {
+      const discountRules = deliveryOption === DOOR_TO_DOOR_METHOD ? { ...discount.discount, freeDelivery: false } : discount.discount;
+      discount = { discount: discount.discount, ...calculateDiscount({ discount: discountRules, products, subtotal, deliveryFee: deliveryCalculation.deliveryFee }) };
+    }
     const originalDeliveryFee = deliveryCalculation.deliveryFee;
     if (event.queryStringParameters?.action === "validate-promo") {
       return json(200, { ok: true, promoCode: discount?.discount.code || "", discountAmount: discount?.discountAmount || 0, productDiscount: discount?.productDiscount || 0, deliveryFee: discount?.deliveryFee ?? originalDeliveryFee, total: discount?.total ?? money(subtotal + originalDeliveryFee), freeDeliveryApplied: deliveryCalculation.freeDeliveryApplied, qualifyingSubtotal: deliveryCalculation.qualifyingSubtotal, deliverySettings, message: discount ? `${discount.discount.code} applied.` : "Enter a promo code." });

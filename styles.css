@@ -1641,6 +1641,17 @@ h3 {
   font: inherit;
 }
 
+.checkout-details [aria-invalid="true"] {
+  border-color: #a53d4f;
+  box-shadow: 0 0 0 2px rgba(165, 61, 79, 0.12);
+}
+
+.checkout-details .field-error {
+  color: #a53d4f;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
 .checkout-details textarea {
   resize: vertical;
   min-height: 82px;
@@ -3667,6 +3678,29 @@ input,textarea,select,button {
 
 .storefront-footer .footer-link-column {
   gap: 24px;
+}
+
+@media (min-width: 981px) {
+  .storefront-footer .footer-link-column {
+    display: contents;
+  }
+
+  .footer-link-column > nav[aria-label="Footer quick links"] {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .footer-link-column > nav[aria-label="Social media"] {
+    grid-column: 3;
+    grid-row: 2;
+    align-self: baseline;
+  }
+
+  .storefront-footer .legal-footer-links {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: baseline;
+  }
 }
 
 .footer-brand {

@@ -91,14 +91,19 @@
                 <legend>Choose how you want to receive your order</legend>
                 <label data-collection-option>
                   <input type="radio" name="deliveryOption" value="collection" form="checkout-details-form" checked>
-                  <span>Collect from Lullubelle (Centurion) — <strong>R0</strong></span>
+                  <span>Collect from Lullubelle (Centurion) — <strong>R0.00</strong></span>
                 </label>
                 <p class="checkout-option-note" data-delivery-note="collection">Collection is available only after we notify you that your order is ready.</p>
                 <label data-pudo-option>
                   <input type="radio" name="deliveryOption" value="pudo" form="checkout-details-form">
-                  <span>PUDO Locker Delivery — <strong data-pudo-fee>R80</strong></span>
+                  <span>PUDO Locker Delivery — <strong data-pudo-fee>R80.00</strong></span>
                 </label>
                 <p class="checkout-option-note" data-delivery-note="pudo" hidden>Delivery transit time begins only after your order has been dispatched.</p>
+                <label data-door-delivery-option>
+                  <input type="radio" name="deliveryOption" value="door_to_door_flat_rate" form="checkout-details-form">
+                  <span>Door-to-Door Delivery — <strong>R80.00</strong></span>
+                </label>
+                <p class="checkout-option-note" data-delivery-note="door_to_door_flat_rate" hidden>Available within supported South African delivery areas. Delivery transit time begins after dispatch.</p>
               </fieldset>
               <p class="form-status" data-free-delivery-message aria-live="polite"></p>
             </div>
@@ -110,37 +115,45 @@
                 <div class="checkout-contact-grid">
                   <label>
                     <span>Full name</span>
-                    <input type="text" name="name" autocomplete="name" required>
+                    <input type="text" name="name" autocomplete="name" required aria-describedby="checkout-name-error">
+                    <small class="field-error" id="checkout-name-error" data-checkout-error="name"></small>
                   </label>
                   <label>
                     <span>Email</span>
-                    <input type="email" name="email" autocomplete="email" required>
+                    <input type="email" name="email" autocomplete="email" required aria-describedby="checkout-email-error">
+                    <small class="field-error" id="checkout-email-error" data-checkout-error="email"></small>
                   </label>
                   <label>
-                    <span>Phone</span>
-                    <input type="tel" name="phone" autocomplete="tel" required>
+                    <span>Mobile number</span>
+                    <input type="tel" name="phone" autocomplete="tel" required aria-describedby="checkout-phone-error">
+                    <small class="field-error" id="checkout-phone-error" data-checkout-error="phone"></small>
                   </label>
                 </div>
                 <div class="checkout-address-grid" data-address-section hidden>
                   <label>
                 <span>Street address</span>
-                <input type="text" name="streetAddress" autocomplete="street-address" data-address-field>
+                <input type="text" name="streetAddress" autocomplete="street-address" data-address-field aria-describedby="checkout-street-error">
+                <small class="field-error" id="checkout-street-error" data-checkout-error="streetAddress"></small>
                   </label>
                   <label>
                 <span>Suburb</span>
-                <input type="text" name="suburb" autocomplete="address-level3" data-address-field>
+                <input type="text" name="suburb" autocomplete="address-level3" data-address-field aria-describedby="checkout-suburb-error">
+                <small class="field-error" id="checkout-suburb-error" data-checkout-error="suburb"></small>
                   </label>
                   <label>
                 <span>City</span>
-                <input type="text" name="city" autocomplete="address-level2" data-address-field>
+                <input type="text" name="city" autocomplete="address-level2" data-address-field aria-describedby="checkout-city-error">
+                <small class="field-error" id="checkout-city-error" data-checkout-error="city"></small>
                   </label>
                   <label>
                 <span>Province</span>
-                <input type="text" name="province" autocomplete="address-level1" data-address-field>
+                <input type="text" name="province" autocomplete="address-level1" data-address-field aria-describedby="checkout-province-error">
+                <small class="field-error" id="checkout-province-error" data-checkout-error="province"></small>
                   </label>
                   <label>
                 <span>Postal code</span>
-                <input type="text" name="postalCode" autocomplete="postal-code" inputmode="numeric" data-address-field>
+                <input type="text" name="postalCode" autocomplete="postal-code" inputmode="numeric" data-address-field aria-describedby="checkout-postal-error">
+                <small class="field-error" id="checkout-postal-error" data-checkout-error="postalCode"></small>
                   </label>
                 </div>
                 <label class="checkout-wide-field">

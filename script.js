@@ -417,16 +417,20 @@ const processingDetail = (deliveryOption) => deliveryOption === "pudo"
   : "Collection is available only after we notify you that your order is ready.";
 const PROMO_KEY = "lullubellePromoCode";
 const IKHOKHA_CHECKOUT_ENDPOINT = "/.netlify/functions/ikhokha-checkout";
+const DOOR_TO_DOOR_METHOD = "door_to_door_flat_rate";
+const DOOR_TO_DOOR_FEE = 80;
+const SUPPORTED_DELIVERY_METHODS = new Set(["collection", "pudo", DOOR_TO_DOOR_METHOD]);
 const DEFAULT_DELIVERY_SETTINGS = { freeDeliveryThreshold: 1000, standardPudoFee: 80, collectionEnabled: true };
 let deliverySettings = { ...DEFAULT_DELIVERY_SETTINGS };
 let appliedPromo = { code: localStorage.getItem(PROMO_KEY) || "", discountAmount: 0, productDiscount: 0, deliveryFee: null, total: null };
 const currencyFormatter = new Intl.NumberFormat("en-ZA", {
   style: "currency",
   currency: "ZAR",
-  maximumFractionDigits: 0,
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
 });
 
-const formatCurrency = (value) => currencyFormatter.format(Number(value) || 0).replace("ZAR", "R").replace(/\s/g, "");
+const formatCurrency = (value) => currencyFormatter.format(Number(value) || 0).replace("ZAR", "R").replace(/\s/g, "").replace(",", ".");
 
 const escapeHtml = (value = "") => String(value)
   .replace(/&/g, "&amp;")
@@ -1141,7 +1145,7 @@ const getCartTotals = (items = getCart()) => items.reduce(
 
 const getSelectedDeliveryOption = () => {
   const selected = document.querySelector("input[name='deliveryOption']:checked")?.value || "collection";
-  return selected === "pudo" ? "pudo" : "collection";
+  return SUPPORTED_DELIVERY_METHODS.has(selected) ? selected : "collection";
 };
 
 const updateOrderProcessingNotices = (items = getCart()) => {
@@ -1156,12 +1160,17 @@ const updateOrderProcessingNotices = (items = getCart()) => {
 
 const renderConfirmationProcessingNotice = () => {
   const notice = document.querySelector("[data-confirmation-processing-notice]");
-  if (!notice) return;
+  const summary = document.querySelector("[data-confirmation-delivery-summary]");
+  if (!notice && !summary) return;
   let fulfilment = null;
   try { fulfilment = JSON.parse(sessionStorage.getItem(CHECKOUT_FULFILMENT_KEY) || "null"); } catch { fulfilment = null; }
-  notice.hidden = !fulfilment?.physical;
-  const detail = notice.querySelector("[data-confirmation-processing-detail]");
+  if (notice) notice.hidden = !fulfilment?.physical;
+  const detail = notice?.querySelector("[data-confirmation-processing-detail]");
   if (detail && fulfilment?.physical) detail.textContent = processingDetail(fulfilment.deliveryOption);
+  if (summary && fulfilment?.deliveryLabel) {
+    summary.hidden = false;
+    summary.textContent = `Delivery method: ${fulfilment.deliveryLabel} · Delivery: ${formatCurrency(fulfilment.deliveryFee)}`;
+  }
   sessionStorage.removeItem(CHECKOUT_FULFILMENT_KEY);
 };
 
@@ -1170,7 +1179,7 @@ const qualifiesForFreeDelivery = (subtotal, deliveryOption = getSelectedDelivery
   && qualifyingProductSubtotal(subtotal) >= deliverySettings.freeDeliveryThreshold;
 const getDeliveryFee = (deliveryOption = getSelectedDeliveryOption(), subtotal = getCartTotals().amount) => deliveryOption === "pudo" && !qualifiesForFreeDelivery(subtotal, deliveryOption)
   ? deliverySettings.standardPudoFee
-  : 0;
+  : deliveryOption === DOOR_TO_DOOR_METHOD ? DOOR_TO_DOOR_FEE : 0;
 
 const getOrderTotals = (items = getCart()) => {
   const cartTotals = getCartTotals(items);
@@ -1287,15 +1296,48 @@ const updateDeliveryUi = () => {
   document.querySelector("[data-delivery-note='collection']")?.toggleAttribute("hidden", !deliverySettings.collectionEnabled || getSelectedDeliveryOption() !== "collection");
   if (!deliverySettings.collectionEnabled && collectionInput?.checked && pudoInput) pudoInput.checked = true;
   const deliveryOption = getSelectedDeliveryOption();
+  const requiresAddress = deliveryOption !== "collection";
   detailsForm.querySelectorAll("[data-address-field]").forEach((field) => {
-    field.required = deliveryOption === "pudo";
+    field.required = requiresAddress;
     const wrapper = field.closest("label");
-    if (wrapper) wrapper.hidden = deliveryOption !== "pudo";
+    if (wrapper) wrapper.hidden = !requiresAddress;
+    if (!requiresAddress) {
+      field.removeAttribute("aria-invalid");
+      const error = detailsForm.querySelector(`[data-checkout-error='${field.name}']`);
+      if (error) error.textContent = "";
+    }
   });
-  detailsForm.querySelector("[data-address-section]")?.toggleAttribute("hidden", deliveryOption !== "pudo");
+  detailsForm.querySelector("[data-address-section]")?.toggleAttribute("hidden", !requiresAddress);
   document.querySelectorAll("[data-delivery-note]").forEach((note) => {
     note.hidden = note.dataset.deliveryNote !== deliveryOption;
   });
+};
+
+const checkoutFieldError = (form, field, message = "") => {
+  field.setAttribute("aria-invalid", String(Boolean(message)));
+  const error = form.querySelector(`[data-checkout-error='${field.name}']`);
+  if (error) error.textContent = message;
+};
+
+const validateCheckoutDetails = (form, deliveryOption) => {
+  const requiredNames = ["name", "email", "phone", ...(deliveryOption === "collection" ? [] : ["streetAddress", "suburb", "city", "province", "postalCode"])];
+  const labels = { name: "Full name", email: "Email address", phone: "Mobile number", streetAddress: "Street address", suburb: "Suburb", city: "City or town", province: "Province", postalCode: "Postal code" };
+  let firstInvalid = null;
+
+  form.querySelectorAll("input[name]").forEach((field) => checkoutFieldError(form, field));
+  requiredNames.forEach((name) => {
+    const field = form.elements.namedItem(name);
+    if (!(field instanceof HTMLInputElement)) return;
+    const value = field.value.trim();
+    let message = value ? "" : `${labels[name]} is required.`;
+    if (!message && name === "email" && (!field.validity.valid || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))) message = "Enter a valid email address.";
+    if (!message && name === "phone" && value.replace(/\D/g, "").length < 7) message = "Enter a usable mobile number.";
+    checkoutFieldError(form, field, message);
+    if (message && !firstInvalid) firstInvalid = field;
+  });
+
+  firstInvalid?.focus();
+  return !firstInvalid;
 };
 
 const getCheckoutDetails = () => {
@@ -1311,12 +1353,10 @@ const getCheckoutDetails = () => {
     };
   }
 
-  if (!detailsForm.reportValidity()) {
-    return null;
-  }
-
   const formData = new FormData(detailsForm);
-  const deliveryOption = formData.get("deliveryOption")?.toString() === "pudo" ? "pudo" : "collection";
+  const selectedDeliveryOption = formData.get("deliveryOption")?.toString() || "collection";
+  const deliveryOption = SUPPORTED_DELIVERY_METHODS.has(selectedDeliveryOption) ? selectedDeliveryOption : "collection";
+  if (!validateCheckoutDetails(detailsForm, deliveryOption)) return null;
   const address = {
     streetAddress: formData.get("streetAddress")?.toString().trim() || "",
     suburb: formData.get("suburb")?.toString().trim() || "",
@@ -1335,7 +1375,7 @@ const getCheckoutDetails = () => {
     },
     delivery: {
       option: deliveryOption,
-      label: deliveryOption === "pudo" ? "Pudo Locker Delivery" : "Collect from Lullubelle – Centurion",
+      label: deliveryOption === "pudo" ? "Pudo Locker Delivery" : deliveryOption === DOOR_TO_DOOR_METHOD ? "Door-to-Door Delivery" : "Collect from Lullubelle – Centurion",
       fee: getDeliveryFee(deliveryOption),
     },
     address,
@@ -1363,13 +1403,13 @@ const validateCheckout = () => {
     return null;
   }
 
-  if (checkoutDetails.delivery.option === "pudo") {
+  if (checkoutDetails.delivery.option !== "collection") {
     const missingAddressFields = Object.entries(checkoutDetails.address)
       .filter(([, value]) => !value)
       .map(([key]) => key);
     if (missingAddressFields.length) {
       if (status) {
-        status.textContent = "Please complete the delivery address fields for Pudo Locker Delivery.";
+        status.textContent = `Please complete the delivery address fields for ${checkoutDetails.delivery.label}.`;
       }
       return null;
     }
@@ -1462,6 +1502,8 @@ const startIkhokhaCheckout = async () => {
     sessionStorage.setItem(CHECKOUT_FULFILMENT_KEY, JSON.stringify({
       physical: requiresPhysicalFulfilment(items),
       deliveryOption: delivery.option,
+      deliveryLabel: delivery.label,
+      deliveryFee: totals.deliveryFee,
     }));
     clearCart();
     window.location.href = data.paymentUrl;
@@ -1680,6 +1722,12 @@ document.addEventListener("change", (event) => {
     renderCart();
     if (appliedPromo.code) validatePromoCode(appliedPromo.code);
   }
+});
+
+document.addEventListener("input", (event) => {
+  const field = event.target instanceof HTMLInputElement ? event.target : null;
+  const form = field?.closest("[data-checkout-details]");
+  if (field && form && field.getAttribute("aria-invalid") === "true") checkoutFieldError(form, field);
 });
 
 updateCartCount();

@@ -708,7 +708,7 @@ const renderOrders = () => {
   };
   const val = (v) => (v === null || v === undefined || v === "" || typeof v === "object") ? "—" : escapeHtml(String(v));
   const detail = (label, value, wide = false) => `<div class="order-field${wide ? " wide" : ""}"><span class="order-field-label">${escapeHtml(label)}</span><span class="order-field-value">${val(value)}</span></div>`;
-  const moneyCell = (v) => `R${money(Number(v) || 0)}`;
+  const moneyCell = (v) => `R${money(Number(v) || 0).toFixed(2)}`;
   const likelyAbandoned = (item) => {
     if (item.archived === true || item.paidAt) return false;
     const payment = String(item.paymentStatus || "").toLowerCase();
