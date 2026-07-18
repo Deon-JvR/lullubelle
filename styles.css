@@ -3665,6 +3665,10 @@ input,textarea,select,button {
   color: #fff;
 }
 
+.storefront-footer .footer-link-column {
+  gap: 24px;
+}
+
 .footer-brand {
   font-family: Georgia, "Times New Roman", serif;
   font-size: 1.9rem;
