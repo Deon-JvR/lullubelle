@@ -2124,6 +2124,53 @@ h3 {
   gap: 10px 20px;
 }
 
+.legal-footer-links {
+  align-items: center;
+}
+
+.storefront-footer .legal-footer-links {
+  grid-column: 1 / -1;
+  justify-content: center;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.policy-page {
+  width: min(100% - 40px, 820px);
+  margin-inline: auto;
+  padding-block: clamp(48px, 8vw, 88px);
+}
+
+.policy-page header {
+  margin-bottom: 38px;
+}
+
+.policy-page .policy-updated {
+  color: var(--leaf-dark);
+  font-weight: 800;
+}
+
+.policy-page section + section {
+  margin-top: 34px;
+}
+
+.policy-page h2 {
+  margin-bottom: 12px;
+}
+
+.policy-page p,
+.policy-page li {
+  line-height: 1.75;
+}
+
+.policy-page ul {
+  padding-left: 1.35rem;
+}
+
+.policy-page a {
+  overflow-wrap: anywhere;
+}
+
 @media (max-width: 860px) {
   .site-header {
     gap: 10px;
@@ -2529,6 +2576,14 @@ input,textarea,select,button {
 }
 
 @media (max-width: 768px) {
+  .legal-footer-links {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .site-footer:not(.storefront-footer) .legal-footer-links {
+    flex-basis: 100%;
+  }
   .site-header {
     padding: 12px 18px;
   }

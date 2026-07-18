@@ -6,6 +6,21 @@ const consultationCartForm = document.querySelector("[data-consultation-cart-for
 const config = window.LULLUBELLE_CONFIG || {};
 const analyticsId = config.googleAnalyticsId || "G-7PG6BZR9QV";
 
+const injectLegalFooterLinks = () => {
+  const footer = document.querySelector(".site-footer");
+  if (!footer || footer.querySelector("[data-legal-footer-links], a[href='/refund-policy']")) return;
+
+  const links = document.createElement("nav");
+  links.className = "footer-links legal-footer-links";
+  links.setAttribute("aria-label", "Legal policies");
+  links.setAttribute("data-legal-footer-links", "");
+  links.innerHTML = '<a href="/refund-policy">Refund Policy</a><a href="/shipping-policy">Shipping Policy</a><a href="/privacy-policy">Privacy Policy</a>';
+
+  const footerBottom = footer.querySelector(".footer-bottom");
+  if (footerBottom) footer.insertBefore(links, footerBottom);
+  else footer.append(links);
+};
+
 const loadAnalytics = () => {
   if (!analyticsId || window.gtag) {
     return;
@@ -1935,6 +1950,7 @@ if (appointmentBookingForm) {
 
 setupBrandFilters();
 injectFooterTrustSection();
+injectLegalFooterLinks();
 loadManagedContent()
   .then((content) => {
     applyManagedContent(content);

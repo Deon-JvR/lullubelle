@@ -19,6 +19,9 @@ const PAGE_PATHS = [
   "/lash-brow-care",
   "/body-care-gift-set",
   "/gift-vouchers",
+  "/refund-policy",
+  "/shipping-policy",
+  "/privacy-policy",
   "/before-after",
 ];
 

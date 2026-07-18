@@ -63,6 +63,21 @@
   status = 200
 
 [[redirects]]
+  from = "/refund-policy"
+  to = "/refund-policy.html"
+  status = 200
+
+[[redirects]]
+  from = "/shipping-policy"
+  to = "/shipping-policy.html"
+  status = 200
+
+[[redirects]]
+  from = "/privacy-policy"
+  to = "/privacy-policy.html"
+  status = 200
+
+[[redirects]]
   from = "/beauty-salon-centurion"
   to = "/beauty-salon-centurion.html"
   status = 200
