@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { isApprovedProductCategory, migrateCatalogueContent, migrateProductCategory, normaliseProductCategories, PRODUCT_CATEGORIES, validateProductCatalogue } from "../netlify/functions/_products.mjs";
+import { CATALOGUE_SCHEMA_VERSION, isApprovedProductCategory, MANAGED_PRODUCT_CATEGORY_REASSIGNMENTS, migrateCatalogueContent, migrateProductCategory, normaliseProductCategories, PRODUCT_CATEGORIES, validateProductCatalogue } from "../netlify/functions/_products.mjs";
 
 const categories = JSON.parse(await readFile(new URL("../data/product-categories.json", import.meta.url), "utf8"));
 const products = JSON.parse(await readFile(new URL("../data/products.json", import.meta.url), "utf8"));
@@ -39,6 +39,10 @@ const migrated = migrateCatalogueContent({ catalogueSchemaVersion: 5, products: 
 assert.deepEqual(migrated.categories, ["Treatment"]);
 assert.ok(!Object.hasOwn(migrated, "category"));
 assert.deepEqual(normaliseProductCategories({ category: "Tinted Treatment Moisturiser" }), ["Tinted SPF"]);
+for (const [id, expectedCategories] of Object.entries(MANAGED_PRODUCT_CATEGORY_REASSIGNMENTS)) {
+  const reviewed = migrateCatalogueContent({ catalogueSchemaVersion: CATALOGUE_SCHEMA_VERSION - 1, products: [{ ...products[0], id, categories: [] }] }, { brands, products: [] }).content.products[0];
+  assert.deepEqual(reviewed.categories, expectedCategories);
+}
 
 const validProduct = {
   id: "test-product", slug: "test-product", sku: "TEST-1", brandId: brands[0].id, brand: brands[0].name,

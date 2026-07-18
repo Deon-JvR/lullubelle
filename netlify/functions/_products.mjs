@@ -3,7 +3,7 @@ import productCategories from "../../data/product-categories.json" with { type: 
 
 const PLACEHOLDER_IMAGE_PATTERN = /(?:^|\/)(?:lullubelle-logo|placeholder|default-product|sample-product)(?:[._/?-]|$)/i;
 const PRODUCT_ID_PATTERN = /^[a-z0-9][a-z0-9_-]*$/;
-export const CATALOGUE_SCHEMA_VERSION = 6;
+export const CATALOGUE_SCHEMA_VERSION = 7;
 export const PRODUCT_CATEGORIES = Object.freeze([...productCategories]);
 export const PRODUCT_CATEGORY_MIGRATIONS = Object.freeze({
   "HOCl Collection": "HOCL Collection",
@@ -19,6 +19,13 @@ export const PRODUCT_CATEGORY_MIGRATIONS = Object.freeze({
   "Treatment Eye Care": "Treatment",
   "De-age Complex Treatments": "Anti-Aging",
   "De-Age Complex Treatments": "Anti-Aging",
+});
+export const MANAGED_PRODUCT_CATEGORY_REASSIGNMENTS = Object.freeze({
+  product_mrqkge2a_62c6a3: ["Hydration", "Treatment"],
+  product_mrnkoxd7_3577a8: ["Sensitive Skin Treatments", "Hydration"],
+  product_mrlhjt1j_b1f038: ["Prepare"],
+  product_mrlhb2r0_01d107: ["Treatment"],
+  product_mrlh40a7_298d6c: ["Treatment"],
 });
 export const migrateProductCategory = (category) => PRODUCT_CATEGORY_MIGRATIONS[String(category || "").trim()] || String(category || "").trim();
 export const isApprovedProductCategory = (category) => PRODUCT_CATEGORIES.includes(String(category || "").trim());
@@ -169,8 +176,9 @@ export const migrateCatalogueContent = (storedContent = {}, seedContent = {}) =>
     }
     const canonicalBrand = brandNamesById.get(productIdentityKey(product?.brandId));
     const categories = normaliseProductCategories(product);
+    const reviewedCategories = categories.length ? categories : MANAGED_PRODUCT_CATEGORY_REASSIGNMENTS[productIdentityKey(product.id)] || [];
     const { category: _legacyCategory, ...withoutLegacyCategory } = product;
-    return [{ ...withoutLegacyCategory, categories, ...(canonicalBrand ? { brand: canonicalBrand } : {}) }];
+    return [{ ...withoutLegacyCategory, categories: reviewedCategories, ...(canonicalBrand ? { brand: canonicalBrand } : {}) }];
   });
 
   const synchronised = synchroniseProductCatalogue(seedContent?.products, cleanedStoredProducts);
