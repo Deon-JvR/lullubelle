@@ -41,7 +41,7 @@ for (const product of kalahari) {
   const manualSource = manualAssets.get(product.sku);
   const exactTitle = candidate?.matchedProduct && (normalise(candidate.matchedProduct) === normalise(product.name)
     || normalise(candidate.matchedProduct).startsWith(`${normalise(product.name)} `));
-  const sensitive = sensitivePattern.test(`${product.name} ${product.category}`);
+  const sensitive = sensitivePattern.test(`${product.name} ${(product.categories || []).join(" ")}`);
   const verified = Boolean(manualSource) || (candidate?.status === "downloaded" && (manuallyVerifiedSkus.has(product.sku)
     || (exactTitle && !manualReviewSkus.has(product.sku) && (!sensitive || candidate.score >= 0.9))));
   const matchStatus = verified ? "verified" : (candidate?.status === "missing" || manuallyMissingSkus.has(product.sku)) ? "missing" : "needs-review";

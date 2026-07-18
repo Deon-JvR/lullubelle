@@ -157,7 +157,7 @@ export const writeContent = async (content) => {
     deliverySettings: sanitiseDeliverySettings(content.deliverySettings),
     gallery: sanitiseGallery(content.gallery),
     products: (Array.isArray(content.products) ? content.products : []).map((product) => ({
-      ...product,
+      ...Object.fromEntries(Object.entries(product).filter(([key]) => key !== "category")),
       galleryImages: normaliseProductGallery(product),
     })),
     updatedAt: new Date().toISOString(),
@@ -206,6 +206,8 @@ export const createSessionCookie = (username) => {
   const value = `${payload}.${sign(payload)}`;
   return `${SESSION_COOKIE}=${value}; Path=/; Max-Age=${SESSION_MAX_AGE}; HttpOnly; Secure; SameSite=Lax`;
 };
+
+export const sessionExpiresAt = () => Date.now() + SESSION_MAX_AGE * 1000;
 
 export const clearSessionCookie = () => `${SESSION_COOKIE}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax`;
 

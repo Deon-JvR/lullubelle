@@ -185,6 +185,7 @@ const syncProductSchemas = (scope = document) => {
       image: new URL(image, window.location.href).href,
       sku: button.dataset.productSku || id,
       brand: { "@type": "Brand", name: brand },
+      category: card?.dataset.productCategoryNames || undefined,
       offers: {
         "@type": "Offer",
         url: `${window.location.origin}${productDetailUrl(id)}`,
@@ -276,13 +277,19 @@ const setupShopCatalogue = (content) => {
     const exactSkuSearch = queryKey && products.some((product) => String(product.sku || "").toLowerCase() === queryKey);
     const filtered = products.filter((product) => {
       const brandMatch = selectedBrand === "all" || (brand && productMatchesBrand(product, brand));
-      const categoryMatch = selectedCategory === "all" || product.category === selectedCategory;
-      const searchText = [product.brand, product.name, product.sku, product.size, product.category, product.description, product.searchKeywords].join(" ").toLowerCase();
+      const categoryMatch = selectedCategory === "all" || product.categories.includes(selectedCategory);
+      const searchText = [product.brand, product.name, product.sku, product.size, ...product.categories, product.description, product.searchKeywords].join(" ").toLowerCase();
       const searchMatch = !queryKey || (exactSkuSearch ? String(product.sku || "").toLowerCase() === queryKey : searchText.includes(queryKey));
       return brandMatch && categoryMatch && searchMatch;
     });
-    const title = brand ? `${brand.name} products` : "All products";
-    heading.innerHTML = `<p class="eyebrow">Product catalogue</p><h2>${escapeHtml(title)}</h2><p>Browse current products available through Lullubelle.</p>`;
+    const title = selectedCategory !== "all" ? `${selectedCategory} products${brand ? ` from ${brand.name}` : ""}` : brand ? `${brand.name} products` : "All products";
+    const description = selectedCategory !== "all" ? `Browse ${selectedCategory} skincare selected by Lullubelle, with brand, price, stock and search filters.` : "Browse current products available through Lullubelle.";
+    heading.innerHTML = `<p class="eyebrow">Product catalogue</p><h2>${escapeHtml(title)}</h2><p>${escapeHtml(description)}</p>`;
+    document.title = selectedCategory !== "all" ? `${selectedCategory} Products | Lullubelle Centurion` : "Shop Skin Products | Lullubelle Beauty Specialist Centurion";
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) metaDescription.content = description;
+    const canonical = document.querySelector('link[rel="canonical"]');
+    if (canonical) canonical.href = selectedCategory !== "all" ? `${window.location.origin}/shop?category=${encodeURIComponent(selectedCategory)}` : `${window.location.origin}/shop`;
     grid.innerHTML = filtered.length ? filtered.map(renderManagedProductCard).join("") : `<p>No products match the selected brand, category and search.</p>`;
     status.textContent = `Showing ${filtered.length} of ${products.length} active products`;
     tabs.querySelectorAll("[data-brand-filter]").forEach((button) => {
@@ -612,7 +619,7 @@ const normaliseManagedProduct = (product) => {
     stockStatus: product.stockStatus || "In stock",
     featured: product.featured === true,
     bestSeller: product.bestSeller === true,
-    category: product.category || "",
+    categories: Array.isArray(product.categories) ? [...new Set(product.categories)] : [],
     benefits: Array.isArray(product.benefits) ? product.benefits : [],
     storage: Array.isArray(product.storage) ? product.storage : [],
     imageAlt: product.imageAlt || `${brand} ${name}`,
@@ -657,14 +664,14 @@ const renderManagedProductCard = (product, index = 0) => {
   const label = isPurchasable(product) ? "Add to cart" : stockLabel(product.stockStatus);
   const badge = product.bestSeller ? "Best Seller" : product.featured ? "Featured" : "";
   return `
-    <article class="product-card kalahari-item" data-product-id="${escapeHtml(product.id)}" data-product-sku="${escapeHtml(product.sku)}" data-product-category="${escapeHtml(slugify(product.category))}">
+    <article class="product-card kalahari-item" data-product-id="${escapeHtml(product.id)}" data-product-sku="${escapeHtml(product.sku)}" data-product-categories="${escapeHtml(product.categories.map(slugify).join(" "))}" data-product-category-names="${escapeHtml(product.categories.join(", "))}">
       ${badge ? `<span class="product-status-badge">${escapeHtml(badge)}</span>` : ""}
       <div class="product-card__image-wrap product-image-wrap"><img class="product-card__image" src="${escapeHtml(product.image)}" alt="${escapeHtml(product.imageAlt)}" width="650" height="650" decoding="async" loading="${index < 4 ? "eager" : "lazy"}"${index < 4 ? ' fetchpriority="high"' : ""}></div>
       <div class="product-card__content">
         <span class="product-brand-badge" data-brand="${escapeHtml(product.brand.toLowerCase())}">${escapeHtml(product.brand)}</span>
         <h3 class="product-card__title" title="${escapeHtml(product.name)}">${escapeHtml(product.name)}</h3>
         ${product.size ? `<span class="product-size">${escapeHtml(product.size)}</span>` : ""}
-        ${product.category ? `<a class="product-category-link" href="/shop?category=${encodeURIComponent(product.category)}">${escapeHtml(product.category)}</a>` : ""}
+        ${product.categories.length ? `<div class="product-category-links">${product.categories.map((category) => `<a class="product-category-link" href="/shop?category=${encodeURIComponent(category)}">${escapeHtml(category)}</a>`).join(" ")}</div>` : ""}
         <p>${escapeHtml(product.benefit)}</p>
         <strong class="product-card__price">${formatCurrency(product.price)}</strong>
         <span class="product-stock"><span aria-hidden="true"></span> ${escapeHtml(stockLabel(product.stockStatus))}</span>
@@ -1079,6 +1086,7 @@ const renderProductDetailPage = async () => {
     image: new URL(product.image, window.location.href).href,
     sku: product.sku || product.id,
     brand: { "@type": "Brand", name: product.brand },
+    category: product.categories.join(", "),
     offers: {
       "@type": "Offer",
       url: window.location.href.split("#")[0],

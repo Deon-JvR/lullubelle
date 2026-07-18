@@ -1,61 +1,58 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { isApprovedProductCategory, migrateCatalogueContent, migrateProductCategory, PRODUCT_CATEGORIES, validateProductCatalogue } from "../netlify/functions/_products.mjs";
+import { isApprovedProductCategory, migrateCatalogueContent, migrateProductCategory, normaliseProductCategories, PRODUCT_CATEGORIES, validateProductCatalogue } from "../netlify/functions/_products.mjs";
 
 const categories = JSON.parse(await readFile(new URL("../data/product-categories.json", import.meta.url), "utf8"));
 const products = JSON.parse(await readFile(new URL("../data/products.json", import.meta.url), "utf8"));
 const brands = JSON.parse(await readFile(new URL("../data/brands.json", import.meta.url), "utf8"));
 const expected = [
-  "Corrects, Gels and Lotions", "De-age Complex Treatments", "UVA/UVB Protection", "Glassglow Treatment Products",
-  "HOCL Collection", "Prepare", "Rescue + Restore", "Serums and Face Oil", "Tinted Treatment Moisturisers",
-  "Treatment Lip Care", "Treatment Masks", "Treatment Moisturisers", "Treatment Eye Care", "Pigmentation",
-  "Acne and Breakouts", "Sensitive Skin Treatments",
+  "Correcting Gels", "Anti-Aging", "UVA/UVB Protection", "HOCL Collection", "Prepare",
+  "Serums and Face Oil", "Tinted SPF", "Treatment Lip Care", "Treatment Masks",
+  "Treatment Moisturisers", "Treatment", "Pigmentation", "Acne and Breakouts",
+  "Sensitive Skin Treatments", "Hydration",
 ];
 
 assert.deepEqual(categories, expected);
 assert.deepEqual(PRODUCT_CATEGORIES, expected);
-assert.equal(new Set(categories).size, 16);
-assert.ok(!categories.includes("All categories"));
+assert.equal(new Set(categories).size, 15);
+for (const removed of ["Rescue and Restore", "Rescue + Restore", "Glassglow Treatment Products"]) assert.ok(!categories.includes(removed));
 
 const mappings = {
-  "Correctors — Gels & Lotion": "Corrects, Gels and Lotions",
-  "Effective UVA/UVB Protection": "UVA/UVB Protection",
-  "Support Serums & Face Oil": "Serums and Face Oil",
-  "Tinted Treatment Moisturisers & Phyto Fluid Foundation": "Tinted Treatment Moisturisers",
-  "Treatments Eye Care": "Treatment Eye Care",
+  "Correct Gels and Lotions": "Correcting Gels",
+  "Corrects, Gels and Lotions": "Correcting Gels",
+  "De-Age Complex Treatments": "Anti-Aging",
+  "De-age Complex Treatments": "Anti-Aging",
+  "Tinted Treatment Moisturiser": "Tinted SPF",
+  "Tinted Treatment Moisturisers": "Tinted SPF",
+  "Treatment Eye Care": "Treatment",
 };
 Object.entries(mappings).forEach(([legacy, approved]) => assert.equal(migrateProductCategory(legacy), approved));
-assert.equal(migrateProductCategory("Cleaning Tools & Disposables"), "Cleaning Tools & Disposables");
-assert.equal(migrateProductCategory("Needs review"), "Needs review");
-const migrationFixture = Object.keys(mappings).map((category, index) => ({
-  ...products.find((product) => product.category) || {}, id: `legacy-${index}`, sku: `LEGACY-${index}`, name: `Legacy ${index}`, category,
-}));
-migrationFixture.push({ ...migrationFixture[0], id: "ambiguous", sku: "AMBIGUOUS", name: "Ambiguous", category: "Cleaning Tools & Disposables" });
-const migratedFixture = migrateCatalogueContent({ catalogueSchemaVersion: 4, products: migrationFixture }, { brands, products: [] }).content.products;
-Object.values(mappings).forEach((category) => assert.ok(migratedFixture.some((product) => product.category === category)));
-assert.equal(migratedFixture.find((product) => product.id === "ambiguous").category, "Cleaning Tools & Disposables");
 
-const knownOldLabels = new Set(Object.keys(mappings));
-assert.ok(!products.some((product) => knownOldLabels.has(product.category)));
-const ambiguous = products.filter((product) => !isApprovedProductCategory(product.category));
-assert.deepEqual([...new Set(ambiguous.map((product) => product.category || "(empty)"))].sort(), ["(empty)", "Cleaning Tools & Disposables", "Skincare Kits"]);
+assert.equal(products.length, 130);
+assert.ok(products.every((product) => !Object.hasOwn(product, "category")));
+assert.ok(products.every((product) => Array.isArray(product.categories) && product.categories.length));
+assert.ok(products.every((product) => product.categories.every(isApprovedProductCategory)));
+assert.ok(products.some((product) => product.categories.length > 1));
+
+const legacyProduct = { ...products[0], id: "legacy", sku: "LEGACY", categories: undefined, category: "Treatment Eye Care" };
+const migrated = migrateCatalogueContent({ catalogueSchemaVersion: 5, products: [legacyProduct] }, { brands, products: [] }).content.products[0];
+assert.deepEqual(migrated.categories, ["Treatment"]);
+assert.ok(!Object.hasOwn(migrated, "category"));
+assert.deepEqual(normaliseProductCategories({ category: "Tinted Treatment Moisturiser" }), ["Tinted SPF"]);
 
 const validProduct = {
   id: "test-product", slug: "test-product", sku: "TEST-1", brandId: brands[0].id, brand: brands[0].name,
-  name: "Test product", category: categories[0], price: 100, image: "products/kalahari/fk1000.webp",
+  name: "Test product", categories: [categories[0], categories[1]], price: 100, image: "products/kalahari/fk1000.webp",
 };
 const validContent = { brands, products: Array.from({ length: 65 }, (_, index) => ({ ...validProduct, id: `test-product-${index}`, slug: `test-product-${index}`, sku: `TEST-${index}` })) };
 assert.equal(validateProductCatalogue(validContent), "");
-for (const invalidCategory of ["", "All categories", "Unknown category"]) {
+for (const invalidCategories of [[], ["All categories"], ["Unknown category"]]) {
   const invalid = structuredClone(validContent);
-  invalid.products[0].category = invalidCategory;
-  assert.match(validateProductCatalogue(invalid), /Select an approved category/);
+  invalid.products[0].categories = invalidCategories;
+  assert.match(validateProductCatalogue(invalid), /approved category/);
 }
-const legacy = structuredClone(validContent);
-legacy.products[0].category = "Cleaning Tools & Disposables";
-assert.equal(validateProductCatalogue(legacy, { existingProducts: legacy.products }), "");
-const changedLegacy = structuredClone(legacy);
-changedLegacy.products[0].category = "Needs review";
-assert.match(validateProductCatalogue(changedLegacy, { existingProducts: legacy.products }), /not a valid product category/);
+const retiredField = structuredClone(validContent);
+retiredField.products[0].category = categories[0];
+assert.match(validateProductCatalogue(retiredField), /retired single category field/);
 
-console.log(`Product category validation passed: ${categories.length} approved categories; ${ambiguous.length} ambiguous legacy products reported.`);
+console.log(`Product category validation passed: ${categories.length} approved categories; ${products.length} products use category arrays.`);

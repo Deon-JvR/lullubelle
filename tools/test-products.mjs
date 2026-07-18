@@ -23,7 +23,7 @@ const product = (brand, index) => ({
   brandId: brand.id,
   brand: brand.name,
   name: `${brand.name} Test Product ${index}`,
-  category: validTestCategory,
+  categories: [validTestCategory],
   price: 100 + index,
   image: `/.netlify/functions/admin-asset?key=products%2F${brand.id}%2Fmain-${index}.webp`,
   galleryImages: [
@@ -114,8 +114,8 @@ assert.equal(migrateCatalogueContent(migration.content, canonicalSeed).changed, 
 const catalogueSeed = {
   brands: [{ id: "kalahari", name: "Kalahari", active: true }],
   products: [
-    { id: "kalahari-cleanser", slug: "kalahari-cleanser", sku: "K001", brandId: "kalahari", brand: "Kalahari", name: "Cleanser", category: "Prepare", size: "50ml", description: "Authoritative", searchKeywords: "Kalahari, K001, Cleanser", catalogueSource: "Kalahari Retail Price List 2025", price: 200, image: "products/kalahari/catalogue-product.svg", active: true, hidden: false },
-    { id: "kalahari-mask", slug: "kalahari-mask", sku: "K002", brandId: "kalahari", brand: "Kalahari", name: "Mask", category: "Treatment Masks", size: "50ml", description: "Authoritative", searchKeywords: "Kalahari, K002, Mask", catalogueSource: "Kalahari Retail Price List 2025", price: 300, image: "products/kalahari/catalogue-product.svg", active: true, hidden: false },
+    { id: "kalahari-cleanser", slug: "kalahari-cleanser", sku: "K001", brandId: "kalahari", brand: "Kalahari", name: "Cleanser", categories: ["Prepare"], size: "50ml", description: "Authoritative", searchKeywords: "Kalahari, K001, Cleanser", catalogueSource: "Kalahari Retail Price List 2025", price: 200, image: "products/kalahari/catalogue-product.svg", active: true, hidden: false },
+    { id: "kalahari-mask", slug: "kalahari-mask", sku: "K002", brandId: "kalahari", brand: "Kalahari", name: "Mask", categories: ["Treatment Masks"], size: "50ml", description: "Authoritative", searchKeywords: "Kalahari, K002, Mask", catalogueSource: "Kalahari Retail Price List 2025", price: 300, image: "products/kalahari/catalogue-product.svg", active: true, hidden: false },
   ],
 };
 const catalogueStored = {

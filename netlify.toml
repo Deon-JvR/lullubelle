@@ -39,6 +39,66 @@
 
 [[redirects]]
   from = "/shop"
+  query = { category = "Tinted Treatment Moisturiser" }
+  to = "/shop?category=Tinted%20SPF"
+  status = 301
+
+[[redirects]]
+  from = "/shop"
+  query = { category = "Tinted Treatment Moisturisers" }
+  to = "/shop?category=Tinted%20SPF"
+  status = 301
+
+[[redirects]]
+  from = "/shop"
+  query = { category = "Treatment Eye Care" }
+  to = "/shop?category=Treatment"
+  status = 301
+
+[[redirects]]
+  from = "/shop"
+  query = { category = "Correct Gels and Lotions" }
+  to = "/shop?category=Correcting%20Gels"
+  status = 301
+
+[[redirects]]
+  from = "/shop"
+  query = { category = "Corrects, Gels and Lotions" }
+  to = "/shop?category=Correcting%20Gels"
+  status = 301
+
+[[redirects]]
+  from = "/shop"
+  query = { category = "De-Age Complex Treatments" }
+  to = "/shop?category=Anti-Aging"
+  status = 301
+
+[[redirects]]
+  from = "/shop"
+  query = { category = "De-age Complex Treatments" }
+  to = "/shop?category=Anti-Aging"
+  status = 301
+
+[[redirects]]
+  from = "/shop"
+  query = { category = "Rescue and Restore" }
+  to = "/shop"
+  status = 301
+
+[[redirects]]
+  from = "/shop"
+  query = { category = "Rescue + Restore" }
+  to = "/shop"
+  status = 301
+
+[[redirects]]
+  from = "/shop"
+  query = { category = "Glassglow Treatment Products" }
+  to = "/shop"
+  status = 301
+
+[[redirects]]
+  from = "/shop"
   to = "/shop.html"
   status = 200
 

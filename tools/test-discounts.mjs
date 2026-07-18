@@ -3,8 +3,8 @@ import { calculateDiscount, normalisePromoCode, sanitiseDiscount, validateDiscou
 import { buildIkhokhaPayload } from "../netlify/functions/ikhokha-checkout.mjs";
 
 const products = [
-  { id: "serum", brandId: "kalahari", category: "Serums", price: 500, quantity: 2 },
-  { id: "cleanser", brandId: "vitaderm", category: "Cleansers", price: 200, quantity: 1 },
+  { id: "serum", brandId: "kalahari", categories: ["Serums", "Hydration"], price: 500, quantity: 2 },
+  { id: "cleanser", brandId: "vitaderm", categories: ["Cleansers"], price: 200, quantity: 1 },
 ];
 const discount = (input) => sanitiseDiscount({ code: "SAVE", name: "Test", active: true, type: "percentage", value: 10, scope: "order", brandIds: [], productIds: [], categories: [], excludedBrandIds: [], excludedProductIds: [], ...input });
 

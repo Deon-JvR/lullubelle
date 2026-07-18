@@ -51,7 +51,7 @@ const eligibleItems = (discount, products) => products.filter((item) => {
   if (discount.excludedProductIds.includes(item.id) || discount.excludedBrandIds.includes(item.brandId)) return false;
   if (discount.scope === "products") return discount.productIds.includes(item.id);
   if (discount.scope === "brands") return discount.brandIds.includes(item.brandId);
-  if (discount.scope === "categories") return discount.categories.some((category) => category.toLowerCase() === String(item.category || "").toLowerCase());
+  if (discount.scope === "categories") return discount.categories.some((category) => (item.categories || []).some((assigned) => category.toLowerCase() === String(assigned).toLowerCase()));
   return true;
 });
 

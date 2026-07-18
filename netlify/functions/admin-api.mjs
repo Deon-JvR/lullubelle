@@ -11,6 +11,7 @@ import {
   readContent,
   readList,
   requireSession,
+  sessionExpiresAt,
   verifyPassword,
   writeContent,
   writeList,
@@ -109,7 +110,20 @@ export const handler = async (event) => {
   if (!session) return json(401, { ok: false, code: "ADMIN_AUTH_REQUIRED", message: "Your admin session has expired. Please sign in again." });
 
   if (method === "GET" && action === "me") {
-    return json(200, { ok: true, authenticated: true, username: session.username });
+    return json(200, {
+      ok: true,
+      authenticated: true,
+      username: session.username,
+      expiresAt: sessionExpiresAt(),
+    }, { "Set-Cookie": createSessionCookie(session.username) });
+  }
+
+  if (method === "POST" && action === "refresh-session") {
+    return json(200, {
+      ok: true,
+      authenticated: true,
+      expiresAt: sessionExpiresAt(),
+    }, { "Set-Cookie": createSessionCookie(session.username) });
   }
 
   if (method === "GET" && action === "content") {

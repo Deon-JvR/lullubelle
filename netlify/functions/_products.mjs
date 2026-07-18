@@ -3,18 +3,29 @@ import productCategories from "../../data/product-categories.json" with { type: 
 
 const PLACEHOLDER_IMAGE_PATTERN = /(?:^|\/)(?:lullubelle-logo|placeholder|default-product|sample-product)(?:[._/?-]|$)/i;
 const PRODUCT_ID_PATTERN = /^[a-z0-9][a-z0-9_-]*$/;
-export const CATALOGUE_SCHEMA_VERSION = 5;
+export const CATALOGUE_SCHEMA_VERSION = 6;
 export const PRODUCT_CATEGORIES = Object.freeze([...productCategories]);
 export const PRODUCT_CATEGORY_MIGRATIONS = Object.freeze({
   "HOCl Collection": "HOCL Collection",
-  "Correctors — Gels & Lotion": "Corrects, Gels and Lotions",
+  "Correctors — Gels & Lotion": "Correcting Gels",
+  "Corrects, Gels and Lotions": "Correcting Gels",
+  "Correct Gels and Lotions": "Correcting Gels",
   "Effective UVA/UVB Protection": "UVA/UVB Protection",
   "Support Serums & Face Oil": "Serums and Face Oil",
-  "Tinted Treatment Moisturisers & Phyto Fluid Foundation": "Tinted Treatment Moisturisers",
-  "Treatments Eye Care": "Treatment Eye Care",
+  "Tinted Treatment Moisturisers & Phyto Fluid Foundation": "Tinted SPF",
+  "Tinted Treatment Moisturisers": "Tinted SPF",
+  "Tinted Treatment Moisturiser": "Tinted SPF",
+  "Treatments Eye Care": "Treatment",
+  "Treatment Eye Care": "Treatment",
+  "De-age Complex Treatments": "Anti-Aging",
+  "De-Age Complex Treatments": "Anti-Aging",
 });
 export const migrateProductCategory = (category) => PRODUCT_CATEGORY_MIGRATIONS[String(category || "").trim()] || String(category || "").trim();
 export const isApprovedProductCategory = (category) => PRODUCT_CATEGORIES.includes(String(category || "").trim());
+export const normaliseProductCategories = (product = {}) => {
+  const source = Array.isArray(product.categories) ? product.categories : [product.category];
+  return [...new Set(source.map(migrateProductCategory).filter(isApprovedProductCategory))];
+};
 
 export const productIdentityKey = (value) => String(value || "").trim().toLowerCase();
 
@@ -47,7 +58,7 @@ export const normaliseProductGallery = (product = {}) => {
 const isGeneratedPlaceholderProduct = (product = {}) => (
   /^product_[a-z0-9_]+$/i.test(String(product.id || ""))
   && /^(?:new|unnamed) product$/i.test(String(product.name || "").trim())
-  && String(product.category || "").trim().toLowerCase() === "needs review"
+  && String(product.category || product.categories?.[0] || "").trim().toLowerCase() === "needs review"
   && Number(product.price) === 1
   && PLACEHOLDER_IMAGE_PATTERN.test(String(product.image || ""))
 );
@@ -94,13 +105,17 @@ export const synchroniseProductCatalogue = (seedProducts = [], storedProducts = 
       used.add(storedProduct);
       updated += 1;
     } else added += 1;
-    return {
+    const storedCategories = normaliseProductCategories(storedProduct);
+    const merged = {
       ...seedProduct,
       ...(storedProduct || {}),
       // Seed IDs remain canonical so the static and managed catalogues cannot
       // produce two records for one SKU after a name-based reconciliation.
       id: seedProduct.id || storedProduct?.id,
+      categories: storedCategories.length ? storedCategories : normaliseProductCategories(seedProduct),
     };
+    delete merged.category;
+    return merged;
   });
 
   const ids = new Set(products.map((product) => productIdentityKey(product?.id)).filter(Boolean));
@@ -114,7 +129,9 @@ export const synchroniseProductCatalogue = (seedProducts = [], storedProducts = 
       deduplicated += 1;
       return;
     }
-    products.push(product);
+    const migratedProduct = { ...product, categories: normaliseProductCategories(product) };
+    delete migratedProduct.category;
+    products.push(migratedProduct);
     if (id) ids.add(id);
     if (sku) skus.add(sku);
     if (name && !name.endsWith("::")) names.add(name);
@@ -151,7 +168,9 @@ export const migrateCatalogueContent = (storedContent = {}, seedContent = {}) =>
       return [];
     }
     const canonicalBrand = brandNamesById.get(productIdentityKey(product?.brandId));
-    return [{ ...product, category: migrateProductCategory(product.category), ...(canonicalBrand ? { brand: canonicalBrand } : {}) }];
+    const categories = normaliseProductCategories(product);
+    const { category: _legacyCategory, ...withoutLegacyCategory } = product;
+    return [{ ...withoutLegacyCategory, categories, ...(canonicalBrand ? { brand: canonicalBrand } : {}) }];
   });
 
   const synchronised = synchroniseProductCatalogue(seedContent?.products, cleanedStoredProducts);
@@ -213,17 +232,16 @@ export const validateProductCatalogue = (content, { minimumProducts = 65, existi
   }
 
   const brandsById = new Map(brands.map((brand) => [productIdentityKey(brand.id), brand]));
-  const existingCategories = new Map((Array.isArray(existingProducts) ? existingProducts : []).map((product) => [productIdentityKey(product?.id), String(product?.category || "").trim()]));
   for (const product of products) {
     const id = String(product?.id || "").trim();
     const brand = brandsById.get(productIdentityKey(product?.brandId));
     const price = Number(product?.price);
     if (!id || !PRODUCT_ID_PATTERN.test(id)) return `Every product requires a stable lowercase ID. Please review: ${product?.name || "Unnamed product"}.`;
     if (!String(product?.name || "").trim()) return `Product name is required for ${id}.`;
-    const category = String(product?.category || "").trim();
-    if (!isApprovedProductCategory(category) && existingCategories.get(productIdentityKey(id)) !== category) {
-      return `Select an approved category for ${product?.name || id}. "${category}" is not a valid product category.`;
-    }
+    if (!Array.isArray(product?.categories) || !product.categories.length) return `Select at least one approved category for ${product?.name || id}.`;
+    const invalidCategory = product.categories.find((category) => !isApprovedProductCategory(category));
+    if (invalidCategory) return `Select an approved category for ${product?.name || id}. "${invalidCategory}" is not a valid product category.`;
+    if (Object.hasOwn(product, "category")) return `Product ${product?.name || id} still uses the retired single category field.`;
     if (!brand) return `Select a valid brand for ${product?.name || id}. Saving was blocked.`;
     if (String(product?.brand || "").trim() !== String(brand.name || "").trim()) {
       return `Brand data does not match the selected brand for ${product?.name || id}. Re-select the intended brand.`;
@@ -231,7 +249,7 @@ export const validateProductCatalogue = (content, { minimumProducts = 65, existi
     if (!isValidProductImageUrl(product?.image)) return `Upload a valid product image for ${product?.name || id}. Placeholder or blank images cannot be saved.`;
     if (!Number.isFinite(price) || price <= 0) return `Enter a valid price for ${product?.name || id}.`;
     if (product?.catalogueSource === "Kalahari Retail Price List 2025") {
-      if (!String(product.sku || "").trim() || !String(product.category || "").trim() || !String(product.size || "").trim()) {
+      if (!String(product.sku || "").trim() || !product.categories.length || !String(product.size || "").trim()) {
         return `Kalahari catalogue fields are incomplete for ${product.name}.`;
       }
       if (!String(product.slug || "").trim() || !String(product.searchKeywords || "").trim()) {
@@ -255,7 +273,7 @@ export const verifyPersistedProducts = (expectedContent, actualContent) => {
   const actual = Array.isArray(actualContent?.products) ? actualContent.products : [];
   const actualById = new Map(actual.map((product) => [productIdentityKey(product?.id), product]));
   const fields = [
-    "name", "slug", "sku", "brandId", "brand", "category", "size", "price", "stockStatus",
+    "name", "slug", "sku", "brandId", "brand", "categories", "size", "price", "stockStatus",
     "image", "imageAlt", "benefit", "description", "directions", "ingredients", "suitable",
     "tags", "relatedProducts", "seoTitle", "seoDescription", "searchKeywords", "featured",
     "bestSeller", "hidden", "active", "published", "status",

@@ -1,4 +1,6 @@
 const API = "/.netlify/functions/admin-api";
+const SESSION_REFRESH_INTERVAL_MS = 4 * 60 * 1000;
+const SESSION_EXPIRED_MESSAGE = "Your admin session has expired. Please sign in again.";
 
 const state = {
   content: { brands: [], products: [], treatments: [], gallery: [], vouchers: [], deliverySettings: { freeDeliveryThreshold: 1000, standardPudoFee: 80, collectionEnabled: true } },
@@ -12,6 +14,8 @@ const state = {
   dirty: false,
   saving: false,
   pendingUploads: new Map(),
+  sessionExpired: false,
+  sessionRefreshTimer: 0,
   productUi: {
     mode: "list",
     editingId: "",
@@ -64,17 +68,12 @@ const productEditorBrands = (product) => {
 };
 const productCategories = () => Array.isArray(state.content.productCategories) ? state.content.productCategories : [];
 const productCategorySelect = (product) => {
-  const categories = productCategories();
-  const current = String(product.category || "").trim();
-  const legacy = current && !categories.includes(current);
-  return `<label>Category
-    <select data-key="category" required aria-describedby="product-category-help">
-      <option value="" ${current ? "" : "selected"} disabled>Select a category</option>
-      ${legacy ? `<option value="${escapeHtml(current)}" selected>${escapeHtml(current)} (legacy category)</option>` : ""}
-      ${categories.map((category) => `<option value="${escapeHtml(category)}" ${category === current ? "selected" : ""}>${escapeHtml(category)}</option>`).join("")}
-    </select>
-    <small id="product-category-help">${legacy ? `“${escapeHtml(current)}” is a legacy category. Select an approved category to correct it.` : "Choose the storefront category for this product."}</small>
-  </label>`;
+  const selected = Array.isArray(product.categories) ? product.categories : [];
+  return `<fieldset class="wide product-category-selector" data-product-categories aria-describedby="product-category-help">
+    <legend>Categories</legend>
+    <div class="product-category-options">${productCategories().map((category) => `<label class="check-row"><input type="checkbox" data-product-category value="${escapeHtml(category)}" ${selected.includes(category) ? "checked" : ""}> ${escapeHtml(category)}</label>`).join("")}</div>
+    <small id="product-category-help">Select one or more categories. Assigned: ${selected.length ? escapeHtml(selected.join(", ")) : "None"}.</small>
+  </fieldset>`;
 };
 const brandForProduct = (product) => state.content.brands.find((brand) => brand.id === product.brandId)
   || state.content.brands.find((brand) => brand.name.toLowerCase() === String(product.brand || "").toLowerCase());
@@ -96,6 +95,36 @@ const setLoginStatus = (message = "", type = "") => {
 const setDirty = (dirty = true) => {
   state.dirty = dirty;
   $("[data-save-state]").textContent = dirty ? "Unsaved changes" : "All changes saved";
+};
+
+const stopSessionRefresh = () => {
+  if (state.sessionRefreshTimer) window.clearInterval(state.sessionRefreshTimer);
+  state.sessionRefreshTimer = 0;
+};
+
+const startSessionRefresh = () => {
+  stopSessionRefresh();
+  state.sessionRefreshTimer = window.setInterval(async () => {
+    if (document.hidden || state.sessionExpired) return;
+    try {
+      await request("refresh-session", { method: "POST", body: "{}" });
+    } catch (error) {
+      if (error.status !== 401) {
+        console.error("[Admin session] Refresh failed", error);
+        handleSessionExpired();
+      }
+    }
+  }, SESSION_REFRESH_INTERVAL_MS);
+};
+
+const handleSessionExpired = () => {
+  if (state.sessionExpired) return;
+  state.sessionExpired = true;
+  stopSessionRefresh();
+  $("[data-login-panel]").hidden = false;
+  $("[data-admin-portal]").hidden = true;
+  setLoginStatus(SESSION_EXPIRED_MESSAGE, "error");
+  if (window.location.hash === "#dashboard") history.replaceState(null, "", window.location.pathname);
 };
 
 const request = async (action, options = {}) => {
@@ -134,6 +163,7 @@ const request = async (action, options = {}) => {
     const error = new Error(message);
     error.status = response.status;
     error.code = data.code || "ADMIN_REQUEST_FAILED";
+    if (response.status === 401 && action !== "login") handleSessionExpired();
     throw error;
   }
   return data;
@@ -267,7 +297,7 @@ const getFilteredProducts = () => {
   const exactSkuSearch = search && state.content.products.some((product) => String(product.sku || "").trim().toLowerCase() === search);
   return [...state.content.products]
     .filter((product) => {
-      const searchable = [product.name, product.sku, product.category, product.searchKeywords].join(" ").toLowerCase();
+      const searchable = [product.name, product.sku, ...(product.categories || []), product.searchKeywords].join(" ").toLowerCase();
       const sku = String(product.sku || "").trim().toLowerCase();
       const brandId = brandForProduct(product)?.id || "";
       const stock = String(product.stockStatus || "In stock");
@@ -397,7 +427,7 @@ const renderProductRows = (products) => {
                   <div>
                     <button class="product-name-button" type="button" data-product-edit="${escapeHtml(product.id)}" data-product-name="${escapeHtml(product.id)}">${escapeHtml(product.name || "Unnamed product")}</button>
                     <small data-product-slug="${escapeHtml(product.id)}" title="${escapeHtml(product.id || "")}">${escapeHtml(product.id || "")}</small>
-                    <small title="${escapeHtml(product.sku ? `SKU ${product.sku}` : "")}">${escapeHtml([product.sku && `SKU ${product.sku}`, product.category, product.size].filter(Boolean).join(" · "))}</small>
+                    <small title="${escapeHtml(product.sku ? `SKU ${product.sku}` : "")}">${escapeHtml([product.sku && `SKU ${product.sku}`, (product.categories || []).join(", "), product.size].filter(Boolean).join(" · "))}</small>
                   </div>
                 </div>
               </td>
@@ -854,9 +884,7 @@ const loadAll = async () => {
     galleryImages: productGallery(product),
   }));
   state.productUi.dirtyIds.clear();
-  state.productUi.legacyCategories = new Map(state.content.products
-    .filter((product) => !productCategories().includes(String(product.category || "").trim()))
-    .map((product) => [product.id, String(product.category || "").trim()]));
+  state.productUi.legacyCategories = new Map();
   state.bookings = await request("bookings");
   state.orders = await request("orders");
   state.orderDirtyIds.clear();
@@ -866,6 +894,8 @@ const loadAll = async () => {
 };
 
 const showDashboard = async () => {
+  state.sessionExpired = false;
+  startSessionRefresh();
   setLoginStatus("");
   setStatus("");
   $("[data-login-panel]").hidden = true;
@@ -881,6 +911,7 @@ const showDashboard = async () => {
 };
 
 const showLogin = () => {
+  stopSessionRefresh();
   setLoginStatus("");
   setStatus("");
   $("[data-login-panel]").hidden = false;
@@ -892,7 +923,7 @@ const showLogin = () => {
 
 const addItem = (collection) => {
   const defaults = {
-    products: { id: uid("product"), brandId: "", brand: "", category: "", name: "", price: 1, stockStatus: "In stock", image: "", imageAlt: "", galleryImages: [], hidden: true },
+    products: { id: uid("product"), brandId: "", brand: "", categories: [], name: "", price: 1, stockStatus: "In stock", image: "", imageAlt: "", galleryImages: [], hidden: true },
     treatments: { id: uid("treatment"), category: "General", name: "New treatment", price: "", duration: "", hidden: false },
     gallery: { id: uid("gallery"), title: "New result", category: "Microneedling", categories: "microneedling", order: state.content.gallery.length + 1, featured: false, hidden: false },
     vouchers: { id: uid("voucher"), name: "Gift Voucher", amount: 250, hidden: false },
@@ -975,13 +1006,11 @@ const validateProductsBeforeSave = () => {
   const duplicateSkuIndex = productSkus.findIndex((sku, index) => sku && productSkus.indexOf(sku) !== index);
   if (duplicateSkuIndex >= 0) return `Duplicate product SKU detected: ${products[duplicateSkuIndex].sku}. Saving was blocked.`;
 
-  const invalidCategory = products.find((product) => {
-    const category = String(product.category || "").trim();
-    return !productCategories().includes(category)
-      && (state.productUi.legacyCategories.get(product.id) !== category || state.productUi.dirtyIds.has(product.id));
-  });
+  const invalidCategory = products.find((product) => !Array.isArray(product.categories)
+    || !product.categories.length
+    || product.categories.some((category) => !productCategories().includes(category)));
   if (invalidCategory) {
-    return `Select an approved category for ${invalidCategory.name || invalidCategory.id || "the new product"}. Saving was blocked.`;
+    return `Select at least one approved category for ${invalidCategory.name || invalidCategory.id || "the new product"}. Saving was blocked.`;
   }
 
   const invalid = products.find((product) => {
@@ -1014,7 +1043,7 @@ const verifyPersistedContent = (expected, actual) => {
   const actualProducts = Array.isArray(actual?.products) ? actual.products : [];
   const actualById = new Map(actualProducts.map((product) => [String(product.id || "").toLowerCase(), product]));
   const fields = [
-    "name", "slug", "sku", "brandId", "brand", "category", "size", "price", "stockStatus",
+    "name", "slug", "sku", "brandId", "brand", "categories", "size", "price", "stockStatus",
     "image", "imageAlt", "benefit", "description", "directions", "ingredients", "suitable",
     "tags", "relatedProducts", "seoTitle", "seoDescription", "searchKeywords", "featured",
     "bestSeller", "hidden", "active", "published", "status",
@@ -1167,6 +1196,17 @@ document.addEventListener("input", async (event) => {
   const input = event.target;
 
   if (input.type === "file") return;
+
+  if (input.matches("[data-product-category]")) {
+    const product = getProductById(input.closest(".editor-card")?.dataset.id);
+    if (!product) return;
+    product.categories = $$('[data-product-category]:checked', input.closest("[data-product-categories]")).map((checkbox) => checkbox.value);
+    state.productUi.dirtyIds.add(product.id);
+    setDirty();
+    const help = $("#product-category-help", input.closest("[data-product-categories]"));
+    if (help) help.textContent = `Select one or more categories. Assigned: ${product.categories.length ? product.categories.join(", ") : "None"}.`;
+    return;
+  }
 
   if (input.matches("[data-delivery-setting]")) {
     state.content.deliverySettings ||= { freeDeliveryThreshold: 1000, standardPudoFee: 80, collectionEnabled: true };
@@ -1537,8 +1577,12 @@ document.addEventListener("click", async (event) => {
   }
 
   if (target.matches("[data-save-bookings]")) {
-    await request("bookings", { method: "PUT", body: JSON.stringify({ items: state.bookings }) });
-    setStatus("Booking statuses saved.", "success");
+    try {
+      await request("bookings", { method: "PUT", body: JSON.stringify({ items: state.bookings }) });
+      setStatus("Booking statuses saved.", "success");
+    } catch (error) {
+      setStatus(error.message || "Booking statuses could not be saved.", "error");
+    }
   }
 
   if (target.matches("[data-save-order]")) {
@@ -1605,7 +1649,17 @@ $("[data-login-form]").addEventListener("submit", async (event) => {
         password: formData.get("password"),
       }),
     });
-    await showDashboard();
+    if (state.sessionExpired && state.dirty) {
+      state.sessionExpired = false;
+      startSessionRefresh();
+      $("[data-login-panel]").hidden = true;
+      $("[data-admin-portal]").hidden = false;
+      window.location.hash = "dashboard";
+      setLoginStatus("");
+      setStatus("Signed in again. Your unsaved changes are still here; save when ready.", "success");
+    } else {
+      await showDashboard();
+    }
   } catch (error) {
     showLogin();
     setLoginStatus(error.message || "Request failed", "error");

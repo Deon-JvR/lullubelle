@@ -360,6 +360,9 @@ textarea { min-height: 92px; resize: vertical; }
 
 .form-grid .wide { grid-column: 1 / -1; }
 
+.product-category-selector { border: 1px solid var(--line); border-radius: 12px; padding: .8rem; }
+.product-category-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: .55rem 1rem; margin: .5rem 0; }
+
 .check-row {
   display: flex;
   align-items: center;

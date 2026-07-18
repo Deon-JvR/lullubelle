@@ -24,19 +24,19 @@ const slugify = (value) => String(value || "")
 const collapse = (value) => String(value || "").replace(/\s+/g, " ").trim();
 
 const categoryNames = new Map([
-  ["skincare kits", "Skincare Kits"],
+  ["skincare kits", "Treatment"],
   ["prepare", "Prepare"],
-  ["cleaning tools & disposables", "Cleaning Tools & Disposables"],
+  ["cleaning tools & disposables", "Prepare"],
   ["treatment masks", "Treatment Masks"],
-  ["treatments eye care", "Treatment Eye Care"],
-  ["correctors", "Corrects, Gels and Lotions"],
-  ["correctors | gels & lotion | apply underneath moisturisers", "Corrects, Gels and Lotions"],
+  ["treatments eye care", "Treatment"],
+  ["correctors", "Correcting Gels"],
+  ["correctors | gels & lotion | apply underneath moisturisers", "Correcting Gels"],
   ["support serums & face oil | apply underneath moisturisers", "Serums and Face Oil"],
   ["treatment moisturisers", "Treatment Moisturisers"],
-  ["de-age complex treatments", "De-age Complex Treatments"],
-  ["glassglow treatment products", "Glassglow Treatment Products"],
+  ["de-age complex treatments", "Anti-Aging"],
+  ["glassglow treatment products", "Anti-Aging"],
   ["effective uva/uvb protection", "UVA/UVB Protection"],
-  ["tinted treatment moisturisers & phyto fluid foundation", "Tinted Treatment Moisturisers"],
+  ["tinted treatment moisturisers & phyto fluid foundation", "Tinted SPF"],
   ["treatment lip care", "Treatment Lip Care"],
 ]);
 
@@ -154,13 +154,13 @@ for (const source of catalogue) {
     sku: source.sku,
     brandId: "kalahari",
     brand: "Kalahari",
-    category: source.category,
+    categories: existing?.categories?.length ? existing.categories : [source.category],
     name: source.name,
     size: source.size,
     description: source.description,
     benefit: source.description,
     price: source.price,
-    searchKeywords: keywordsFor(source),
+    searchKeywords: existing?.searchKeywords || keywordsFor(source),
     image,
     imageAlt: existing?.imageAlt || (image === genericImage
       ? `Kalahari ${source.name} — product image coming soon`
@@ -214,8 +214,8 @@ if (imported.some((product) => product.brand !== "Kalahari" || product.brandId !
 if (checkOnly) {
   const currentKalahari = currentProducts.filter((product) => identity(product.brand) === "kalahari" || identity(product.brandId) === "kalahari");
   if (JSON.stringify(currentKalahari) !== JSON.stringify(imported)) throw new Error("The committed Kalahari products do not match the PDF import result.");
-  const required = ["id", "slug", "sku", "brand", "category", "name", "size", "description", "searchKeywords"];
-  const incomplete = currentKalahari.find((product) => required.some((field) => !String(product[field] || "").trim()) || !Number.isFinite(Number(product.price)) || product.active !== true || product.hidden !== false);
+  const required = ["id", "slug", "sku", "brand", "name", "size", "description", "searchKeywords"];
+  const incomplete = currentKalahari.find((product) => required.some((field) => !String(product[field] || "").trim()) || !Array.isArray(product.categories) || !product.categories.length || !Number.isFinite(Number(product.price)) || product.active !== true || product.hidden !== false);
   if (incomplete) throw new Error(`Incomplete Kalahari product: ${incomplete.sku || incomplete.name || incomplete.id}.`);
   for (const product of currentKalahari) {
     if (!await fileExists(resolve(root, product.image))) throw new Error(`Missing product image asset for ${product.sku}: ${product.image}.`);

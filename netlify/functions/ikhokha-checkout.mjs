@@ -242,7 +242,7 @@ const buildCatalog = async () => {
       price: Number(product.price) || 0,
       image: product.image || "lullubelle-logo.jpg",
       brandId: product.brandId || "",
-      category: product.category || "",
+      categories: Array.isArray(product.categories) ? product.categories : [],
     },
   ]);
   const voucherEntries = (content.vouchers || []).map((voucher) => [
