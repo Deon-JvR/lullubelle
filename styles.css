@@ -3685,12 +3685,12 @@ input,textarea,select,button {
     display: contents;
   }
 
-  .footer-link-column > nav[aria-label="Footer quick links"] {
+  .footer-link-column > .footer-quick-links {
     grid-column: 3;
     grid-row: 1;
   }
 
-  .footer-link-column > nav[aria-label="Social media"] {
+  .footer-link-column > .footer-social-links {
     grid-column: 3;
     grid-row: 2;
     align-self: baseline;
@@ -3701,6 +3701,39 @@ input,textarea,select,button {
     grid-row: 2;
     align-self: baseline;
   }
+}
+
+.shop-delivery-section {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.shop-delivery-card {
+  display: grid;
+  gap: 8px;
+  padding: clamp(20px, 3vw, 30px);
+  border: 1px solid rgba(49, 91, 60, 0.16);
+  border-radius: var(--radius-card);
+  background: linear-gradient(135deg, rgba(238, 245, 239, 0.92), rgba(251, 250, 247, 0.96));
+  box-shadow: 0 12px 30px rgba(17, 21, 18, 0.06);
+}
+
+.shop-delivery-card .eyebrow,
+.shop-delivery-card h2,
+.shop-delivery-card p {
+  margin: 0;
+}
+
+.shop-delivery-card h2 {
+  color: var(--leaf-dark);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.45rem, 3vw, 2rem);
+  line-height: 1.2;
+}
+
+.shop-delivery-card p:last-child {
+  color: var(--muted);
+  line-height: 1.55;
 }
 
 .footer-brand {
