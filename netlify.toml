@@ -89,21 +89,21 @@
 [[redirects]]
   from = "/shop"
   query = { category = "Rescue and Restore" }
-  to = "/shop"
+  to = "/shop?category=all"
   status = 301
   force = true
 
 [[redirects]]
   from = "/shop"
   query = { category = "Rescue + Restore" }
-  to = "/shop"
+  to = "/shop?category=all"
   status = 301
   force = true
 
 [[redirects]]
   from = "/shop"
   query = { category = "Glassglow Treatment Products" }
-  to = "/shop"
+  to = "/shop?category=all"
   status = 301
   force = true
 
