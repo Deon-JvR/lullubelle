@@ -118,7 +118,8 @@ export const handler = async (event) => {
 
   if (method === "PUT" && action === "content") {
     body.deliverySettings = sanitiseDeliverySettings(body.deliverySettings);
-    const validationError = validateProductCatalogue(body);
+    const existingContent = await readContent();
+    const validationError = validateProductCatalogue(body, { existingProducts: existingContent.products });
     if (validationError) return json(400, { error: `Validation failed: ${validationError}`, code: "VALIDATION_FAILED" });
     const serviceValidationError = validateServiceCatalogue(body.treatments);
     if (serviceValidationError) return json(400, { error: `Validation failed: ${serviceValidationError}`, code: "VALIDATION_FAILED" });

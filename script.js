@@ -239,7 +239,7 @@ const setupShopCatalogue = (content) => {
   let selectedBrand = brands.find((brand) => requestedBrand && (brand.id.toLowerCase() === requestedBrand.toLowerCase() || brand.name.toLowerCase() === requestedBrand.toLowerCase()))?.id
     || ((requestedCategory || query) ? "all" : brands[0].id);
   let selectedCategory = requestedCategory || "all";
-  const categories = [...new Set(products.map((product) => product.category).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  const categories = Array.isArray(content?.productCategories) ? content.productCategories : [];
 
   tabs.innerHTML = [{ id: "all", name: "All Products" }, ...brands].map((brand) => `<button class="supplier-tab ${brand.id === selectedBrand ? "is-active" : ""}" type="button" data-brand-filter="${escapeHtml(brand.id)}" aria-pressed="${brand.id === selectedBrand ? "true" : "false"}">${escapeHtml(brand.name)}</button>`).join("");
   document.querySelectorAll("[data-brand-panel]").forEach((panel) => panel.remove());
@@ -247,7 +247,7 @@ const setupShopCatalogue = (content) => {
     <div class="section-heading" data-shop-catalogue-heading></div>
     <div class="shop-catalogue-tools">
       <label>Search products<input type="search" value="${escapeHtml(query)}" placeholder="Search by product, SKU or keyword" data-shop-product-search></label>
-      <label>Category<select data-shop-category><option value="all">All categories</option>${categories.map((category) => `<option value="${escapeHtml(slugify(category))}" ${slugify(category) === selectedCategory ? "selected" : ""}>${escapeHtml(category)}</option>`).join("")}</select></label>
+      <label>Category<select data-shop-category><option value="all">All categories</option>${categories.map((category) => `<option value="${escapeHtml(category)}" ${category === selectedCategory ? "selected" : ""}>${escapeHtml(category)}</option>`).join("")}</select></label>
     </div>
     <p class="shop-catalogue-status" aria-live="polite" data-shop-catalogue-status></p>
     <div class="kalahari-grid" aria-live="polite" data-shop-product-grid></div>
@@ -260,7 +260,7 @@ const setupShopCatalogue = (content) => {
   const status = section.querySelector("[data-shop-catalogue-status]");
   const search = section.querySelector("[data-shop-product-search]");
   const categorySelect = section.querySelector("[data-shop-category]");
-  if (selectedCategory !== "all" && !categories.some((category) => slugify(category) === selectedCategory)) selectedCategory = "all";
+  if (selectedCategory !== "all" && !categories.includes(selectedCategory)) selectedCategory = "all";
 
   const updateUrl = () => {
     const next = new URL(window.location.href);
@@ -276,7 +276,7 @@ const setupShopCatalogue = (content) => {
     const exactSkuSearch = queryKey && products.some((product) => String(product.sku || "").toLowerCase() === queryKey);
     const filtered = products.filter((product) => {
       const brandMatch = selectedBrand === "all" || (brand && productMatchesBrand(product, brand));
-      const categoryMatch = selectedCategory === "all" || slugify(product.category) === selectedCategory;
+      const categoryMatch = selectedCategory === "all" || product.category === selectedCategory;
       const searchText = [product.brand, product.name, product.sku, product.size, product.category, product.description, product.searchKeywords].join(" ").toLowerCase();
       const searchMatch = !queryKey || (exactSkuSearch ? String(product.sku || "").toLowerCase() === queryKey : searchText.includes(queryKey));
       return brandMatch && categoryMatch && searchMatch;
@@ -452,10 +452,10 @@ const loadStaticContent = async () => {
       return [];
     }
   };
-  const [brands, products, treatments, gallery, vouchers] = await Promise.all(
-    ["brands", "products", "treatments", "gallery", "vouchers"].map(readItems),
+  const [brands, products, treatments, gallery, vouchers, productCategories] = await Promise.all(
+    ["brands", "products", "treatments", "gallery", "vouchers", "product-categories"].map(readItems),
   );
-  return { brands, products, treatments, gallery, vouchers };
+  return { brands, products, treatments, gallery, vouchers, productCategories };
 };
 
 const loadManagedContent = async () => {
@@ -471,6 +471,7 @@ const loadManagedContent = async () => {
         return {
           ...content,
           products,
+          productCategories: Array.isArray(content?.productCategories) ? content.productCategories : fallback.productCategories,
           brands: mergeCollections(fallback.brands, content?.brands),
           treatments: Array.isArray(content?.treatments) ? content.treatments : fallback.treatments,
           gallery: Array.isArray(content?.gallery) ? content.gallery : fallback.gallery,
@@ -663,7 +664,7 @@ const renderManagedProductCard = (product, index = 0) => {
         <span class="product-brand-badge" data-brand="${escapeHtml(product.brand.toLowerCase())}">${escapeHtml(product.brand)}</span>
         <h3 class="product-card__title" title="${escapeHtml(product.name)}">${escapeHtml(product.name)}</h3>
         ${product.size ? `<span class="product-size">${escapeHtml(product.size)}</span>` : ""}
-        ${product.category ? `<a class="product-category-link" href="/shop?category=${encodeURIComponent(slugify(product.category))}">${escapeHtml(product.category)}</a>` : ""}
+        ${product.category ? `<a class="product-category-link" href="/shop?category=${encodeURIComponent(product.category)}">${escapeHtml(product.category)}</a>` : ""}
         <p>${escapeHtml(product.benefit)}</p>
         <strong class="product-card__price">${formatCurrency(product.price)}</strong>
         <span class="product-stock"><span aria-hidden="true"></span> ${escapeHtml(stockLabel(product.stockStatus))}</span>
