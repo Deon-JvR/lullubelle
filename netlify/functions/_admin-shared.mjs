@@ -15,6 +15,7 @@ import {
   mergeProductCatalogue,
   migrateCatalogueContent,
   normaliseProductGallery,
+  PRODUCT_CATEGORIES,
 } from "./_products.mjs";
 import { apiSecurityHeaders, mergeSecurityHeaders } from "./lib/security-headers.mjs";
 
@@ -99,6 +100,7 @@ const seedContent = async () => {
     serviceCatalogueVersion: SERVICE_CATALOGUE_VERSION,
     brands: Array.isArray(brands) ? brands : [],
     products: Array.isArray(products) ? products : [],
+    productCategories: [...PRODUCT_CATEGORIES],
     treatments: Array.isArray(treatments) ? treatments : [],
     gallery: sanitiseGallery(gallery),
     vouchers: Array.isArray(vouchers) ? vouchers : [],
@@ -137,6 +139,7 @@ export const readContent = async () => {
     ...stored,
     brands: mergeBrands(seed.brands, stored.brands),
     products: mergeProductCatalogue(seed.products, stored.products),
+    productCategories: [...PRODUCT_CATEGORIES],
     treatments: hasItems(stored.treatments) ? stored.treatments : seed.treatments,
     // Once Blob content exists it is authoritative, including an intentionally empty gallery.
     // The static gallery is used only when the content record itself cannot be read.

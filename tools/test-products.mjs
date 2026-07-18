@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import {
   CATALOGUE_SCHEMA_VERSION,
   isValidProductImageUrl,
@@ -10,6 +11,10 @@ import {
   verifyPersistedProducts,
 } from "../netlify/functions/_products.mjs";
 
+const approvedCategories = JSON.parse(readFileSync(new URL("../data/product-categories.json", import.meta.url), "utf8"));
+const validTestCategory = approvedCategories.find((category) => category === "Prepare");
+assert.equal(validTestCategory, "Prepare", "The shared category source must include the valid fixture category");
+
 const brands = ["Kalahari", "VitaDerm", "Mesoestetic", "SunSkin"].map((name, index) => ({
   id: name.toLowerCase(), name, order: index + 1, active: true,
 }));
@@ -18,6 +23,7 @@ const product = (brand, index) => ({
   brandId: brand.id,
   brand: brand.name,
   name: `${brand.name} Test Product ${index}`,
+  category: validTestCategory,
   price: 100 + index,
   image: `/.netlify/functions/admin-asset?key=products%2F${brand.id}%2Fmain-${index}.webp`,
   galleryImages: [

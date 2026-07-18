@@ -730,11 +730,11 @@ h3 {
 }
 
 .brand-tile {
-  display: grid;
-  align-content: center;
-  justify-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 14px;
-  min-height: 174px;
+  min-height: 218px;
   padding: 20px;
   background: #fff;
   border: 1px solid var(--line);
@@ -742,20 +742,36 @@ h3 {
   box-shadow: 0 14px 35px rgba(17, 21, 18, 0.05);
 }
 
-.brand-logo {
+.brand-logo-wrap {
   display: flex;
+  flex: 1 1 auto;
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 120px;
-  padding: 20px;
+  min-height: 150px;
+  padding: 20px 28px;
   box-sizing: border-box;
-  object-fit: contain;
-  max-width: 100%;
-  max-height: 100%;
 }
 
+.brand-logo {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: var(--brand-logo-max-width, 78%);
+  max-height: var(--brand-logo-max-height, 105px);
+  object-fit: contain;
+}
+
+.brand-logo--kalahari { --brand-logo-max-width: 82%; --brand-logo-max-height: 108px; }
+.brand-logo--mesoestetic { --brand-logo-max-width: 78%; --brand-logo-max-height: 82px; }
+.brand-logo--cirepil { --brand-logo-max-width: 72%; --brand-logo-max-height: 96px; }
+.brand-logo--dr-pen { --brand-logo-max-width: 70%; --brand-logo-max-height: 98px; }
+.brand-logo--vitaderm { --brand-logo-max-width: 92%; --brand-logo-max-height: 96px; }
+.brand-logo--epilfree { --brand-logo-max-width: 88%; --brand-logo-max-height: 88px; }
+
 .brand-tile small {
+  min-height: 1.35em;
+  margin-top: auto;
   color: var(--muted);
   font-size: 0.82rem;
   font-weight: 800;
@@ -4756,9 +4772,9 @@ input,textarea,select,button {
 }
 
 .brand-logo {
-  width: 100%;
-  height: 120px;
-  padding: 20px;
+  width: auto;
+  height: auto;
+  padding: 0;
 }
 
 .treatment-feature-card > span {

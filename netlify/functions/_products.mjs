@@ -1,8 +1,20 @@
 import { createHash } from "node:crypto";
+import productCategories from "../../data/product-categories.json" with { type: "json" };
 
 const PLACEHOLDER_IMAGE_PATTERN = /(?:^|\/)(?:lullubelle-logo|placeholder|default-product|sample-product)(?:[._/?-]|$)/i;
 const PRODUCT_ID_PATTERN = /^[a-z0-9][a-z0-9_-]*$/;
-export const CATALOGUE_SCHEMA_VERSION = 4;
+export const CATALOGUE_SCHEMA_VERSION = 5;
+export const PRODUCT_CATEGORIES = Object.freeze([...productCategories]);
+export const PRODUCT_CATEGORY_MIGRATIONS = Object.freeze({
+  "HOCl Collection": "HOCL Collection",
+  "Correctors — Gels & Lotion": "Corrects, Gels and Lotions",
+  "Effective UVA/UVB Protection": "UVA/UVB Protection",
+  "Support Serums & Face Oil": "Serums and Face Oil",
+  "Tinted Treatment Moisturisers & Phyto Fluid Foundation": "Tinted Treatment Moisturisers",
+  "Treatments Eye Care": "Treatment Eye Care",
+});
+export const migrateProductCategory = (category) => PRODUCT_CATEGORY_MIGRATIONS[String(category || "").trim()] || String(category || "").trim();
+export const isApprovedProductCategory = (category) => PRODUCT_CATEGORIES.includes(String(category || "").trim());
 
 export const productIdentityKey = (value) => String(value || "").trim().toLowerCase();
 
@@ -139,7 +151,7 @@ export const migrateCatalogueContent = (storedContent = {}, seedContent = {}) =>
       return [];
     }
     const canonicalBrand = brandNamesById.get(productIdentityKey(product?.brandId));
-    return [{ ...product, ...(canonicalBrand ? { brand: canonicalBrand } : {}) }];
+    return [{ ...product, category: migrateProductCategory(product.category), ...(canonicalBrand ? { brand: canonicalBrand } : {}) }];
   });
 
   const synchronised = synchroniseProductCatalogue(seedContent?.products, cleanedStoredProducts);
@@ -167,7 +179,7 @@ export const mergeProductCatalogue = (seedProducts = [], managedProducts) => {
   return synchroniseProductCatalogue(seedProducts, managedProducts).products;
 };
 
-export const validateProductCatalogue = (content, { minimumProducts = 65 } = {}) => {
+export const validateProductCatalogue = (content, { minimumProducts = 65, existingProducts = [] } = {}) => {
   const products = Array.isArray(content?.products) ? content.products : [];
   const brands = Array.isArray(content?.brands) ? content.brands : [];
   if (products.length < minimumProducts) return `The product catalogue must contain all ${minimumProducts} products before saving.`;
@@ -201,12 +213,17 @@ export const validateProductCatalogue = (content, { minimumProducts = 65 } = {})
   }
 
   const brandsById = new Map(brands.map((brand) => [productIdentityKey(brand.id), brand]));
+  const existingCategories = new Map((Array.isArray(existingProducts) ? existingProducts : []).map((product) => [productIdentityKey(product?.id), String(product?.category || "").trim()]));
   for (const product of products) {
     const id = String(product?.id || "").trim();
     const brand = brandsById.get(productIdentityKey(product?.brandId));
     const price = Number(product?.price);
     if (!id || !PRODUCT_ID_PATTERN.test(id)) return `Every product requires a stable lowercase ID. Please review: ${product?.name || "Unnamed product"}.`;
     if (!String(product?.name || "").trim()) return `Product name is required for ${id}.`;
+    const category = String(product?.category || "").trim();
+    if (!isApprovedProductCategory(category) && existingCategories.get(productIdentityKey(id)) !== category) {
+      return `Select an approved category for ${product?.name || id}. "${category}" is not a valid product category.`;
+    }
     if (!brand) return `Select a valid brand for ${product?.name || id}. Saving was blocked.`;
     if (String(product?.brand || "").trim() !== String(brand.name || "").trim()) {
       return `Brand data does not match the selected brand for ${product?.name || id}. Re-select the intended brand.`;

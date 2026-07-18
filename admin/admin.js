@@ -17,6 +17,7 @@ const state = {
     editingId: "",
     selectedIds: new Set(),
     dirtyIds: new Set(),
+    legacyCategories: new Map(),
     search: "",
     brand: "all",
     stock: "all",
@@ -60,6 +61,20 @@ const productEditorBrands = (product) => {
   const active = activeBrands();
   const current = brandForProduct(product);
   return current && !active.some((brand) => brand.id === current.id) ? [...active, current] : active;
+};
+const productCategories = () => Array.isArray(state.content.productCategories) ? state.content.productCategories : [];
+const productCategorySelect = (product) => {
+  const categories = productCategories();
+  const current = String(product.category || "").trim();
+  const legacy = current && !categories.includes(current);
+  return `<label>Category
+    <select data-key="category" required aria-describedby="product-category-help">
+      <option value="" ${current ? "" : "selected"} disabled>Select a category</option>
+      ${legacy ? `<option value="${escapeHtml(current)}" selected>${escapeHtml(current)} (legacy category)</option>` : ""}
+      ${categories.map((category) => `<option value="${escapeHtml(category)}" ${category === current ? "selected" : ""}>${escapeHtml(category)}</option>`).join("")}
+    </select>
+    <small id="product-category-help">${legacy ? `“${escapeHtml(current)}” is a legacy category. Select an approved category to correct it.` : "Choose the storefront category for this product."}</small>
+  </label>`;
 };
 const brandForProduct = (product) => state.content.brands.find((brand) => brand.id === product.brandId)
   || state.content.brands.find((brand) => brand.name.toLowerCase() === String(product.brand || "").toLowerCase());
@@ -460,7 +475,7 @@ const renderProductEditor = (product) => `
               <option value="__add_brand__">＋ Add new brand…</option>
             </select>
           </label>
-          ${field("Category", product.category || "", "category")}
+          ${productCategorySelect(product)}
           ${field("SKU", product.sku || "", "sku")}
           ${field("Size", product.size || "", "size")}
         </div>
@@ -839,6 +854,9 @@ const loadAll = async () => {
     galleryImages: productGallery(product),
   }));
   state.productUi.dirtyIds.clear();
+  state.productUi.legacyCategories = new Map(state.content.products
+    .filter((product) => !productCategories().includes(String(product.category || "").trim()))
+    .map((product) => [product.id, String(product.category || "").trim()]));
   state.bookings = await request("bookings");
   state.orders = await request("orders");
   state.orderDirtyIds.clear();
@@ -874,7 +892,7 @@ const showLogin = () => {
 
 const addItem = (collection) => {
   const defaults = {
-    products: { id: uid("product"), brandId: "", brand: "", category: "Needs review", name: "", price: 1, stockStatus: "In stock", image: "", imageAlt: "", galleryImages: [], hidden: true },
+    products: { id: uid("product"), brandId: "", brand: "", category: "", name: "", price: 1, stockStatus: "In stock", image: "", imageAlt: "", galleryImages: [], hidden: true },
     treatments: { id: uid("treatment"), category: "General", name: "New treatment", price: "", duration: "", hidden: false },
     gallery: { id: uid("gallery"), title: "New result", category: "Microneedling", categories: "microneedling", order: state.content.gallery.length + 1, featured: false, hidden: false },
     vouchers: { id: uid("voucher"), name: "Gift Voucher", amount: 250, hidden: false },
@@ -956,6 +974,15 @@ const validateProductsBeforeSave = () => {
   if (duplicateSlugIndex >= 0) return `Duplicate product slug detected: ${products[duplicateSlugIndex].id}. Saving was blocked.`;
   const duplicateSkuIndex = productSkus.findIndex((sku, index) => sku && productSkus.indexOf(sku) !== index);
   if (duplicateSkuIndex >= 0) return `Duplicate product SKU detected: ${products[duplicateSkuIndex].sku}. Saving was blocked.`;
+
+  const invalidCategory = products.find((product) => {
+    const category = String(product.category || "").trim();
+    return !productCategories().includes(category)
+      && (state.productUi.legacyCategories.get(product.id) !== category || state.productUi.dirtyIds.has(product.id));
+  });
+  if (invalidCategory) {
+    return `Select an approved category for ${invalidCategory.name || invalidCategory.id || "the new product"}. Saving was blocked.`;
+  }
 
   const invalid = products.find((product) => {
     const price = Number(product.price);
