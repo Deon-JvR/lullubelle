@@ -13,15 +13,37 @@ const representatives = [
   "mesoestetic-hydra-vital-light",
 ];
 
+const assertHsts = (value) => {
+  assert.ok(value, "missing Strict-Transport-Security");
+  const directives = new Map();
+  for (const part of value.split(";").map((item) => item.trim()).filter(Boolean)) {
+    const [name, ...valueParts] = part.split("=");
+    const normalisedName = name.toLowerCase();
+    assert.ok(!directives.has(normalisedName), `duplicate HSTS directive ${name}`);
+    directives.set(normalisedName, valueParts.join("=").trim());
+  }
+  assert.equal(directives.get("max-age"), "31536000");
+  assert.ok(directives.has("includesubdomains"), "HSTS must include includeSubDomains");
+  const allowed = new Set(["max-age", "includesubdomains", "preload"]);
+  directives.forEach((_value, name) => assert.ok(allowed.has(name), `unexpected HSTS directive ${name}`));
+};
+
 const assertHeaders = (actual, expected) => {
   const names = Object.keys(actual).map((name) => name.toLowerCase());
   assert.equal(new Set(names).size, names.length, "response must not contain case-insensitive duplicate headers");
   Object.entries(expected).forEach(([name, value]) => {
     const actualName = Object.keys(actual).find((candidate) => candidate.toLowerCase() === name.toLowerCase());
     assert.ok(actualName, `missing ${name}`);
-    assert.equal(actual[actualName], value, `${name} must match the shared policy`);
+    if (name.toLowerCase() === "strict-transport-security") assertHsts(actual[actualName]);
+    else assert.equal(actual[actualName], value, `${name} must match the shared policy`);
   });
 };
+
+assertHsts("max-age=31536000; includeSubDomains");
+assertHsts("MAX-AGE=31536000; INCLUDESUBDOMAINS; PRELOAD");
+assert.throws(() => assertHsts("max-age=86400; includeSubDomains"));
+assert.throws(() => assertHsts("max-age=31536000; includeSubDomains; unexpected"));
+assert.throws(() => assertHsts("max-age=31536000; max-age=86400; includeSubDomains"));
 
 for (const slug of representatives) {
   const product = products.find((item) => (item.slug || item.id) === slug);
