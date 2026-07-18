@@ -24,7 +24,7 @@
   status = 200
 
 [functions]
-  included_files = ["data/*.json"]
+  included_files = ["data/*.json", "product.html"]
 
 [[redirects]]
   from = "/sitemap.xml"
@@ -44,7 +44,7 @@
 
 [[redirects]]
   from = "/products/*"
-  to = "/product.html"
+  to = "/.netlify/functions/product-page"
   status = 200
 
 [[redirects]]
@@ -84,7 +84,12 @@
 
 [[redirects]]
   from = "/advanced-facials-centurion"
-  to = "/facials-centurion.html"
+  to = "/facial-treatments-centurion"
+  status = 301
+
+[[redirects]]
+  from = "/facial-treatments-centurion"
+  to = "/facial-treatments-centurion.html"
   status = 200
 
 [[redirects]]
@@ -103,8 +108,25 @@
   status = 200
 
 [[redirects]]
+  from = "/epilfree-hair-removal-centurion"
+  to = "/epilfree-centurion"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/epilfree-hair-removal-centurion.html"
+  to = "/epilfree-centurion"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/skin-consultations"
-  to = "/online-consultations.html"
+  to = "/skin-consultation-centurion"
+  status = 301
+
+[[redirects]]
+  from = "/skin-consultation-centurion"
+  to = "/skin-consultation-centurion.html"
   status = 200
 
 [[redirects]]
@@ -168,6 +190,13 @@
   [headers.values]
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+    X-Frame-Options = "DENY"
+    X-Permitted-Cross-Domain-Policies = "none"
+    Cross-Origin-Opener-Policy = "same-origin"
+    Cross-Origin-Resource-Policy = "same-site"
+    Permissions-Policy = "camera=(), geolocation=(), microphone=(), payment=(), usb=()"
+    Content-Security-Policy = "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; style-src-attr 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://www.google.com https://www.googletagmanager.com; media-src 'self' blob:; frame-src 'none'; child-src 'none'; worker-src 'self' blob:; manifest-src 'self'; upgrade-insecure-requests"
     Cache-Control = "public, max-age=0, must-revalidate"
 
 [[headers]]

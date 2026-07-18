@@ -5296,7 +5296,7 @@ input,textarea,select,button {
 }
 
 .cart-delivery-card .checkout-delivery-options {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .cart-delivery-card .checkout-delivery-options legend,

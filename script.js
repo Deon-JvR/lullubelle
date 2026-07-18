@@ -703,6 +703,7 @@ const applyManagedGallery = (gallery = []) => {
   if (!grid) return;
   if (!visible.length) {
     grid.innerHTML = "<p>Before &amp; After results are temporarily unavailable.</p>";
+    grid.dataset.galleryState = "empty";
     return;
   }
 
@@ -728,6 +729,7 @@ const applyManagedGallery = (gallery = []) => {
         </div>
       </article>`;
   }).join("");
+  grid.dataset.galleryState = "ready";
   grid.querySelectorAll("img").forEach((image) => image.addEventListener("error", () => image.closest("[data-results-card]")?.remove(), { once: true }));
   appendStructuredData("managed-gallery", {
     "@context": "https://schema.org",
@@ -776,6 +778,7 @@ const applyTreatmentGalleryPreviews = (gallery = []) => {
     });
     if (!item) {
       section.hidden = true;
+      section.dataset.galleryState = "empty";
       return;
     }
     section.hidden = false;
@@ -788,6 +791,7 @@ const applyTreatmentGalleryPreviews = (gallery = []) => {
       media.innerHTML = `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title || "Before and after treatment result")}" width="1200" height="1200" loading="lazy" decoding="async">`;
       media.querySelector("img")?.addEventListener("error", () => { section.hidden = true; }, { once: true });
     }
+    section.dataset.galleryState = "ready";
   });
 };
 
@@ -931,6 +935,8 @@ const selectFeaturedProducts = (products, brands = []) => {
 };
 const productDetailUrl = (slug) => `/products/${encodeURIComponent(slug)}`;
 
+const setMetaContent = (selector, content) => document.querySelector(selector)?.setAttribute("content", content);
+
 const getAllShopProducts = async () => {
   const managedContent = await loadManagedContent();
   return getVisibleManagedItems(managedContent?.products).map(normaliseManagedProduct);
@@ -962,9 +968,22 @@ const renderProductDetailPage = async () => {
     .slice(0, 3);
   const description = product.description || product.benefit || `${product.brand} ${product.name} is available through Lullubelle Beauty Specialist in Centurion.`;
 
-  document.title = product.seoTitle || `${product.brand} ${product.name} | Lullubelle Skincare Centurion`;
-  document.querySelector('meta[name="description"]')?.setAttribute("content", product.seoDescription || `${product.brand} ${product.name} from Lullubelle Beauty Specialist in Centurion. View benefits, directions, skin suitability and order online.`);
-  document.querySelector('link[rel="canonical"]')?.setAttribute("href", `https://www.lullubelle.co.za${productDetailUrl(product.slug)}`);
+  const productTitle = product.seoTitle || `${product.brand} ${product.name} | Lullubelle Skincare Centurion`;
+  const productDescription = product.seoDescription || `${product.brand} ${product.name} from Lullubelle Beauty Specialist in Centurion. View benefits, directions, skin suitability and order online.`;
+  const productUrl = `https://www.lullubelle.co.za${productDetailUrl(product.slug)}`;
+  const productImage = new URL(product.image, "https://www.lullubelle.co.za/").href;
+  document.title = productTitle;
+  setMetaContent('meta[name="description"]', productDescription);
+  document.querySelector('link[rel="canonical"]')?.setAttribute("href", productUrl);
+  setMetaContent('meta[property="og:title"]', productTitle);
+  setMetaContent('meta[property="og:description"]', productDescription);
+  setMetaContent('meta[property="og:url"]', productUrl);
+  setMetaContent('meta[property="og:image"]', productImage);
+  setMetaContent('meta[property="og:type"]', "product");
+  setMetaContent('meta[name="twitter:card"]', "summary_large_image");
+  setMetaContent('meta[name="twitter:title"]', productTitle);
+  setMetaContent('meta[name="twitter:description"]', productDescription);
+  setMetaContent('meta[name="twitter:image"]', productImage);
 
   container.innerHTML = `
     <section class="section product-detail product-detail-page-hero">

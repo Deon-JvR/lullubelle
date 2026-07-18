@@ -6,9 +6,13 @@ const PAGE_PATHS = [
   "/shop",
   "/book-appointment",
   "/pricelist",
-  "/skin-consultations",
+  "/skin-consultation-centurion",
   "/beauty-salon-centurion",
-  "/advanced-facials-centurion",
+  "/facial-treatments-centurion",
+  "/acne-treatment-centurion",
+  "/chemical-peel-centurion",
+  "/dermaplaning-centurion",
+  "/pigmentation-treatment-centurion",
   "/microneedling-centurion",
   "/cosmelan-centurion",
   "/waxing-centurion",
@@ -36,7 +40,7 @@ export const handler = async (event) => {
   connectBlobContext(event);
   const content = await readContent();
   const productPaths = (content.products || [])
-    .filter((product) => (product?.slug || product?.id) && product.hidden !== true)
+    .filter((product) => (product?.slug || product?.id) && product.hidden !== true && product.active !== false && product.published !== false)
     .map((product) => `/products/${encodeURIComponent(product.slug || product.id)}`);
   const urls = [...PAGE_PATHS, ...productPaths];
   const body = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls
