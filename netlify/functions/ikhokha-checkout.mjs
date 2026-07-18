@@ -10,6 +10,7 @@ import {
 } from "./_admin-shared.mjs";
 import { calculateDiscount, releaseRedemption, reserveRedemption, validatePromo } from "./_discounts.mjs";
 import { DOOR_TO_DOOR_FEE, DOOR_TO_DOOR_METHOD, calculateDelivery, normaliseDeliveryMethod, sanitiseDeliverySettings } from "./_delivery.mjs";
+import { apiSecurityHeaders, mergeSecurityHeaders } from "./lib/security-headers.mjs";
 import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
 
 const toBoolean = (value) => /^(1|true|yes|on)$/i.test(String(value || ""));
@@ -749,10 +750,10 @@ export const handler = async (event) => {
     if (!wantsJson(event)) {
       return {
         statusCode: 303,
-        headers: {
+        headers: mergeSecurityHeaders({
           Location: checkout.paymentUrl,
           "Cache-Control": "no-store",
-        },
+        }, apiSecurityHeaders),
         body: "",
       };
     }

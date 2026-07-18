@@ -16,6 +16,7 @@ import {
   migrateCatalogueContent,
   normaliseProductGallery,
 } from "./_products.mjs";
+import { apiSecurityHeaders, mergeSecurityHeaders } from "./lib/security-headers.mjs";
 
 export const SESSION_COOKIE = "lullubelle_admin";
 export const SESSION_MAX_AGE = 60 * 30;
@@ -25,11 +26,11 @@ export const ORDERS_KEY = "orders";
 
 export const json = (statusCode, data, headers = {}) => ({
   statusCode,
-  headers: {
+  headers: mergeSecurityHeaders({
     "Content-Type": "application/json; charset=utf-8",
     "Cache-Control": "no-store",
     ...headers,
-  },
+  }, apiSecurityHeaders),
   body: JSON.stringify(data),
 });
 

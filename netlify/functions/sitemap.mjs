@@ -1,4 +1,5 @@
 import { connectBlobContext, readContent } from "./_admin-shared.mjs";
+import { mergeSecurityHeaders, xmlSecurityHeaders } from "./lib/security-headers.mjs";
 
 const SITE_URL = "https://www.lullubelle.co.za";
 const PAGE_PATHS = [
@@ -26,7 +27,7 @@ const PAGE_PATHS = [
   "/refund-policy",
   "/shipping-policy",
   "/privacy-policy",
-  "/before-after",
+  "/before-after/",
 ];
 
 const escapeXml = (value) => String(value)
@@ -49,10 +50,10 @@ export const handler = async (event) => {
 
   return {
     statusCode: 200,
-    headers: {
+    headers: mergeSecurityHeaders({
       "Content-Type": "application/xml; charset=UTF-8",
       "Cache-Control": "public, max-age=0, must-revalidate",
-    },
+    }, xmlSecurityHeaders),
     body,
   };
 };

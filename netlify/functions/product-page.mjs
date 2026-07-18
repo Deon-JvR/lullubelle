@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { connectBlobContext, readContent } from "./_admin-shared.mjs";
+import { htmlSecurityHeaders, mergeSecurityHeaders } from "./lib/security-headers.mjs";
 
 const SITE_URL = "https://www.lullubelle.co.za";
 const template = readFileSync(resolve(process.cwd(), "product.html"), "utf8");
@@ -59,14 +60,14 @@ export const handler = async (event) => {
   if (!product) {
     return {
       statusCode: 404,
-      headers: { "Content-Type": "text/html; charset=UTF-8", "Cache-Control": "public, max-age=0, must-revalidate" },
+      headers: mergeSecurityHeaders({ "Content-Type": "text/html; charset=UTF-8", "Cache-Control": "public, max-age=0, must-revalidate" }, htmlSecurityHeaders),
       body: "<!doctype html><title>Product not found | Lullubelle</title><h1>Product not found</h1>",
     };
   }
 
   return {
     statusCode: 200,
-    headers: { "Content-Type": "text/html; charset=UTF-8", "Cache-Control": "public, max-age=0, must-revalidate" },
+    headers: mergeSecurityHeaders({ "Content-Type": "text/html; charset=UTF-8", "Cache-Control": "public, max-age=0, must-revalidate" }, htmlSecurityHeaders),
     body: renderProductHtml(product),
   };
 };
