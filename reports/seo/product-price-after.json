@@ -1,0 +1,5060 @@
+{
+  "generatedFrom": "production catalogue",
+  "productCount": 163,
+  "sha256": "dfb9391bd0818a8f60d48c847aa33b5813627a664a528d14dae9899f70111313",
+  "records": {
+    "kalahari-activated-charcoal-mask": {
+      "sku": "FK1012",
+      "price": {
+        "present": true,
+        "value": 506
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-age-preventative-kit": {
+      "sku": "D11",
+      "price": {
+        "present": true,
+        "value": 1113
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-alpha-lipoic-complex-with-astaxanthin": {
+      "sku": "FK1001",
+      "price": {
+        "present": true,
+        "value": 829
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-anti-ageing-gel": {
+      "sku": "FK1080",
+      "price": {
+        "present": true,
+        "value": 342
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-anti-puffiness-eye-serum": {
+      "sku": "FK1021",
+      "price": {
+        "present": true,
+        "value": 559
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-buchu-kisses": {
+      "sku": "FK1175",
+      "price": {
+        "present": true,
+        "value": 136
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-clear-touch-blemish-patches": {
+      "sku": "FK1024",
+      "price": {
+        "present": true,
+        "value": 176
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-collagen-lip-mask": {
+      "sku": "CMP01",
+      "price": {
+        "present": true,
+        "value": 53
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-de-age-hydration-mask": {
+      "sku": "FK1020",
+      "price": {
+        "present": true,
+        "value": 534
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-de-age-leave-on-mask": {
+      "sku": "FK1016",
+      "price": {
+        "present": true,
+        "value": 266
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-desert-rose-set": {
+      "sku": "FK1200",
+      "price": {
+        "present": true,
+        "value": 279
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-dry-and-dehydrated-kit": {
+      "sku": "D12",
+      "price": {
+        "present": true,
+        "value": 1213
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-eco-disposable-compress": {
+      "sku": "DC001",
+      "price": {
+        "present": true,
+        "value": 111
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-enzyme-face-buff": {
+      "sku": "ENE02",
+      "price": {
+        "present": true,
+        "value": 345
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-essential-daily-moisturiser": {
+      "sku": "ES01",
+      "price": {
+        "present": true,
+        "value": 386
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-evening-moisturiser": {
+      "sku": "ES02",
+      "price": {
+        "present": true,
+        "value": 410
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-facial-cleanser": {
+      "sku": "FK2090",
+      "price": {
+        "present": true,
+        "value": 265
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-facial-cleanser-in-refill-pouch": {
+      "sku": "FK1026",
+      "price": {
+        "present": true,
+        "value": 292
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-facial-silicon-exfoliator": {
+      "sku": "MAS02",
+      "price": {
+        "present": true,
+        "value": 111
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-ferulic-ceb-serum": {
+      "sku": "FK1002",
+      "price": {
+        "present": true,
+        "value": 531
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-gauze-non-sterile-100-individual-units": {
+      "sku": "GAU01",
+      "price": {
+        "present": true,
+        "value": 111
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-gentle-cleansing-milk": {
+      "sku": "CLE01",
+      "price": {
+        "present": true,
+        "value": 277
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-gentle-cleansing-milk-in-refill-pouch": {
+      "sku": "FK1027",
+      "price": {
+        "present": true,
+        "value": 305
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-hydralite-moisturiser": {
+      "sku": "K1046",
+      "price": {
+        "present": true,
+        "value": 421
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-hydrating-collagen-eye-patches": {
+      "sku": "CEP001",
+      "price": {
+        "present": true,
+        "value": 69
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-hyperpigmented-skin-kit": {
+      "sku": "D14",
+      "price": {
+        "present": true,
+        "value": 1012
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-instant-lifting-serum": {
+      "sku": "FK1050",
+      "price": {
+        "present": true,
+        "value": 370
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-intensive-night-serum": {
+      "sku": "FK1040",
+      "price": {
+        "present": true,
+        "value": 384
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-kalahari-sunset-set": {
+      "sku": "FK1201",
+      "price": {
+        "present": true,
+        "value": 279
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-lip-balm-with-spf-and-grapeseed": {
+      "sku": "FK1007",
+      "price": {
+        "present": true,
+        "value": 97
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-lip-pop-wild-honey": {
+      "sku": "PM022",
+      "price": {
+        "present": true,
+        "value": 220
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-lipid-plus-recovery-therapeutic": {
+      "sku": "FK1013",
+      "price": {
+        "present": true,
+        "value": 473
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-marula-face-oil": {
+      "sku": "MAU04",
+      "price": {
+        "present": true,
+        "value": 464
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-mature-skin-kit": {
+      "sku": "D22",
+      "price": {
+        "present": true,
+        "value": 1113
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-nourishing-eye-balm-tube": {
+      "sku": "FK1011",
+      "price": {
+        "present": true,
+        "value": 277
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-nourishing-face-and-neck-mask": {
+      "sku": "NOU02",
+      "price": {
+        "present": true,
+        "value": 358
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-oily-skin-correction-gel": {
+      "sku": "FK1060",
+      "price": {
+        "present": true,
+        "value": 354
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-omega-complex-with-folic-acid": {
+      "sku": "FK1003",
+      "price": {
+        "present": true,
+        "value": 924
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-phyto-barrier-shield": {
+      "sku": "PH06",
+      "price": {
+        "present": true,
+        "value": 513
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-phyto-calm-facial-mist": {
+      "sku": "FK1101",
+      "price": {
+        "present": true,
+        "value": 420
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-phyto-comfort-lotion": {
+      "sku": "PHYL01",
+      "price": {
+        "present": true,
+        "value": 322
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-phyto-correct-serum": {
+      "sku": "PHY01",
+      "price": {
+        "present": true,
+        "value": 319
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-phyto-dd-cream-ivory": {
+      "sku": "DD03",
+      "price": {
+        "present": true,
+        "value": 234
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-phyto-dd-cream-marble": {
+      "sku": "DD05",
+      "price": {
+        "present": true,
+        "value": 234
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-phyto-dd-cream-sun-kissed": {
+      "sku": "DD04",
+      "price": {
+        "present": true,
+        "value": 234
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-phyto-eye-contour-mask-tube": {
+      "sku": "FK1150",
+      "price": {
+        "present": true,
+        "value": 583
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-phyto-film-toner-ph3-5-treatment-toner": {
+      "sku": "PHY07",
+      "price": {
+        "present": true,
+        "value": 160
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-phyto-firming-neck-mask": {
+      "sku": "PHY010",
+      "price": {
+        "present": true,
+        "value": 407
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-phyto-fluid-foundation-alabaster": {
+      "sku": "PFF01",
+      "price": {
+        "present": true,
+        "value": 557
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-phyto-fluid-foundation-honey": {
+      "sku": "PFF02",
+      "price": {
+        "present": true,
+        "value": 557
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-phyto-fluid-foundation-savannah": {
+      "sku": "PFF03",
+      "price": {
+        "present": true,
+        "value": 557
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-phyto-foam-cleanser-self-foaming": {
+      "sku": "FK1010",
+      "price": {
+        "present": true,
+        "value": 333
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-phyto-rich-moisturiser": {
+      "sku": "ES03",
+      "price": {
+        "present": true,
+        "value": 569
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-phyto-salve-therapeutic": {
+      "sku": "PH010",
+      "price": {
+        "present": true,
+        "value": 428
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-phytoflora-serum": {
+      "sku": "PHY10",
+      "price": {
+        "present": true,
+        "value": 484
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-pow-d-er-clays-and-mud-treatment-set": {
+      "sku": "D24",
+      "price": {
+        "present": true,
+        "value": 932
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-problematic-skin-kit": {
+      "sku": "D15",
+      "price": {
+        "present": true,
+        "value": 1036
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-revitalising-booster-gel": {
+      "sku": "FK1000",
+      "price": {
+        "present": true,
+        "value": 322
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-sensitive-and-sensitised-kit": {
+      "sku": "D13",
+      "price": {
+        "present": true,
+        "value": 1091
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-shea-butter-lip-balm-rose-round": {
+      "sku": "AP03",
+      "price": {
+        "present": true,
+        "value": 154
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-skin-brightening-gel": {
+      "sku": "FK1070",
+      "price": {
+        "present": true,
+        "value": 519
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-skincare-journey-kit-in-travel-bag": {
+      "sku": "D008A",
+      "price": {
+        "present": true,
+        "value": 617
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-soft-touch-cleansing-cloth": {
+      "sku": "PM015",
+      "price": {
+        "present": true,
+        "value": 194
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-solar-defence-fluid-50": {
+      "sku": "FK1017",
+      "price": {
+        "present": true,
+        "value": 553
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-soothing-lips-african-flowers": {
+      "sku": "FK1025",
+      "price": {
+        "present": true,
+        "value": 157
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-soothing-lips-desert-rose": {
+      "sku": "FK1180",
+      "price": {
+        "present": true,
+        "value": 157
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-soothing-lips-kalahari-sunset": {
+      "sku": "FK1190",
+      "price": {
+        "present": true,
+        "value": 157
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-soothing-lips-wild-honey": {
+      "sku": "FK1170",
+      "price": {
+        "present": true,
+        "value": 134
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-spf-40-sun-protection": {
+      "sku": "TU004",
+      "price": {
+        "present": true,
+        "value": 435
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-toning-lotion": {
+      "sku": "FK2091",
+      "price": {
+        "present": true,
+        "value": 330
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-treatment-lip-glaze": {
+      "sku": "PRM20",
+      "price": {
+        "present": true,
+        "value": 121
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-ultra-rich-skin-complex": {
+      "sku": "FK1014",
+      "price": {
+        "present": true,
+        "value": 684
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-vita-gel-mask-ph4": {
+      "sku": "PHY06",
+      "price": {
+        "present": true,
+        "value": 553
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-vitamin-a-booster": {
+      "sku": "FK1015",
+      "price": {
+        "present": true,
+        "value": 266
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-vitamin-c-booster-oil": {
+      "sku": "FK1028",
+      "price": {
+        "present": true,
+        "value": 464
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-vitamin-c-mask": {
+      "sku": "FK1161",
+      "price": {
+        "present": true,
+        "value": 593
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "kalahari-vitamin-c-sheet-mask": {
+      "sku": "VIT01",
+      "price": {
+        "present": true,
+        "value": 119
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "mesoestetic-fast-skin-repair": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 1889
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "mesoestetic-hydra-vital-light": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 2135
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "mesoestetic-skin-balance": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 2759
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrjb9j4d_00dc36": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 6995
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrjiwh94_c7de15": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 5986
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrjj7cu1_103a40": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 1880
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrjjd7sn_aa8d40": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 2799
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrjjkpi2_f512f7": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 9500
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrjjqlnn_e7508a": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 3180
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrkkopj0_513169": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 369
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrlh40a7_298d6c": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 400
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrlhb2r0_01d107": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 400
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrlhjt1j_b1f038": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 350
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrli4dhn_da3d2b": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 2289.6
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrlic8uv_4d7d94": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 1341.6
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrlikjd3_069ddb": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 1968
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrliqprw_8503d4": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 2716
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrlu0mh5_18e44e": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 369
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrlu9xjd_5af6f3": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 369
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrluf0j8_3f79f6": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 369
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrluiuj1_f543ec": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 369
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrlum5rn_1a554e": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 369
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrlusbj3_395500": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 145
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrlux4cg_955af4": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 250
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrlv6mpt_2274aa": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 145
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrlvc1nw_07b5bc": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 135
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrnkoxd7_3577a8": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 924
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrnpb6vx_b4e7a2": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 1210
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrnqek8v_46a1d1": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 1255
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrnqj8r2_e1226f": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 4788
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrnqq0t3_3e61cb": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 3864
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrnqx248_3bfaba": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 5246
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrnr531v_c162a3": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 950
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrnro82e_47e26d": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 597
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrqkge2a_62c6a3": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 1030
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "product_mrqlf77p_effba9": {
+      "sku": null,
+      "price": {
+        "present": true,
+        "value": 976
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "soopa-hocl-rescue-mist-daily": {
+      "sku": "SOOPA-HOCL-DAILY-250",
+      "price": {
+        "present": true,
+        "value": 435
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "soopa-hocl-rescue-mist-intense": {
+      "sku": "SOOPA-HOCL-INTENSE-100",
+      "price": {
+        "present": true,
+        "value": 285
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "soopa-rescue-restore-gel-cream": {
+      "sku": "SOOPA-GEL-CREAM-50",
+      "price": {
+        "present": true,
+        "value": 695
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "soopa-rescue-restore-omega-tissue-oil": {
+      "sku": "SOOPA-OMEGA-OIL-50",
+      "price": {
+        "present": true,
+        "value": 470
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-anti-ageing-eye-cream": {
+      "sku": "VR-AAEC20",
+      "price": {
+        "present": true,
+        "value": 585
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-anti-ageing-treatment-cream": {
+      "sku": "VR-AATC60",
+      "price": {
+        "present": true,
+        "value": 800
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-anti-oxidant-cream": {
+      "sku": "VR-AOC60",
+      "price": {
+        "present": true,
+        "value": 495
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-antiseptic-toner": {
+      "sku": "VR-AT150",
+      "price": {
+        "present": true,
+        "value": 355
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-aromatic-complex": {
+      "sku": "VR-AC30",
+      "price": {
+        "present": true,
+        "value": 500
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-brightening-treatment-cream": {
+      "sku": "VR-BTC60",
+      "price": {
+        "present": true,
+        "value": 650
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-ceramide-treatment-cream": {
+      "sku": "VR-CTC60",
+      "price": {
+        "present": true,
+        "value": 800
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-conditioning-toner": {
+      "sku": "VR-CT200",
+      "price": {
+        "present": true,
+        "value": 385
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-desensitising-cream": {
+      "sku": "VR-DC100",
+      "price": {
+        "present": true,
+        "value": 395
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-enzymatic-exfoliator": {
+      "sku": "VR-EGE60",
+      "price": {
+        "present": true,
+        "value": 525
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-eye-lift-gel": {
+      "sku": "VR-ELG15",
+      "price": {
+        "present": true,
+        "value": 610
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-eye-lip-repair": {
+      "sku": "VR-ELRS15",
+      "price": {
+        "present": true,
+        "value": 750
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-firming-treatment-cream": {
+      "sku": "VR-FTC100",
+      "price": {
+        "present": true,
+        "value": 710
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-gentle-cream-cleanser": {
+      "sku": "VR-GCC200",
+      "price": {
+        "present": true,
+        "value": 390
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-gentle-eye-make-up-remover": {
+      "sku": "VR-GEMR50",
+      "price": {
+        "present": true,
+        "value": 150
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-hydrating-treatment-cream": {
+      "sku": "VR-HTC60",
+      "price": {
+        "present": true,
+        "value": 685
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-hydroxy-acid-serum": {
+      "sku": "VR-HAS30",
+      "price": {
+        "present": true,
+        "value": 730
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-illuminating-lifting-gel": {
+      "sku": "VR-ILG60",
+      "price": {
+        "present": true,
+        "value": 690
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-intensive-hydrating-serum": {
+      "sku": "VR-IHS60",
+      "price": {
+        "present": true,
+        "value": 696
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-invisible-photo-defence-spf50": {
+      "sku": "VR-IPDSPF50100",
+      "price": {
+        "present": true,
+        "value": 550
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-lipid-complex": {
+      "sku": "VR-LC30",
+      "price": {
+        "present": true,
+        "value": 500
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-mild-gel-cleanser": {
+      "sku": "VR-MGC200",
+      "price": {
+        "present": true,
+        "value": 360
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-multi-vitamin-treatment-cream": {
+      "sku": "VR-MVTC60",
+      "price": {
+        "present": true,
+        "value": 840
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-nourish-revitalise-pack": {
+      "sku": "VR-NRTP",
+      "price": {
+        "present": true,
+        "value": 912
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-nourishing-cream-cleanser": {
+      "sku": "VR-NCC100",
+      "price": {
+        "present": true,
+        "value": 300
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-nutrient-complex": {
+      "sku": "VR-NC30",
+      "price": {
+        "present": true,
+        "value": 500
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-pore-minimising-gel": {
+      "sku": "VR-PMG60",
+      "price": {
+        "present": true,
+        "value": 450
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-pre-cleanse": {
+      "sku": "VR-PRC100",
+      "price": {
+        "present": true,
+        "value": 295
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-protective-cream": {
+      "sku": "VR-PC60",
+      "price": {
+        "present": true,
+        "value": 550
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-purifying-cleanser": {
+      "sku": "VR-PGC150",
+      "price": {
+        "present": true,
+        "value": 295
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-purifying-treatment-cream": {
+      "sku": "VR-PTC60",
+      "price": {
+        "present": true,
+        "value": 650
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-radian-c-serum": {
+      "sku": "VR-RCS30",
+      "price": {
+        "present": true,
+        "value": 695
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-rapid-hydration-serum": {
+      "sku": "VR-RHS30",
+      "price": {
+        "present": true,
+        "value": 490
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-reflective-sunbarrier-spf25": {
+      "sku": "VR-SPF25100",
+      "price": {
+        "present": true,
+        "value": 495
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-regulating-toner": {
+      "sku": "VR-RT200",
+      "price": {
+        "present": true,
+        "value": 4395
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-rejuvenate-restore-skin-capsules": {
+      "sku": "VR-RRSC30",
+      "price": {
+        "present": true,
+        "value": 767
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-retin-glow-skin-capsules": {
+      "sku": "VR-RGSC30",
+      "price": {
+        "present": true,
+        "value": 830
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-retinol-serum": {
+      "sku": "VR-RS30",
+      "price": {
+        "present": true,
+        "value": 882
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-salicylic-powder-exfoliator": {
+      "sku": "VR-SPE75",
+      "price": {
+        "present": true,
+        "value": 695
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-salicylic-spot-treatment": {
+      "sku": "VR-SST20",
+      "price": {
+        "present": true,
+        "value": 330
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-skin-polishing-cream": {
+      "sku": "VR-SPC60",
+      "price": {
+        "present": true,
+        "value": 510
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-skin-renewal-gel": {
+      "sku": "VR-SRG60",
+      "price": {
+        "present": true,
+        "value": 500
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-soothing-balm": {
+      "sku": "VR-SB50",
+      "price": {
+        "present": true,
+        "value": 375
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-tissue-repair-complex": {
+      "sku": "VR-TRC30",
+      "price": {
+        "present": true,
+        "value": 500
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-ultra-light-moisture-cream": {
+      "sku": "VR-ULMC60",
+      "price": {
+        "present": true,
+        "value": 495
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    },
+    "vitaderm-vitality-booster-masque": {
+      "sku": "VR-VBM60",
+      "price": {
+        "present": true,
+        "value": 500
+      },
+      "retailPrice": {
+        "present": false
+      },
+      "salePrice": {
+        "present": false
+      },
+      "compareAtPrice": {
+        "present": false
+      },
+      "compareAt": {
+        "present": false
+      },
+      "discount": {
+        "present": false
+      },
+      "discountValue": {
+        "present": false
+      },
+      "discountAmount": {
+        "present": false
+      },
+      "discountPercent": {
+        "present": false
+      }
+    }
+  }
+}

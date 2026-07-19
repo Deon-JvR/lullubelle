@@ -2,6 +2,7 @@ import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
+import productSeoMigration from "../data/product-seo-overrides.json" with { type: "json" };
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2);
@@ -160,7 +161,9 @@ for (const source of catalogue) {
     description: source.description,
     benefit: source.description,
     price: source.price,
-    searchKeywords: existing?.searchKeywords || keywordsFor(source),
+    searchKeywords: Array.isArray(existing?.searchKeywords)
+      ? existing.searchKeywords
+      : String(existing?.searchKeywords || keywordsFor(source)).split(",").map((value) => value.trim()).filter(Boolean),
     image,
     imageAlt: existing?.imageAlt || (image === genericImage
       ? `Kalahari ${source.name} — product image coming soon`
@@ -178,8 +181,18 @@ for (const source of catalogue) {
     cataloguePage: source.cataloguePage,
     catalogueOrder: source.catalogueOrder,
     seoTitle: `Kalahari ${source.name} ${source.size} | Lullubelle`,
-    seoDescription: `Shop Kalahari ${source.name} ${source.size} for R${source.price} from Lullubelle Beauty Specialist in Centurion.`,
+    seoDescription: `Discover Kalahari ${source.name} ${source.size}, ${source.description.toLowerCase()} Shop online or contact Lullubelle Beauty Specialist in Centurion.`,
   };
+  const seoCorrection = productSeoMigration.products?.[id];
+  if (seoCorrection) {
+    Object.assign(next, {
+      seoTitle: seoCorrection.seoTitle,
+      seoDescription: seoCorrection.seoDescription,
+      imageAlt: seoCorrection.imageAlt,
+      searchKeywords: seoCorrection.searchKeywords,
+      ...(seoCorrection.galleryImages ? { galleryImages: seoCorrection.galleryImages } : {}),
+    });
+  }
   imported.push(next);
   (existing ? updated : created).push({ sku: source.sku, name: source.name, id, matchedBy: skuMatches.length ? "SKU" : existing ? "exact name" : "new" });
 }

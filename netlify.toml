@@ -24,7 +24,7 @@
   status = 200
 
 [functions]
-  included_files = ["data/*.json", "product.html"]
+  included_files = ["data/*.json", "product.html", "shop.html"]
 
 [[redirects]]
   from = "/sitemap.xml"
@@ -109,7 +109,7 @@
 
 [[redirects]]
   from = "/shop"
-  to = "/shop.html"
+  to = "/.netlify/functions/shop-page"
   status = 200
 
 [[redirects]]

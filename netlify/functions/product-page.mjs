@@ -29,6 +29,47 @@ const replaceCanonical = (html, value) => html.replace(
 
 const absoluteImageUrl = (image) => new URL(String(image || "lullubelle-logo.jpg").replace(/^\/+/, ""), `${SITE_URL}/`).href;
 
+const escapeHtml = (value) => escapeAttribute(value).replace(/'/g, "&#39;");
+const safeJson = (value) => JSON.stringify(value).replace(/</g, "\\u003c");
+const availabilityUrl = (stockStatus) => {
+  if (/out/i.test(String(stockStatus || ""))) return "https://schema.org/OutOfStock";
+  if (/coming|pre.?order/i.test(String(stockStatus || ""))) return "https://schema.org/PreOrder";
+  return "https://schema.org/InStock";
+};
+
+export const productStructuredData = (product, canonical) => ({
+  "@context": "https://schema.org",
+  "@type": "Product",
+  name: product.name,
+  description: product.description || product.benefit || product.seoDescription,
+  image: [product.image, ...(product.galleryImages || []).map((item) => typeof item === "string" ? item : item.url)]
+    .filter(Boolean).map(absoluteImageUrl),
+  sku: product.sku || product.id,
+  brand: { "@type": "Brand", name: product.brand },
+  category: (product.categories || []).join(", "),
+  url: canonical,
+  offers: {
+    "@type": "Offer",
+    url: canonical,
+    priceCurrency: "ZAR",
+    // Preserve the authoritative catalogue representation; never derive an
+    // offer from a seed, display formatter or catalogue-wide default.
+    price: product.price,
+    availability: availabilityUrl(product.stockStatus),
+    itemCondition: "https://schema.org/NewCondition",
+  },
+});
+
+export const breadcrumbStructuredData = (product, canonical) => ({
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` },
+    { "@type": "ListItem", position: 2, name: "Shop", item: `${SITE_URL}/shop` },
+    { "@type": "ListItem", position: 3, name: product.name, item: canonical },
+  ],
+});
+
 export const renderProductHtml = (product) => {
   const slug = product.slug || product.id;
   const title = product.seoTitle || `${product.brand} ${product.name} | Lullubelle Skincare Centurion`;
@@ -48,6 +89,12 @@ export const renderProductHtml = (product) => {
   html = replaceMeta(html, "name", "twitter:title", title);
   html = replaceMeta(html, "name", "twitter:description", description);
   html = replaceMeta(html, "name", "twitter:image", image);
+  const categoryLinks = (product.categories || []).map((category) => `<a href="/shop?category=${encodeURIComponent(category)}">${escapeHtml(category)}</a>`).join(", ");
+  const summary = product.description || product.benefit || description;
+  const serverContent = `<section class="section product-detail product-detail-page-hero" data-server-product="${escapeAttribute(product.id)}"><div class="product-detail-media"><img class="product-detail-main-image" src="${escapeAttribute(product.image)}" alt="${escapeAttribute(product.imageAlt || `${product.brand} ${product.name}`)}" width="900" height="900" decoding="async" loading="eager" fetchpriority="high"></div><div class="product-detail-copy"><p class="eyebrow">${escapeHtml(product.brand)} skincare</p><h1>${escapeHtml(product.name)}</h1><p class="lead">${escapeHtml(summary)}</p>${categoryLinks ? `<p>Categories: ${categoryLinks}</p>` : ""}</div></section>`;
+  html = html.replace(/(<main\s+id="main-content"\s+data-product-detail>)[\s\S]*?(<\/main>)/i, `$1${serverContent}$2`);
+  const schemas = `<script type="application/ld+json" data-server-product-schema>${safeJson(productStructuredData(product, canonical))}</script><script type="application/ld+json" data-server-breadcrumb-schema>${safeJson(breadcrumbStructuredData(product, canonical))}</script>`;
+  html = html.replace("</head>", `${schemas}</head>`);
   return html;
 };
 

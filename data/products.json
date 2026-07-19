@@ -31,9 +31,14 @@
     "stockStatus": "In stock",
     "featured": true,
     "hidden": false,
-    "seoTitle": "Soopa HOCl Rescue Mist Daily 250ml | Lullubelle",
-    "seoDescription": "Shop Soopa HOCl Rescue Mist Daily 250ml, a refreshing and hydrating hypochlorous acid mist for sensitive or irritated skin.",
+    "seoTitle": "Soopa Skin HOCl Rescue Mist Daily | Lullubelle",
+    "seoDescription": "Soopa Skin HOCl Rescue Mist Daily from Lullubelle. Refreshing, balancing and hydrating daily rescue mist. View current product details.",
     "categories": [
+      "HOCL Collection"
+    ],
+    "searchKeywords": [
+      "Soopa Skin",
+      "HOCl Rescue Mist Daily",
       "HOCL Collection"
     ]
   },
@@ -69,9 +74,14 @@
     "stockStatus": "In stock",
     "featured": true,
     "hidden": false,
-    "seoTitle": "Soopa HOCl Rescue Mist Intense 100ml | Lullubelle",
-    "seoDescription": "Shop Soopa HOCl Rescue Mist Intense 100ml, a concentrated comforting mist for compromised or post-procedure skin.",
+    "seoTitle": "Soopa Skin HOCl Rescue Mist Intense | Lullubelle",
+    "seoDescription": "Soopa Skin HOCl Rescue Mist Intense from Lullubelle. Renewing, comforting and oxygenating rescue mist. View current product details.",
     "categories": [
+      "HOCL Collection"
+    ],
+    "searchKeywords": [
+      "Soopa Skin",
+      "HOCl Rescue Mist Intense",
       "HOCL Collection"
     ]
   },
@@ -82,7 +92,7 @@
     "name": "Rescue + Restore Omega Tissue Oil",
     "price": 470,
     "image": "products/soopa/rescue-restore-omega-tissue-oil.webp",
-    "imageAlt": "Soopa Skin Rescue and Restore Omega Tissue Oil 50ml bottle",
+    "imageAlt": "Soopa Skin Rescue + Restore Omega Tissue Oil 50ml",
     "benefit": "100% natural botanical omega tissue oil.",
     "description": "A lightweight botanical tissue oil designed to nourish, soften and improve skin elasticity while supporting the skin barrier. Suitable for all skin types, including sensitive skin. Made from natural plant oils and essential oils with no artificial fragrances or preservatives.",
     "benefits": [
@@ -101,9 +111,15 @@
     "stockStatus": "In stock",
     "featured": false,
     "hidden": false,
-    "seoTitle": "Soopa Rescue + Restore Omega Tissue Oil 50ml",
-    "seoDescription": "Shop Soopa Rescue + Restore Omega Tissue Oil, a lightweight 100% natural botanical oil for nourishment, softness and elasticity.",
+    "seoTitle": "Soopa Skin Rescue + Restore Omega Tissue Oil | Lullubelle",
+    "seoDescription": "Soopa Skin Rescue + Restore Omega Tissue Oil from Lullubelle. 100% natural botanical omega tissue oil. View current product details.",
     "categories": [
+      "Treatment",
+      "Hydration"
+    ],
+    "searchKeywords": [
+      "Soopa Skin",
+      "Rescue + Restore Omega Tissue Oil",
       "Treatment",
       "Hydration"
     ]
@@ -115,7 +131,7 @@
     "name": "Rescue + Restore Gel-Cream",
     "price": 695,
     "image": "products/soopa/rescue-restore-gel-cream.webp",
-    "imageAlt": "Soopa Skin Rescue and Restore Gel-Cream 50ml container",
+    "imageAlt": "Soopa Skin Rescue + Restore Gel-Cream 50ml",
     "benefit": "Hydrating peptide gel-cream for barrier repair.",
     "description": "An advanced moisturising gel-cream formulated with peptides, ceramides, beta glucan and hyaluronic acid to restore hydration, strengthen the skin barrier and improve overall skin texture. Suitable for dry, mature, sensitive and acne-prone skin.",
     "benefits": [
@@ -134,9 +150,15 @@
     "stockStatus": "In stock",
     "featured": false,
     "hidden": false,
-    "seoTitle": "Soopa Rescue + Restore Gel-Cream 50ml | Lullubelle",
-    "seoDescription": "Shop Soopa Rescue + Restore Gel-Cream with peptides, ceramides, beta glucan and hyaluronic acid for hydration and barrier support.",
+    "seoTitle": "Soopa Skin Rescue + Restore Gel-Cream | Lullubelle",
+    "seoDescription": "Soopa Skin Rescue + Restore Gel-Cream from Lullubelle. Hydrating peptide gel-cream for barrier repair. View current product details.",
     "categories": [
+      "Treatment Moisturisers",
+      "Hydration"
+    ],
+    "searchKeywords": [
+      "Soopa Skin",
+      "Rescue + Restore Gel-Cream",
       "Treatment Moisturisers",
       "Hydration"
     ]
@@ -158,6 +180,14 @@
     "categories": [
       "Treatment Moisturisers",
       "Hydration"
+    ],
+    "seoTitle": "Mesoestetic Hydra-Vital Light | Lullubelle",
+    "seoDescription": "Mesoestetic Hydra-Vital Light from Lullubelle. Refreshing moisturising gel-cream for normal, combination and oily skin. View current product details.",
+    "imageAlt": "Mesoestetic Hydra-Vital Light 50ml",
+    "searchKeywords": [
+      "Mesoestetic",
+      "Hydra-Vital Light",
+      "Treatment Moisturisers"
     ]
   },
   {
@@ -174,6 +204,15 @@
     "ingredients": "Please confirm current ingredient list with Lullubelle before purchase.",
     "stockStatus": "In stock",
     "categories": [
+      "Sensitive Skin Treatments",
+      "Treatment"
+    ],
+    "seoTitle": "Mesoestetic Fast Skin Repair | Lullubelle",
+    "seoDescription": "Mesoestetic Fast Skin Repair from Lullubelle. Regenerative comfort cream for sensitive or sensitised skin. View current product details.",
+    "imageAlt": "Mesoestetic Fast Skin Repair 50ml",
+    "searchKeywords": [
+      "Mesoestetic",
+      "Fast Skin Repair",
       "Sensitive Skin Treatments",
       "Treatment"
     ]
@@ -195,6 +234,14 @@
     "categories": [
       "Sensitive Skin Treatments",
       "Acne and Breakouts"
+    ],
+    "seoTitle": "Mesoestetic Skin Balance | Lullubelle",
+    "seoDescription": "Mesoestetic Skin Balance from Lullubelle. Intensive calming concentrate supporting sensitive and sensitised skin. View current product details.",
+    "imageAlt": "Mesoestetic Skin Balance",
+    "searchKeywords": [
+      "Mesoestetic",
+      "Skin Balance",
+      "Serums and Face Oil"
     ]
   },
   {
@@ -215,6 +262,15 @@
     "featured": true,
     "hidden": false,
     "categories": [
+      "Prepare",
+      "Treatment"
+    ],
+    "seoTitle": "VitaDerm Gentle Eye Make-Up Remover | Lullubelle",
+    "seoDescription": "VitaDerm Gentle Eye Make-Up Remover from Lullubelle. This Gentle Eye Make-up Remover is a mild, hypo-allergenic formulation that is highly suitable for the.",
+    "imageAlt": "VitaDerm Gentle Eye Make-Up Remover 50ml bottle with atomiser",
+    "searchKeywords": [
+      "VitaDerm",
+      "Gentle Eye Make-Up Remover",
       "Prepare",
       "Treatment"
     ]
@@ -238,6 +294,14 @@
     "hidden": false,
     "categories": [
       "Prepare"
+    ],
+    "seoTitle": "VitaDerm Pre-Cleanse | Lullubelle",
+    "seoDescription": "VitaDerm Pre-Cleanse from Lullubelle. The unique Pre-Cleanse applies as an oil-gel, but transforms into a milk with the addition of water.",
+    "imageAlt": "VitaDerm Pre-Cleanse 100ml tube with flip cap",
+    "searchKeywords": [
+      "VitaDerm",
+      "Pre-Cleanse",
+      "Prepare"
     ]
   },
   {
@@ -258,6 +322,15 @@
     "featured": true,
     "hidden": false,
     "categories": [
+      "Prepare",
+      "Sensitive Skin Treatments"
+    ],
+    "seoTitle": "VitaDerm Gentle Cream Cleanser | Lullubelle",
+    "seoDescription": "VitaDerm Gentle Cream Cleanser from Lullubelle. The aromatic Gentle Cream Cleanser contains lavender, chamomile and rosewood extracts.",
+    "imageAlt": "VitaDerm Gentle Cream Cleanser 200ml bottle with pump",
+    "searchKeywords": [
+      "VitaDerm",
+      "Gentle Cream Cleanser",
       "Prepare",
       "Sensitive Skin Treatments"
     ]
@@ -282,6 +355,15 @@
     "categories": [
       "Prepare",
       "Sensitive Skin Treatments"
+    ],
+    "seoTitle": "VitaDerm Mild Gel Cleanser | Lullubelle",
+    "seoDescription": "VitaDerm Mild Gel Cleanser from Lullubelle. This luxurious aromatic Mild Gel Cleanser contains sandalwood, lavender and petitgrain extracts.",
+    "imageAlt": "VitaDerm Mild Gel Cleanser 200 ml",
+    "searchKeywords": [
+      "VitaDerm",
+      "Mild Gel Cleanser",
+      "Prepare",
+      "Sensitive Skin Treatments"
     ]
   },
   {
@@ -302,6 +384,15 @@
     "featured": true,
     "hidden": false,
     "categories": [
+      "Prepare",
+      "Acne and Breakouts"
+    ],
+    "seoTitle": "VitaDerm Purifying Cleanser | Lullubelle",
+    "seoDescription": "VitaDerm Purifying Cleanser from Lullubelle. This refreshing, aromatic gel Purifying Cleanser contains botanical extracts of white thyme, tea tree.",
+    "imageAlt": "VitaDerm Purifying Cleanser 150ml bottle with pump",
+    "searchKeywords": [
+      "VitaDerm",
+      "Purifying Cleanser",
       "Prepare",
       "Acne and Breakouts"
     ]
@@ -326,6 +417,15 @@
     "categories": [
       "Prepare",
       "Hydration"
+    ],
+    "seoTitle": "VitaDerm Nourishing Cream Cleanser | Lullubelle",
+    "seoDescription": "VitaDerm Nourishing Cream Cleanser from Lullubelle. This aromatic Nourishing Cream Cleanser contains phyto extracts of avocado, grape seed.",
+    "imageAlt": "VitaDerm Nourishing Cream Cleanser 100ml tube with flip cap",
+    "searchKeywords": [
+      "VitaDerm",
+      "Nourishing Cream Cleanser",
+      "Prepare",
+      "Hydration"
     ]
   },
   {
@@ -346,6 +446,15 @@
     "featured": true,
     "hidden": false,
     "categories": [
+      "Prepare",
+      "Hydration"
+    ],
+    "seoTitle": "VitaDerm Conditioning Toner | Lullubelle",
+    "seoDescription": "VitaDerm Conditioning Toner from Lullubelle. This mild alcohol-free formulation contains botanical extracts of chamomile, palmarosa and geranium.",
+    "imageAlt": "VitaDerm Conditioning Toner 200ml bottle with atomiser",
+    "searchKeywords": [
+      "VitaDerm",
+      "Conditioning Toner",
       "Prepare",
       "Hydration"
     ]
@@ -370,6 +479,15 @@
     "categories": [
       "Prepare",
       "Acne and Breakouts"
+    ],
+    "seoTitle": "VitaDerm Regulating Toner | Lullubelle",
+    "seoDescription": "VitaDerm Regulating Toner from Lullubelle. This Regulating Toner is a mild alcohol-free formulation that contains botanical extracts of rosemary.",
+    "imageAlt": "VitaDerm Regulating Toner 200ml bottle with atomiser",
+    "searchKeywords": [
+      "VitaDerm",
+      "Regulating Toner",
+      "Prepare",
+      "Acne and Breakouts"
     ]
   },
   {
@@ -390,6 +508,15 @@
     "featured": true,
     "hidden": false,
     "categories": [
+      "Prepare",
+      "Acne and Breakouts"
+    ],
+    "seoTitle": "VitaDerm Antiseptic Toner | Lullubelle",
+    "seoDescription": "VitaDerm Antiseptic Toner from Lullubelle. This alcohol-free toner contains botanical extracts of juniper berry. View current product details.",
+    "imageAlt": "VitaDerm Antiseptic Toner 150ml bottle with atomiser",
+    "searchKeywords": [
+      "VitaDerm",
+      "Antiseptic Toner",
       "Prepare",
       "Acne and Breakouts"
     ]
@@ -414,6 +541,15 @@
     "categories": [
       "Correcting Gels",
       "Acne and Breakouts"
+    ],
+    "seoTitle": "VitaDerm Pore Minimising Gel | Lullubelle",
+    "seoDescription": "VitaDerm Pore Minimising Gel from Lullubelle. This oil-free Pore Minimising Gel contains a mastic extract that assists in relieving the symptoms associated.",
+    "imageAlt": "VitaDerm Pore Minimising Gel 60ml tube with flip cap",
+    "searchKeywords": [
+      "VitaDerm",
+      "Pore Minimising Gel",
+      "Correcting Gels",
+      "Acne and Breakouts"
     ]
   },
   {
@@ -434,6 +570,15 @@
     "featured": true,
     "hidden": false,
     "categories": [
+      "Treatment Moisturisers",
+      "Hydration"
+    ],
+    "seoTitle": "VitaDerm Ultra-Light Moisture Cream | Lullubelle",
+    "seoDescription": "VitaDerm Ultra-Light Moisture Cream from Lullubelle. This Ultra-Light Moisture Cream is a light-textured emulsion and is easily absorbed into the skin.",
+    "imageAlt": "VitaDerm Ultra-Light Moisture Cream 60ml tube with flip cap",
+    "searchKeywords": [
+      "VitaDerm",
+      "Ultra-Light Moisture Cream",
       "Treatment Moisturisers",
       "Hydration"
     ]
@@ -458,6 +603,15 @@
     "categories": [
       "Treatment Moisturisers",
       "Anti-Aging"
+    ],
+    "seoTitle": "VitaDerm Anti-Oxidant Cream | Lullubelle",
+    "seoDescription": "VitaDerm Anti-Oxidant Cream from Lullubelle. This Anti-Oxidant Cream is a nutrient-rich conditioning cream that is ideal as a preventative anti-ageing product.",
+    "imageAlt": "VitaDerm Anti-Oxidant Cream 60ml tube with flip cap",
+    "searchKeywords": [
+      "VitaDerm",
+      "Anti-Oxidant Cream",
+      "Treatment Moisturisers",
+      "Anti-Aging"
     ]
   },
   {
@@ -478,6 +632,15 @@
     "featured": false,
     "hidden": false,
     "categories": [
+      "Treatment Moisturisers",
+      "Sensitive Skin Treatments"
+    ],
+    "seoTitle": "VitaDerm Protective Cream | Lullubelle",
+    "seoDescription": "VitaDerm Protective Cream from Lullubelle. This Protective Cream offers outstanding protection against the elements. View current product details.",
+    "imageAlt": "VitaDerm Protective Cream 60ml tube with flip cap",
+    "searchKeywords": [
+      "VitaDerm",
+      "Protective Cream",
       "Treatment Moisturisers",
       "Sensitive Skin Treatments"
     ]
@@ -502,6 +665,15 @@
     "categories": [
       "Treatment Moisturisers",
       "Sensitive Skin Treatments"
+    ],
+    "seoTitle": "VitaDerm Desensitising Cream | Lullubelle",
+    "seoDescription": "VitaDerm Desensitising Cream from Lullubelle. This multi-functional Desensitising Cream is specifically formulated for allergy-prone skins.",
+    "imageAlt": "VitaDerm Desensitising Cream 100ml tube with flip cap",
+    "searchKeywords": [
+      "VitaDerm",
+      "Desensitising Cream",
+      "Treatment Moisturisers",
+      "Sensitive Skin Treatments"
     ]
   },
   {
@@ -522,6 +694,14 @@
     "featured": false,
     "hidden": false,
     "categories": [
+      "Prepare"
+    ],
+    "seoTitle": "VitaDerm Enzymatic Exfoliator | Lullubelle",
+    "seoDescription": "VitaDerm Enzymatic Exfoliator from Lullubelle. This granule-free Enzymatic Exfoliator contains extracts of papaya and pineapple to gently dissolve the bonds.",
+    "imageAlt": "VitaDerm Enzymatic Exfoliator 60ml tube with flip cap",
+    "searchKeywords": [
+      "VitaDerm",
+      "Enzymatic Exfoliator",
       "Prepare"
     ]
   },
@@ -545,6 +725,15 @@
     "categories": [
       "Prepare",
       "Acne and Breakouts"
+    ],
+    "seoTitle": "VitaDerm Salicylic Powder Exfoliator | Lullubelle",
+    "seoDescription": "VitaDerm Salicylic Powder Exfoliator from Lullubelle. Experience the skin smoothing & brightening effect of the NEW Salicylic Powder Exfoliator.",
+    "imageAlt": "VitaDerm Salicylic Powder Exfoliator 75g bottle with disc cap",
+    "searchKeywords": [
+      "VitaDerm",
+      "Salicylic Powder Exfoliator",
+      "Prepare",
+      "Acne and Breakouts"
     ]
   },
   {
@@ -566,6 +755,14 @@
     "hidden": false,
     "categories": [
       "Prepare"
+    ],
+    "seoTitle": "VitaDerm Skin Polishing Cream | Lullubelle",
+    "seoDescription": "VitaDerm Skin Polishing Cream from Lullubelle. This Skin Polishing Cream incorporates ultra-fine apricot kernel powder to polish the surface of the skin while.",
+    "imageAlt": "VitaDerm Skin Polishing Cream 60ml tube with flip cap",
+    "searchKeywords": [
+      "VitaDerm",
+      "Skin Polishing Cream",
+      "Prepare"
     ]
   },
   {
@@ -586,6 +783,15 @@
     "featured": true,
     "hidden": false,
     "categories": [
+      "Correcting Gels",
+      "Anti-Aging"
+    ],
+    "seoTitle": "VitaDerm Skin Renewal Gel | Lullubelle",
+    "seoDescription": "VitaDerm Skin Renewal Gel from Lullubelle. This Skin Renewal Gel contains a high concentration of aloe ferox to promote rapid healing of the skin.",
+    "imageAlt": "VitaDerm Skin Renewal Gel 60ml tube with flip cap",
+    "searchKeywords": [
+      "VitaDerm",
+      "Skin Renewal Gel",
       "Correcting Gels",
       "Anti-Aging"
     ]
@@ -610,6 +816,15 @@
     "categories": [
       "Treatment Masks",
       "Hydration"
+    ],
+    "seoTitle": "VitaDerm Vitality Booster Masque | Lullubelle",
+    "seoDescription": "VitaDerm Vitality Booster Masque from Lullubelle. The Vitality Booster Masque is a nutriceutical-driven booster treatment that contains powerful Vitamins that.",
+    "imageAlt": "VitaDerm Vitality Booster Masque 60ml tube with flip cap",
+    "searchKeywords": [
+      "VitaDerm",
+      "Vitality Booster Masque",
+      "Treatment Masks",
+      "Hydration"
     ]
   },
   {
@@ -630,6 +845,15 @@
     "featured": false,
     "hidden": false,
     "categories": [
+      "Treatment",
+      "Hydration"
+    ],
+    "seoTitle": "VitaDerm Lipid Complex | Lullubelle",
+    "seoDescription": "VitaDerm Lipid Complex from Lullubelle. The Lipid Complex is 100% fragrance-free and hypo-allergenic. View current product details.",
+    "imageAlt": "VitaDerm Lipid Complex 30ml glass bottle with pipette",
+    "searchKeywords": [
+      "VitaDerm",
+      "Lipid Complex",
       "Treatment",
       "Hydration"
     ]
@@ -654,6 +878,15 @@
     "categories": [
       "Treatment",
       "Sensitive Skin Treatments"
+    ],
+    "seoTitle": "VitaDerm Tissue Repair Complex | Lullubelle",
+    "seoDescription": "VitaDerm Tissue Repair Complex from Lullubelle. This multi-functional Tissue Repair Complex is a face and body complex that incorporates a blend of phyto.",
+    "imageAlt": "VitaDerm Tissue Repair Complex 30ml airless bottle with pump",
+    "searchKeywords": [
+      "VitaDerm",
+      "Tissue Repair Complex",
+      "Treatment",
+      "Sensitive Skin Treatments"
     ]
   },
   {
@@ -675,6 +908,14 @@
     "hidden": false,
     "categories": [
       "Treatment"
+    ],
+    "seoTitle": "VitaDerm Aromatic Complex | Lullubelle",
+    "seoDescription": "VitaDerm Aromatic Complex from Lullubelle. The Aromatic Complex combines the benefits of phyto actives of sandalwood. View current product details.",
+    "imageAlt": "VitaDerm Aromatic Complex 30ml glass bottle with pipette",
+    "searchKeywords": [
+      "VitaDerm",
+      "Aromatic Complex",
+      "Treatment"
     ]
   },
   {
@@ -695,6 +936,15 @@
     "featured": false,
     "hidden": false,
     "categories": [
+      "Treatment",
+      "Hydration"
+    ],
+    "seoTitle": "VitaDerm Nutrient Complex | Lullubelle",
+    "seoDescription": "VitaDerm Nutrient Complex from Lullubelle. This Nutrient Complex is rich in powerful vitamins that act as super anti-oxidants to neutralise the damaging.",
+    "imageAlt": "VitaDerm Nutrient Complex 30ml airless bottle with pump",
+    "searchKeywords": [
+      "VitaDerm",
+      "Nutrient Complex",
       "Treatment",
       "Hydration"
     ]
@@ -719,6 +969,15 @@
     "categories": [
       "Treatment",
       "Sensitive Skin Treatments"
+    ],
+    "seoTitle": "VitaDerm Soothing Balm | Lullubelle",
+    "seoDescription": "VitaDerm Soothing Balm from Lullubelle. The Soothing Balm offers relief of excessively dry skin by forming a protective film on the skin that seals in the.",
+    "imageAlt": "VitaDerm Soothing Balm 50ml jar",
+    "searchKeywords": [
+      "VitaDerm",
+      "Soothing Balm",
+      "Treatment",
+      "Sensitive Skin Treatments"
     ]
   },
   {
@@ -739,6 +998,15 @@
     "featured": false,
     "hidden": false,
     "categories": [
+      "Serums and Face Oil",
+      "Hydration"
+    ],
+    "seoTitle": "VitaDerm Intensive Hydrating Serum | Lullubelle",
+    "seoDescription": "VitaDerm Intensive Hydrating Serum from Lullubelle. This Intensive Hydrating Serum contains hyaluronic acid. View current product details.",
+    "imageAlt": "VitaDerm Intensive Hydrating Serum 60ml tube with flip cap",
+    "searchKeywords": [
+      "VitaDerm",
+      "Intensive Hydrating Serum",
       "Serums and Face Oil",
       "Hydration"
     ]
@@ -763,6 +1031,15 @@
     "categories": [
       "Serums and Face Oil",
       "Pigmentation"
+    ],
+    "seoTitle": "VitaDerm Radian-C Serum | Lullubelle",
+    "seoDescription": "VitaDerm Radian-C Serum from Lullubelle. This Radian-C Serum is a light-weight gel-serum formulated with a new generation Vitamin C in its purest form.",
+    "imageAlt": "VitaDerm Radian-C Serum 30ml airless bottle with pump",
+    "searchKeywords": [
+      "VitaDerm",
+      "Radian-C Serum",
+      "Serums and Face Oil",
+      "Pigmentation"
     ]
   },
   {
@@ -783,6 +1060,15 @@
     "featured": false,
     "hidden": false,
     "categories": [
+      "Serums and Face Oil",
+      "Hydration"
+    ],
+    "seoTitle": "VitaDerm Rapid Hydration Serum | Lullubelle",
+    "seoDescription": "VitaDerm Rapid Hydration Serum from Lullubelle. This Rapid Hydration Serum is a light-textured fast-absorbing active formulation.",
+    "imageAlt": "VitaDerm Rapid Hydration Serum",
+    "searchKeywords": [
+      "VitaDerm",
+      "Rapid Hydration Serum",
       "Serums and Face Oil",
       "Hydration"
     ]
@@ -807,6 +1093,15 @@
     "categories": [
       "Serums and Face Oil",
       "Anti-Aging"
+    ],
+    "seoTitle": "VitaDerm Retinol Serum | Lullubelle",
+    "seoDescription": "VitaDerm Retinol Serum from Lullubelle. The Retinol Serum is VitaDerm’s most rejuvenating serum. View current product details.",
+    "imageAlt": "VitaDerm Retinol Serum 30ml airless bottle with pump",
+    "searchKeywords": [
+      "VitaDerm",
+      "Retinol Serum",
+      "Serums and Face Oil",
+      "Anti-Aging"
     ]
   },
   {
@@ -827,6 +1122,15 @@
     "featured": false,
     "hidden": false,
     "categories": [
+      "Serums and Face Oil",
+      "Acne and Breakouts"
+    ],
+    "seoTitle": "VitaDerm Hydroxy Acid Serum | Lullubelle",
+    "seoDescription": "VitaDerm Hydroxy Acid Serum from Lullubelle. This Hydroxy Acid Serum incorporates the powerful exfoliating effect of both alpha- and beta hydroxy acids.",
+    "imageAlt": "VitaDerm Hydroxy Acid Serum 30ml airless bottle with pump",
+    "searchKeywords": [
+      "VitaDerm",
+      "Hydroxy Acid Serum",
       "Serums and Face Oil",
       "Acne and Breakouts"
     ]
@@ -852,6 +1156,16 @@
       "Correcting Gels",
       "Anti-Aging",
       "Pigmentation"
+    ],
+    "seoTitle": "VitaDerm Illuminating Lifting Gel | Lullubelle",
+    "seoDescription": "VitaDerm Illuminating Lifting Gel from Lullubelle. The Illuminating Lifting Gel is a creamy gel-formulation incorporating multi-active ingredients.",
+    "imageAlt": "VitaDerm Illuminating Lifting Gel 60ml tube with flip cap",
+    "searchKeywords": [
+      "VitaDerm",
+      "Illuminating Lifting Gel",
+      "Correcting Gels",
+      "Anti-Aging",
+      "Pigmentation"
     ]
   },
   {
@@ -872,6 +1186,15 @@
     "featured": false,
     "hidden": false,
     "categories": [
+      "Treatment Moisturisers",
+      "Hydration"
+    ],
+    "seoTitle": "VitaDerm Hydrating Treatment Cream | Lullubelle",
+    "seoDescription": "VitaDerm Hydrating Treatment Cream from Lullubelle. The Hydrating Treatment Cream contains hyaluronic acid, a natural component of healthy skin that helps.",
+    "imageAlt": "VitaDerm Hydrating Treatment Cream 60ml tube with flip cap",
+    "searchKeywords": [
+      "VitaDerm",
+      "Hydrating Treatment Cream",
       "Treatment Moisturisers",
       "Hydration"
     ]
@@ -896,6 +1219,15 @@
     "categories": [
       "Treatment Moisturisers",
       "Anti-Aging"
+    ],
+    "seoTitle": "VitaDerm Anti-Ageing Treatment Cream | Lullubelle",
+    "seoDescription": "VitaDerm Anti-Ageing Treatment Cream from Lullubelle. The Anti-Ageing Treatment Cream is an advanced active formulation containing glycosaminoglycan.",
+    "imageAlt": "VitaDerm Anti-Ageing Treatment Cream 60ml tube with flip cap",
+    "searchKeywords": [
+      "VitaDerm",
+      "Anti-Ageing Treatment Cream",
+      "Treatment Moisturisers",
+      "Anti-Aging"
     ]
   },
   {
@@ -916,6 +1248,15 @@
     "featured": false,
     "hidden": false,
     "categories": [
+      "Treatment Moisturisers",
+      "Hydration"
+    ],
+    "seoTitle": "VitaDerm Ceramide Treatment Cream | Lullubelle",
+    "seoDescription": "VitaDerm Ceramide Treatment Cream from Lullubelle. The Ceramide Treatment Cream is an ultra-rich formulation containing Ceramide II that effectively restores.",
+    "imageAlt": "VitaDerm Ceramide Treatment Cream 60ml tube with flip cap",
+    "searchKeywords": [
+      "VitaDerm",
+      "Ceramide Treatment Cream",
       "Treatment Moisturisers",
       "Hydration"
     ]
@@ -940,6 +1281,15 @@
     "categories": [
       "Treatment Moisturisers",
       "Acne and Breakouts"
+    ],
+    "seoTitle": "VitaDerm Purifying Treatment Cream | Lullubelle",
+    "seoDescription": "VitaDerm Purifying Treatment Cream from Lullubelle. This Purifying Treatment Cream is specially formulated for oily, acne-prone skin types.",
+    "imageAlt": "VitaDerm Purifying Treatment Cream 60ml tube with flip cap",
+    "searchKeywords": [
+      "VitaDerm",
+      "Purifying Treatment Cream",
+      "Treatment Moisturisers",
+      "Acne and Breakouts"
     ]
   },
   {
@@ -960,6 +1310,15 @@
     "featured": false,
     "hidden": false,
     "categories": [
+      "Treatment Moisturisers",
+      "Pigmentation"
+    ],
+    "seoTitle": "VitaDerm Brightening Treatment Cream | Lullubelle",
+    "seoDescription": "VitaDerm Brightening Treatment Cream from Lullubelle. The Brightening Treatment Cream contains advanced active ingredients such as arbutin and glutathione to.",
+    "imageAlt": "VitaDerm Brightening Treatment Cream 60ml tube with flip cap",
+    "searchKeywords": [
+      "VitaDerm",
+      "Brightening Treatment Cream",
       "Treatment Moisturisers",
       "Pigmentation"
     ]
@@ -984,6 +1343,15 @@
     "categories": [
       "Treatment Moisturisers",
       "Anti-Aging"
+    ],
+    "seoTitle": "VitaDerm Multi-Vitamin Treatment Cream | Lullubelle",
+    "seoDescription": "VitaDerm Multi-Vitamin Treatment Cream from Lullubelle. This Multi-Vitamin Treatment Cream is a nourishing, vitamin-enriched formulation intended for.",
+    "imageAlt": "VitaDerm Multi-Vitamin Treatment Cream 60ml tube with flip cap",
+    "searchKeywords": [
+      "VitaDerm",
+      "Multi-Vitamin Treatment Cream",
+      "Treatment Moisturisers",
+      "Anti-Aging"
     ]
   },
   {
@@ -1004,6 +1372,15 @@
     "featured": false,
     "hidden": false,
     "categories": [
+      "Treatment Moisturisers",
+      "Anti-Aging"
+    ],
+    "seoTitle": "VitaDerm Firming Treatment Cream | Lullubelle",
+    "seoDescription": "VitaDerm Firming Treatment Cream from Lullubelle. The Firming Treatment Cream is formulated with hyaluronic acid as well as oligo- and tetra peptides which.",
+    "imageAlt": "VitaDerm Firming Treatment Cream 100ml tube with flip cap",
+    "searchKeywords": [
+      "VitaDerm",
+      "Firming Treatment Cream",
       "Treatment Moisturisers",
       "Anti-Aging"
     ]
@@ -1028,6 +1405,15 @@
     "categories": [
       "Treatment",
       "Hydration"
+    ],
+    "seoTitle": "VitaDerm Nourish & Revitalise Pack | Lullubelle",
+    "seoDescription": "VitaDerm Nourish & Revitalise Pack from Lullubelle. What’s in the box. View current product details.",
+    "imageAlt": "VitaDerm Nourish & Revitalise Pack TRIO PACK",
+    "searchKeywords": [
+      "VitaDerm",
+      "Nourish & Revitalise Pack",
+      "Treatment",
+      "Hydration"
     ]
   },
   {
@@ -1050,6 +1436,14 @@
     "categories": [
       "Treatment",
       "Anti-Aging"
+    ],
+    "seoTitle": "VitaDerm Anti-Ageing Eye Cream | Lullubelle",
+    "seoDescription": "VitaDerm Anti-Ageing Eye Cream from Lullubelle. The Anti-Ageing Eye Cream is a multi-active eye cream that offers excellent protection to the delicate eye.",
+    "imageAlt": "VitaDerm Anti-Ageing Eye Cream",
+    "searchKeywords": [
+      "VitaDerm",
+      "Anti-Ageing Eye Cream",
+      "Treatment"
     ]
   },
   {
@@ -1070,6 +1464,15 @@
     "featured": false,
     "hidden": false,
     "categories": [
+      "Treatment",
+      "Treatment Lip Care"
+    ],
+    "seoTitle": "VitaDerm Eye & Lip Repair | Lullubelle",
+    "seoDescription": "VitaDerm Eye & Lip Repair from Lullubelle. This Eye & Lip Repair is a light-weight serum that is formulated with multi-active ingredients.",
+    "imageAlt": "VitaDerm Eye & Lip Repair 15ml airless bottle with pump",
+    "searchKeywords": [
+      "VitaDerm",
+      "Eye & Lip Repair",
       "Treatment",
       "Treatment Lip Care"
     ]
@@ -1094,6 +1497,15 @@
     "categories": [
       "Treatment",
       "Anti-Aging"
+    ],
+    "seoTitle": "VitaDerm Eye Lift Gel | Lullubelle",
+    "seoDescription": "VitaDerm Eye Lift Gel from Lullubelle. This Eye Lift Gel helps boost hydration and brightens the delicate skin around the eyes.",
+    "imageAlt": "VitaDerm Eye Lift Gel 15ml airless bottle with pump",
+    "searchKeywords": [
+      "VitaDerm",
+      "Eye Lift Gel",
+      "Treatment",
+      "Anti-Aging"
     ]
   },
   {
@@ -1114,6 +1526,15 @@
     "featured": false,
     "hidden": false,
     "categories": [
+      "Correcting Gels",
+      "Acne and Breakouts"
+    ],
+    "seoTitle": "VitaDerm Salicylic Spot Treatment | Lullubelle",
+    "seoDescription": "VitaDerm Salicylic Spot Treatment from Lullubelle. This Salicylic Spot Treatment contains salicylic acid as the main active ingredient which is well-known for.",
+    "imageAlt": "VitaDerm Salicylic Spot Treatment",
+    "searchKeywords": [
+      "VitaDerm",
+      "Salicylic Spot Treatment",
       "Correcting Gels",
       "Acne and Breakouts"
     ]
@@ -1137,6 +1558,14 @@
     "hidden": false,
     "categories": [
       "UVA/UVB Protection"
+    ],
+    "seoTitle": "VitaDerm Invisible Photo Defence SPF50 100ml | Lullubelle",
+    "seoDescription": "VitaDerm Invisible Photo Defence SPF50 100ml from Lullubelle. VitaDerm’s Invisible Photo Defence SPF50 is an advanced formula that offers the latest in sun.",
+    "imageAlt": "VitaDerm Invisible Photo Defence SPF50 100ml 100ml tube with flip cap",
+    "searchKeywords": [
+      "VitaDerm",
+      "Invisible Photo Defence SPF50 100ml",
+      "UVA/UVB Protection"
     ]
   },
   {
@@ -1158,6 +1587,14 @@
     "hidden": false,
     "categories": [
       "UVA/UVB Protection"
+    ],
+    "seoTitle": "VitaDerm Reflective Sunbarrier SPF25+ | Lullubelle",
+    "seoDescription": "VitaDerm Reflective Sunbarrier SPF25+ from Lullubelle. This Reflective Sun Barrier SPF25+ contains a high percentage of reflective content that offers.",
+    "imageAlt": "VitaDerm Reflective Sunbarrier SPF25+ 100ml tube with flip cap",
+    "searchKeywords": [
+      "VitaDerm",
+      "Reflective Sunbarrier SPF25+",
+      "UVA/UVB Protection"
     ]
   },
   {
@@ -1178,6 +1615,15 @@
     "featured": true,
     "hidden": false,
     "categories": [
+      "Treatment",
+      "Anti-Aging"
+    ],
+    "seoTitle": "VitaDerm Rejuvenate & Restore Skin Capsules | Lullubelle",
+    "seoDescription": "VitaDerm Rejuvenate & Restore Skin Capsules from Lullubelle. VitaDerm’s Rejuvenate and Restore capsules are formulated with 10% Argireline peptide solution.",
+    "imageAlt": "VitaDerm Rejuvenate & Restore Skin Capsules 30 capsules",
+    "searchKeywords": [
+      "VitaDerm",
+      "Rejuvenate & Restore Skin Capsules",
       "Treatment",
       "Anti-Aging"
     ]
@@ -1203,6 +1649,16 @@
       "Treatment",
       "Anti-Aging",
       "Pigmentation"
+    ],
+    "seoTitle": "VitaDerm Retin-Glow Skin Capsules | Lullubelle",
+    "seoDescription": "VitaDerm Retin-Glow Skin Capsules from Lullubelle. VitaDerm’s Retin-Glow Skin Capsules are formulated with 2.2% Retinol. View current product details.",
+    "imageAlt": "VitaDerm Retin-Glow Skin Capsules 30 capsules",
+    "searchKeywords": [
+      "VitaDerm",
+      "Retin-Glow Skin Capsules",
+      "Treatment",
+      "Anti-Aging",
+      "Pigmentation"
     ]
   },
   {
@@ -1216,9 +1672,22 @@
     "description": "Essential Face Products [20ml sizes]",
     "benefit": "Essential Face Products [20ml sizes]",
     "price": 617,
-    "searchKeywords": "Kalahari, D008A, Skincare Journey Kit in Travel Bag, Skincare Kits, 1 unit, Essential, Face, Products, 20ml, sizes",
+    "searchKeywords": [
+      "Kalahari",
+      "Skincare Journey Kit in Travel Bag",
+      "Prepare",
+      "Treatment",
+      "D008A",
+      "Skincare Kits",
+      "1 unit",
+      "Essential",
+      "Face",
+      "Products",
+      "20ml",
+      "sizes"
+    ],
     "image": "public/images/products/kalahari/d008a.webp",
-    "imageAlt": "Kalahari Skincare Journey Kit in Travel Bag 1 unit",
+    "imageAlt": "Kalahari Skincare Journey Kit in Travel Bag catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Essential Face Products [20ml sizes]",
@@ -1231,7 +1700,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 1,
     "seoTitle": "Kalahari Skincare Journey Kit in Travel Bag 1 unit | Lullubelle",
-    "seoDescription": "Shop Kalahari Skincare Journey Kit in Travel Bag 1 unit for R617 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Skincare Journey Kit in Travel Bag from Lullubelle. Essential Face Products [20ml sizes]. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Prepare",
@@ -1249,9 +1718,24 @@
     "description": "Product collection suitable for this particular skin type",
     "benefit": "Product collection suitable for this particular skin type",
     "price": 1113,
-    "searchKeywords": "Kalahari, D11, Age Preventative Kit, Skincare Kits, 1 unit, Product, collection, suitable, this, particular, skin, type",
+    "searchKeywords": [
+      "Kalahari",
+      "Age Preventative Kit",
+      "Anti-Aging",
+      "Treatment",
+      "D11",
+      "Skincare Kits",
+      "1 unit",
+      "Product",
+      "collection",
+      "suitable",
+      "this",
+      "particular",
+      "skin",
+      "type"
+    ],
     "image": "public/images/products/kalahari/d11.webp",
-    "imageAlt": "Kalahari Age Preventative Kit 1 unit",
+    "imageAlt": "Kalahari Age Preventative Kit catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Product collection suitable for this particular skin type",
@@ -1264,7 +1748,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 2,
     "seoTitle": "Kalahari Age Preventative Kit 1 unit | Lullubelle",
-    "seoDescription": "Shop Kalahari Age Preventative Kit 1 unit for R1113 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Age Preventative Kit from Lullubelle. Product collection suitable for this particular skin type. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Anti-Aging",
@@ -1282,9 +1766,24 @@
     "description": "Product collection suitable for this particular skin type",
     "benefit": "Product collection suitable for this particular skin type",
     "price": 1091,
-    "searchKeywords": "Kalahari, D13, Sensitive & Sensitised Kit, Skincare Kits, 1 unit, Product, collection, suitable, this, particular, skin, type",
+    "searchKeywords": [
+      "Kalahari",
+      "Sensitive & Sensitised Kit",
+      "Sensitive Skin Treatments",
+      "Treatment",
+      "D13",
+      "Skincare Kits",
+      "1 unit",
+      "Product",
+      "collection",
+      "suitable",
+      "this",
+      "particular",
+      "skin",
+      "type"
+    ],
     "image": "public/images/products/kalahari/d13.webp",
-    "imageAlt": "Kalahari Sensitive & Sensitised Kit 1 unit",
+    "imageAlt": "Kalahari Sensitive & Sensitised Kit catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Product collection suitable for this particular skin type",
@@ -1297,7 +1796,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 3,
     "seoTitle": "Kalahari Sensitive & Sensitised Kit 1 unit | Lullubelle",
-    "seoDescription": "Shop Kalahari Sensitive & Sensitised Kit 1 unit for R1091 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Sensitive & Sensitised Kit from Lullubelle. Product collection suitable for this particular skin type. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Sensitive Skin Treatments",
@@ -1315,9 +1814,24 @@
     "description": "Product collection suitable for this particular skin type",
     "benefit": "Product collection suitable for this particular skin type",
     "price": 1213,
-    "searchKeywords": "Kalahari, D12, Dry & Dehydrated Kit, Skincare Kits, 1 unit, Product, collection, suitable, this, particular, skin, type",
+    "searchKeywords": [
+      "Kalahari",
+      "Dry & Dehydrated Kit",
+      "Hydration",
+      "Treatment",
+      "D12",
+      "Skincare Kits",
+      "1 unit",
+      "Product",
+      "collection",
+      "suitable",
+      "this",
+      "particular",
+      "skin",
+      "type"
+    ],
     "image": "public/images/products/kalahari/d12.webp",
-    "imageAlt": "Kalahari Dry & Dehydrated Kit 1 unit",
+    "imageAlt": "Kalahari Dry & Dehydrated Kit catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Product collection suitable for this particular skin type",
@@ -1330,7 +1844,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 4,
     "seoTitle": "Kalahari Dry & Dehydrated Kit 1 unit | Lullubelle",
-    "seoDescription": "Shop Kalahari Dry & Dehydrated Kit 1 unit for R1213 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Dry & Dehydrated Kit from Lullubelle. Product collection suitable for this particular skin type. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Hydration",
@@ -1348,9 +1862,24 @@
     "description": "Product collection suitable for this particular skin type",
     "benefit": "Product collection suitable for this particular skin type",
     "price": 1113,
-    "searchKeywords": "Kalahari, D22, Mature Skin Kit, Skincare Kits, 1 unit, Product, collection, suitable, this, particular, skin, type",
+    "searchKeywords": [
+      "Kalahari",
+      "Mature Skin Kit",
+      "Anti-Aging",
+      "Hydration",
+      "D22",
+      "Skincare Kits",
+      "1 unit",
+      "Product",
+      "collection",
+      "suitable",
+      "this",
+      "particular",
+      "skin",
+      "type"
+    ],
     "image": "public/images/products/kalahari/d22.webp",
-    "imageAlt": "Kalahari Mature Skin Kit 1 unit",
+    "imageAlt": "Kalahari Mature Skin Kit catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Product collection suitable for this particular skin type",
@@ -1363,7 +1892,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 5,
     "seoTitle": "Kalahari Mature Skin Kit 1 unit | Lullubelle",
-    "seoDescription": "Shop Kalahari Mature Skin Kit 1 unit for R1113 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Mature Skin Kit from Lullubelle. Product collection suitable for this particular skin type. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Anti-Aging",
@@ -1381,9 +1910,24 @@
     "description": "Product collection suitable for this particular skin type",
     "benefit": "Product collection suitable for this particular skin type",
     "price": 1012,
-    "searchKeywords": "Kalahari, D14, Hyperpigmented Skin Kit, Skincare Kits, 1 unit, Product, collection, suitable, this, particular, skin, type",
+    "searchKeywords": [
+      "Kalahari",
+      "Hyperpigmented Skin Kit",
+      "Pigmentation",
+      "Treatment",
+      "D14",
+      "Skincare Kits",
+      "1 unit",
+      "Product",
+      "collection",
+      "suitable",
+      "this",
+      "particular",
+      "skin",
+      "type"
+    ],
     "image": "public/images/products/kalahari/d14.webp",
-    "imageAlt": "Kalahari Hyperpigmented Skin Kit 1 unit",
+    "imageAlt": "Kalahari Hyperpigmented Skin Kit catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Product collection suitable for this particular skin type",
@@ -1396,7 +1940,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 6,
     "seoTitle": "Kalahari Hyperpigmented Skin Kit 1 unit | Lullubelle",
-    "seoDescription": "Shop Kalahari Hyperpigmented Skin Kit 1 unit for R1012 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Hyperpigmented Skin Kit from Lullubelle. Product collection suitable for this particular skin type. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Pigmentation",
@@ -1414,9 +1958,24 @@
     "description": "Product collection suitable for this particular skin type",
     "benefit": "Product collection suitable for this particular skin type",
     "price": 1036,
-    "searchKeywords": "Kalahari, D15, Problematic Skin Kit, Skincare Kits, 1 unit, Product, collection, suitable, this, particular, skin, type",
+    "searchKeywords": [
+      "Kalahari",
+      "Problematic Skin Kit",
+      "Acne and Breakouts",
+      "Treatment",
+      "D15",
+      "Skincare Kits",
+      "1 unit",
+      "Product",
+      "collection",
+      "suitable",
+      "this",
+      "particular",
+      "skin",
+      "type"
+    ],
     "image": "public/images/products/kalahari/d15.webp",
-    "imageAlt": "Kalahari Problematic Skin Kit 1 unit",
+    "imageAlt": "Kalahari Problematic Skin Kit catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Product collection suitable for this particular skin type",
@@ -1429,7 +1988,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 7,
     "seoTitle": "Kalahari Problematic Skin Kit 1 unit | Lullubelle",
-    "seoDescription": "Shop Kalahari Problematic Skin Kit 1 unit for R1036 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Problematic Skin Kit from Lullubelle. Product collection suitable for this particular skin type. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Acne and Breakouts",
@@ -1452,8 +2011,19 @@
     "slug": "kalahari-gentle-cleansing-milk",
     "sku": "CLE01",
     "size": "160ml",
-    "searchKeywords": "Kalahari, CLE01, Gentle Cleansing Milk, Prepare, 160ml, With, Jojoba, Shea, Fragrance, Free",
-    "imageAlt": "Kalahari Gentle Cleansing Milk 160ml",
+    "searchKeywords": [
+      "Kalahari",
+      "Gentle Cleansing Milk",
+      "Prepare",
+      "CLE01",
+      "160ml",
+      "With",
+      "Jojoba",
+      "Shea",
+      "Fragrance",
+      "Free"
+    ],
+    "imageAlt": "Kalahari Gentle Cleansing Milk catalogue product",
     "active": true,
     "published": true,
     "status": "active",
@@ -1462,7 +2032,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 8,
     "seoTitle": "Kalahari Gentle Cleansing Milk 160ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Gentle Cleansing Milk 160ml for R277 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Gentle Cleansing Milk from Lullubelle. With Jojoba, & Shea Oil, Fragrance Free. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Prepare"
@@ -1479,9 +2049,24 @@
     "description": "Milky base with botanical oils: Morninga & Baobab with orange essential oil",
     "benefit": "Milky base with botanical oils: Morninga & Baobab with orange essential oil",
     "price": 305,
-    "searchKeywords": "Kalahari, FK1027, Gentle Cleansing Milk in Refill Pouch, Prepare, 200ml, Milky, base, with, botanical, oils, Morninga, Baobab, orange, essential",
+    "searchKeywords": [
+      "Kalahari",
+      "Gentle Cleansing Milk in Refill Pouch",
+      "Prepare",
+      "FK1027",
+      "200ml",
+      "Milky",
+      "base",
+      "with",
+      "botanical",
+      "oils",
+      "Morninga",
+      "Baobab",
+      "orange",
+      "essential"
+    ],
     "image": "public/images/products/kalahari/fk1027.webp",
-    "imageAlt": "Kalahari Gentle Cleansing Milk in Refill Pouch 200ml",
+    "imageAlt": "Kalahari Gentle Cleansing Milk in Refill Pouch catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Milky base with botanical oils: Morninga & Baobab with orange essential oil",
@@ -1494,7 +2079,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 9,
     "seoTitle": "Kalahari Gentle Cleansing Milk in Refill Pouch 200ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Gentle Cleansing Milk in Refill Pouch 200ml for R305 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Gentle Cleansing Milk in Refill Pouch from Lullubelle. Milky base with botanical oils: Morninga & Baobab with orange essential oil.",
     "catalogueTotal": 77,
     "categories": [
       "Prepare"
@@ -1518,8 +2103,18 @@
     "slug": "kalahari-facial-cleanser",
     "sku": "FK2090",
     "size": "160ml",
-    "searchKeywords": "Kalahari, FK2090, Facial Cleanser, Prepare, 160ml, based, Cleanser, Fragrance, Free",
-    "imageAlt": "Kalahari Facial Cleanser 160ml",
+    "searchKeywords": [
+      "Kalahari",
+      "Facial Cleanser",
+      "Prepare",
+      "FK2090",
+      "160ml",
+      "based",
+      "Cleanser",
+      "Fragrance",
+      "Free"
+    ],
+    "imageAlt": "Kalahari Facial Cleanser",
     "active": true,
     "published": true,
     "status": "active",
@@ -1528,7 +2123,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 10,
     "seoTitle": "Kalahari Facial Cleanser 160ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Facial Cleanser 160ml for R265 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Facial Cleanser from Lullubelle. Gel based Cleanser, Fragrance Free. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Prepare"
@@ -1545,9 +2140,20 @@
     "description": "Gel based cleanser, Soap and Fragrance Free",
     "benefit": "Gel based cleanser, Soap and Fragrance Free",
     "price": 292,
-    "searchKeywords": "Kalahari, FK1026, Facial Cleanser in Refill Pouch, Prepare, 200ml, based, cleanser, Soap, Fragrance, Free",
+    "searchKeywords": [
+      "Kalahari",
+      "Facial Cleanser in Refill Pouch",
+      "Prepare",
+      "FK1026",
+      "200ml",
+      "based",
+      "cleanser",
+      "Soap",
+      "Fragrance",
+      "Free"
+    ],
     "image": "public/images/products/kalahari/fk1026.webp",
-    "imageAlt": "Kalahari Facial Cleanser in Refill Pouch 200ml",
+    "imageAlt": "Kalahari Facial Cleanser in Refill Pouch catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Gel based cleanser, Soap and Fragrance Free",
@@ -1560,7 +2166,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 11,
     "seoTitle": "Kalahari Facial Cleanser in Refill Pouch 200ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Facial Cleanser in Refill Pouch 200ml for R292 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Facial Cleanser in Refill Pouch from Lullubelle. Gel based cleanser, Soap and Fragrance Free. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Prepare"
@@ -1577,9 +2183,19 @@
     "description": "4-1 Curcylic acid & Pumpkin Enzymes",
     "benefit": "4-1 Curcylic acid & Pumpkin Enzymes",
     "price": 333,
-    "searchKeywords": "Kalahari, FK1010, Phyto-foam Cleanser | Self Foaming, Prepare, 50ml, Curcylic, acid, Pumpkin, Enzymes",
+    "searchKeywords": [
+      "Kalahari",
+      "Phyto-foam Cleanser | Self Foaming",
+      "Prepare",
+      "FK1010",
+      "50ml",
+      "Curcylic",
+      "acid",
+      "Pumpkin",
+      "Enzymes"
+    ],
     "image": "public/images/products/kalahari/fk1010.webp",
-    "imageAlt": "Kalahari Phyto-foam Cleanser | Self Foaming 50ml",
+    "imageAlt": "Kalahari Phyto-foam Cleanser | Self Foaming catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "4-1 Curcylic acid & Pumpkin Enzymes",
@@ -1592,7 +2208,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 12,
     "seoTitle": "Kalahari Phyto-foam Cleanser | Self Foaming 50ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Phyto-foam Cleanser | Self Foaming 50ml for R333 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Phyto-foam Cleanser | Self Foaming from Lullubelle. 4-1 Curcylic acid & Pumpkin Enzymes. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Prepare"
@@ -1614,8 +2230,18 @@
     "slug": "kalahari-enzyme-face-buff",
     "sku": "ENE02",
     "size": "50ml",
-    "searchKeywords": "Kalahari, ENE02, Enzyme Face Buff, Prepare, 50ml, Jojoba, beads, /Fruit, Enzymes",
-    "imageAlt": "Kalahari Enzyme Face Buff 50ml",
+    "searchKeywords": [
+      "Kalahari",
+      "Enzyme Face Buff",
+      "Prepare",
+      "ENE02",
+      "50ml",
+      "Jojoba",
+      "beads",
+      "/Fruit",
+      "Enzymes"
+    ],
+    "imageAlt": "Kalahari Enzyme Face Buff",
     "active": true,
     "published": true,
     "status": "active",
@@ -1624,7 +2250,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 13,
     "seoTitle": "Kalahari Enzyme Face Buff 50ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Enzyme Face Buff 50ml for R345 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Enzyme Face Buff from Lullubelle. Jojoba beads /Fruit & Veg. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Prepare"
@@ -1646,8 +2272,20 @@
     "slug": "kalahari-toning-lotion",
     "sku": "FK2091",
     "size": "160ml",
-    "searchKeywords": "Kalahari, FK2091, Toning Lotion, Prepare, 160ml, With, Allantoin, Lactic, acid, Skin, Conditions",
-    "imageAlt": "Kalahari Toning Lotion 160ml",
+    "searchKeywords": [
+      "Kalahari",
+      "Toning Lotion",
+      "Prepare",
+      "FK2091",
+      "160ml",
+      "With",
+      "Allantoin",
+      "Lactic",
+      "acid",
+      "Skin",
+      "Conditions"
+    ],
+    "imageAlt": "Kalahari Toning Lotion",
     "active": true,
     "published": true,
     "status": "active",
@@ -1656,7 +2294,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 14,
     "seoTitle": "Kalahari Toning Lotion 160ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Toning Lotion 160ml for R330 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Toning Lotion from Lullubelle. With Allantoin & Lactic acid, All Skin Conditions. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Prepare"
@@ -1673,9 +2311,22 @@
     "description": "[every 2nd evening, enlarged pores, oily skin, detox]",
     "benefit": "[every 2nd evening, enlarged pores, oily skin, detox]",
     "price": 160,
-    "searchKeywords": "Kalahari, PHY07, Phyto-film Toner [pH3.5] [Treatment Toner], Prepare, 50ml, every, evening, enlarged, pores, oily, skin, detox",
+    "searchKeywords": [
+      "Kalahari",
+      "Phyto-film Toner [pH3.5] [Treatment Toner]",
+      "Prepare",
+      "PHY07",
+      "50ml",
+      "every",
+      "evening",
+      "enlarged",
+      "pores",
+      "oily",
+      "skin",
+      "detox"
+    ],
     "image": "public/images/products/kalahari/phy07.webp",
-    "imageAlt": "Kalahari Phyto-film Toner [pH3.5] [Treatment Toner] 50ml",
+    "imageAlt": "Kalahari Phyto-film Toner [pH3.5] [Treatment Toner] catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "[every 2nd evening, enlarged pores, oily skin, detox]",
@@ -1688,7 +2339,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 15,
     "seoTitle": "Kalahari Phyto-film Toner [pH3.5] [Treatment Toner] 50ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Phyto-film Toner [pH3.5] [Treatment Toner] 50ml for R160 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Phyto-film Toner [pH3.5] [Treatment Toner] from Lullubelle. [every 2nd evening, enlarged pores, oily skin, detox]. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Prepare"
@@ -1705,9 +2356,21 @@
     "description": "Probiotic facial mist & sensitive skin conditions",
     "benefit": "Probiotic facial mist & sensitive skin conditions",
     "price": 420,
-    "searchKeywords": "Kalahari, FK1101, Phyto-Calm Facial Mist, Prepare, 50ml, Probiotic, facial, mist, sensitive, skin, conditions",
+    "searchKeywords": [
+      "Kalahari",
+      "Phyto-Calm Facial Mist",
+      "Prepare",
+      "FK1101",
+      "50ml",
+      "Probiotic",
+      "facial",
+      "mist",
+      "sensitive",
+      "skin",
+      "conditions"
+    ],
     "image": "public/images/products/kalahari/fk1101.webp",
-    "imageAlt": "Kalahari Phyto-Calm Facial Mist 50ml",
+    "imageAlt": "Kalahari Phyto-Calm Facial Mist catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Probiotic facial mist & sensitive skin conditions",
@@ -1720,7 +2383,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 16,
     "seoTitle": "Kalahari Phyto-Calm Facial Mist 50ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Phyto-Calm Facial Mist 50ml for R420 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Phyto-Calm Facial Mist from Lullubelle. Probiotic facial mist & sensitive skin conditions. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Prepare"
@@ -1737,9 +2400,20 @@
     "description": "Gentle Exfoliation Tool. Re-usable.",
     "benefit": "Gentle Exfoliation Tool. Re-usable.",
     "price": 111,
-    "searchKeywords": "Kalahari, MAS02, Facial Silicon Exfoliator, Cleaning Tools & Disposables, 1 unit, Gentle, Exfoliation, Tool, Re-usable",
+    "searchKeywords": [
+      "Kalahari",
+      "Facial Silicon Exfoliator",
+      "Prepare",
+      "MAS02",
+      "Cleaning Tools & Disposables",
+      "1 unit",
+      "Gentle",
+      "Exfoliation",
+      "Tool",
+      "Re-usable"
+    ],
     "image": "public/images/products/kalahari/mas02.webp",
-    "imageAlt": "Kalahari Facial Silicon Exfoliator 1 unit",
+    "imageAlt": "Kalahari Facial Silicon Exfoliator catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Gentle Exfoliation Tool. Re-usable.",
@@ -1752,7 +2426,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 17,
     "seoTitle": "Kalahari Facial Silicon Exfoliator 1 unit | Lullubelle",
-    "seoDescription": "Shop Kalahari Facial Silicon Exfoliator 1 unit for R111 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Facial Silicon Exfoliator from Lullubelle. Gentle Exfoliation Tool. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Prepare"
@@ -1769,9 +2443,20 @@
     "description": "Single use cotton disposable compress",
     "benefit": "Single use cotton disposable compress",
     "price": 111,
-    "searchKeywords": "Kalahari, DC001, ECO Disposable Compress, Cleaning Tools & Disposables, 20 units, Single, cotton, disposable, compress",
+    "searchKeywords": [
+      "Kalahari",
+      "ECO Disposable Compress",
+      "Prepare",
+      "DC001",
+      "Cleaning Tools & Disposables",
+      "20 units",
+      "Single",
+      "cotton",
+      "disposable",
+      "compress"
+    ],
     "image": "public/images/products/kalahari/dc001.webp",
-    "imageAlt": "Kalahari ECO Disposable Compress 20 units",
+    "imageAlt": "Kalahari ECO Disposable Compress catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Single use cotton disposable compress",
@@ -1784,7 +2469,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 18,
     "seoTitle": "Kalahari ECO Disposable Compress 20 units | Lullubelle",
-    "seoDescription": "Shop Kalahari ECO Disposable Compress 20 units for R111 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari ECO Disposable Compress from Lullubelle. Single use cotton disposable compress. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Prepare"
@@ -1801,9 +2486,18 @@
     "description": "Treatment Support",
     "benefit": "Treatment Support",
     "price": 194,
-    "searchKeywords": "Kalahari, PM015, Soft Touch Cleansing Cloth, Cleaning Tools & Disposables, 1 unit, Treatment, Support",
+    "searchKeywords": [
+      "Kalahari",
+      "Soft Touch Cleansing Cloth",
+      "Prepare",
+      "PM015",
+      "Cleaning Tools & Disposables",
+      "1 unit",
+      "Treatment",
+      "Support"
+    ],
     "image": "public/images/products/kalahari/pm015.webp",
-    "imageAlt": "Kalahari Soft Touch Cleansing Cloth 1 unit",
+    "imageAlt": "Kalahari Soft Touch Cleansing Cloth catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Treatment Support",
@@ -1816,7 +2510,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 19,
     "seoTitle": "Kalahari Soft Touch Cleansing Cloth 1 unit | Lullubelle",
-    "seoDescription": "Shop Kalahari Soft Touch Cleansing Cloth 1 unit for R194 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Soft Touch Cleansing Cloth from Lullubelle. Treatment Support. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Prepare"
@@ -1833,9 +2527,23 @@
     "description": "Incorporate with skin toners for a natural exfoliation benefit",
     "benefit": "Incorporate with skin toners for a natural exfoliation benefit",
     "price": 111,
-    "searchKeywords": "Kalahari, GAU01, Gauze (Non-sterile 100 individual units), Cleaning Tools & Disposables, 10X10cm, Incorporate, with, skin, toners, natural, exfoliation, benefit",
+    "searchKeywords": [
+      "Kalahari",
+      "Gauze (Non-sterile 100 individual units)",
+      "Prepare",
+      "GAU01",
+      "Cleaning Tools & Disposables",
+      "10X10cm",
+      "Incorporate",
+      "with",
+      "skin",
+      "toners",
+      "natural",
+      "exfoliation",
+      "benefit"
+    ],
     "image": "public/images/products/kalahari/gau01.webp",
-    "imageAlt": "Kalahari Gauze (Non-sterile 100 individual units) 10X10cm",
+    "imageAlt": "Kalahari Gauze (Non-sterile 100 individual units) catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Incorporate with skin toners for a natural exfoliation benefit",
@@ -1848,7 +2556,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 20,
     "seoTitle": "Kalahari Gauze (Non-sterile 100 individual units) 10X10cm | Lullubelle",
-    "seoDescription": "Shop Kalahari Gauze (Non-sterile 100 individual units) 10X10cm for R111 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Gauze (Non-sterile 100 individual units) from Lullubelle. Incorporate with skin toners for a natural exfoliation benefit.",
     "catalogueTotal": 77,
     "categories": [
       "Prepare"
@@ -1865,9 +2573,19 @@
     "description": "Shea butter and Rooibos Tea Extract",
     "benefit": "Shea butter and Rooibos Tea Extract",
     "price": 358,
-    "searchKeywords": "Kalahari, NOU02, Nourishing Face and Neck Mask, Treatment Masks, 50ml, Shea, butter, Rooibos, Extract",
+    "searchKeywords": [
+      "Kalahari",
+      "Nourishing Face and Neck Mask",
+      "Treatment Masks",
+      "NOU02",
+      "50ml",
+      "Shea",
+      "butter",
+      "Rooibos",
+      "Extract"
+    ],
     "image": "public/images/products/kalahari/nou02.webp",
-    "imageAlt": "Kalahari Nourishing Face and Neck Mask 50ml",
+    "imageAlt": "Kalahari Nourishing Face and Neck Mask catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Shea butter and Rooibos Tea Extract",
@@ -1880,7 +2598,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 21,
     "seoTitle": "Kalahari Nourishing Face and Neck Mask 50ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Nourishing Face and Neck Mask 50ml for R358 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Nourishing Face and Neck Mask from Lullubelle. Shea butter and Rooibos Tea Extract. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment Masks"
@@ -1897,9 +2615,20 @@
     "description": "The POW[D]ER home-care kit includes 3 options of 100% Organic Clays",
     "benefit": "The POW[D]ER home-care kit includes 3 options of 100% Organic Clays",
     "price": 932,
-    "searchKeywords": "Kalahari, D24, Pow[d]er Clays & Mud Treatment Set, Treatment Masks, 1 unit, home-care, includes, options, Organic, Clays",
+    "searchKeywords": [
+      "Kalahari",
+      "Pow[d]er Clays & Mud Treatment Set",
+      "Treatment Masks",
+      "D24",
+      "1 unit",
+      "home-care",
+      "includes",
+      "options",
+      "Organic",
+      "Clays"
+    ],
     "image": "public/images/products/kalahari/d24.webp",
-    "imageAlt": "Kalahari Pow[d]er Clays & Mud Treatment Set 1 unit",
+    "imageAlt": "Kalahari Pow[d]er Clays & Mud Treatment Set catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "The POW[D]ER home-care kit includes 3 options of 100% Organic Clays",
@@ -1912,7 +2641,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 22,
     "seoTitle": "Kalahari Pow[d]er Clays & Mud Treatment Set 1 unit | Lullubelle",
-    "seoDescription": "Shop Kalahari Pow[d]er Clays & Mud Treatment Set 1 unit for R932 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Pow[d]er Clays & Mud Treatment Set from Lullubelle. The POW[D]ER home-care kit includes 3 options of 100% Organic Clays.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment Masks"
@@ -1929,9 +2658,18 @@
     "description": "4% AHA's, Resurrection Plant, Peptides",
     "benefit": "4% AHA's, Resurrection Plant, Peptides",
     "price": 553,
-    "searchKeywords": "Kalahari, PHY06, Vita-gel Mask [pH4], Treatment Masks, 50ml, Resurrection, Plant, Peptides",
+    "searchKeywords": [
+      "Kalahari",
+      "Vita-gel Mask [pH4]",
+      "Treatment Masks",
+      "PHY06",
+      "50ml",
+      "Resurrection",
+      "Plant",
+      "Peptides"
+    ],
     "image": "public/images/products/kalahari/phy06.webp",
-    "imageAlt": "Kalahari Vita-gel Mask [pH4] 50ml",
+    "imageAlt": "Kalahari Vita-gel Mask [pH4] catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "4% AHA's, Resurrection Plant, Peptides",
@@ -1944,7 +2682,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 23,
     "seoTitle": "Kalahari Vita-gel Mask [pH4] 50ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Vita-gel Mask [pH4] 50ml for R553 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Vita-gel Mask [pH4] from Lullubelle. 4% AHA's, Resurrection Plant, Peptides. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment Masks"
@@ -1961,9 +2699,19 @@
     "description": "Deep Cleansing & Exfoliating & Purifying",
     "benefit": "Deep Cleansing & Exfoliating & Purifying",
     "price": 506,
-    "searchKeywords": "Kalahari, FK1012, Activated Charcoal Mask, Treatment Masks, 50ml, Deep, Cleansing, Exfoliating, Purifying",
+    "searchKeywords": [
+      "Kalahari",
+      "Activated Charcoal Mask",
+      "Treatment Masks",
+      "FK1012",
+      "50ml",
+      "Deep",
+      "Cleansing",
+      "Exfoliating",
+      "Purifying"
+    ],
     "image": "public/images/products/kalahari/fk1012.webp",
-    "imageAlt": "Kalahari Activated Charcoal Mask 50ml",
+    "imageAlt": "Kalahari Activated Charcoal Mask catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Deep Cleansing & Exfoliating & Purifying",
@@ -1976,7 +2724,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 24,
     "seoTitle": "Kalahari Activated Charcoal Mask 50ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Activated Charcoal Mask 50ml for R506 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Activated Charcoal Mask from Lullubelle. Deep Cleansing & Exfoliating & Purifying. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment Masks"
@@ -1993,9 +2741,22 @@
     "description": "A nutrient and antioxidant rich, multi-effective leave-on treatment mask",
     "benefit": "A nutrient and antioxidant rich, multi-effective leave-on treatment mask",
     "price": 593,
-    "searchKeywords": "Kalahari, FK1161, Vitamin C Mask, Treatment Masks, 50ml, nutrient, antioxidant, rich, multi-effective, leave-on, treatment, mask",
+    "searchKeywords": [
+      "Kalahari",
+      "Vitamin C Mask",
+      "Treatment Masks",
+      "FK1161",
+      "50ml",
+      "nutrient",
+      "antioxidant",
+      "rich",
+      "multi-effective",
+      "leave-on",
+      "treatment",
+      "mask"
+    ],
     "image": "public/images/products/kalahari/fk1161.webp",
-    "imageAlt": "Kalahari Vitamin C Mask 50ml",
+    "imageAlt": "Kalahari Vitamin C Mask catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "A nutrient and antioxidant rich, multi-effective leave-on treatment mask",
@@ -2008,7 +2769,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 25,
     "seoTitle": "Kalahari Vitamin C Mask 50ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Vitamin C Mask 50ml for R593 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Vitamin C Mask from Lullubelle. A nutrient and antioxidant rich, multi-effective leave-on treatment mask. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment Masks"
@@ -2025,9 +2786,24 @@
     "description": "Formulated with Ascorbic acid, natural phyto-active extracts and Hyaluronic complex",
     "benefit": "Formulated with Ascorbic acid, natural phyto-active extracts and Hyaluronic complex",
     "price": 119,
-    "searchKeywords": "Kalahari, VIT01, Vitamin C Sheet Mask, Treatment Masks, 1 unit, Formulated, with, Ascorbic, acid, natural, phyto-active, extracts, Hyaluronic, complex",
+    "searchKeywords": [
+      "Kalahari",
+      "Vitamin C Sheet Mask",
+      "Treatment Masks",
+      "VIT01",
+      "1 unit",
+      "Formulated",
+      "with",
+      "Ascorbic",
+      "acid",
+      "natural",
+      "phyto-active",
+      "extracts",
+      "Hyaluronic",
+      "complex"
+    ],
     "image": "public/images/products/kalahari/vit01.webp",
-    "imageAlt": "Kalahari Vitamin C Sheet Mask 1 unit",
+    "imageAlt": "Kalahari Vitamin C Sheet Mask catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Formulated with Ascorbic acid, natural phyto-active extracts and Hyaluronic complex",
@@ -2040,7 +2816,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 26,
     "seoTitle": "Kalahari Vitamin C Sheet Mask 1 unit | Lullubelle",
-    "seoDescription": "Shop Kalahari Vitamin C Sheet Mask 1 unit for R119 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Vitamin C Sheet Mask from Lullubelle. Formulated with Ascorbic acid, natural phyto-active extracts and Hyaluronic complex.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment Masks"
@@ -2057,9 +2833,23 @@
     "description": "Epidermal Hydration! |. 72-hour moisture lock. |. The ultimate dermal hydrator",
     "benefit": "Epidermal Hydration! |. 72-hour moisture lock. |. The ultimate dermal hydrator",
     "price": 534,
-    "searchKeywords": "Kalahari, FK1020, De-age Hydration Mask, Treatment Masks, 50ml, Epidermal, Hydration, 72-hour, moisture, lock, ultimate, dermal, hydrator",
+    "searchKeywords": [
+      "Kalahari",
+      "De-age Hydration Mask",
+      "Treatment Masks",
+      "FK1020",
+      "50ml",
+      "Epidermal",
+      "Hydration",
+      "72-hour",
+      "moisture",
+      "lock",
+      "ultimate",
+      "dermal",
+      "hydrator"
+    ],
     "image": "public/images/products/kalahari/fk1020.webp",
-    "imageAlt": "Kalahari De-age Hydration Mask 50ml",
+    "imageAlt": "Kalahari De-age Hydration Mask catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Epidermal Hydration! |. 72-hour moisture lock. |. The ultimate dermal hydrator",
@@ -2072,7 +2862,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 27,
     "seoTitle": "Kalahari De-age Hydration Mask 50ml | Lullubelle",
-    "seoDescription": "Shop Kalahari De-age Hydration Mask 50ml for R534 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari De-age Hydration Mask from Lullubelle. Epidermal Hydration. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment Masks"
@@ -2089,9 +2879,18 @@
     "description": "Evening Leave-on Mask",
     "benefit": "Evening Leave-on Mask",
     "price": 407,
-    "searchKeywords": "Kalahari, PHY010, Phyto Firming Neck Mask, Treatment Masks, 50ml, Evening, Leave-on, Mask",
+    "searchKeywords": [
+      "Kalahari",
+      "Phyto Firming Neck Mask",
+      "Treatment Masks",
+      "PHY010",
+      "50ml",
+      "Evening",
+      "Leave-on",
+      "Mask"
+    ],
     "image": "public/images/products/kalahari/phy010.webp",
-    "imageAlt": "Kalahari Phyto Firming Neck Mask 50ml",
+    "imageAlt": "Kalahari Phyto Firming Neck Mask catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Evening Leave-on Mask",
@@ -2104,7 +2903,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 28,
     "seoTitle": "Kalahari Phyto Firming Neck Mask 50ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Phyto Firming Neck Mask 50ml for R407 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Phyto Firming Neck Mask from Lullubelle. Evening Leave-on Mask. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment Masks"
@@ -2121,9 +2920,19 @@
     "description": "With Vitamin B5 & Peptides",
     "benefit": "With Vitamin B5 & Peptides",
     "price": 277,
-    "searchKeywords": "Kalahari, FK1011, Nourishing Eye Balm | Tube, Treatment, 15ml, With, Vitamin, Peptides",
+    "searchKeywords": [
+      "Kalahari",
+      "Nourishing Eye Balm | Tube",
+      "Treatment",
+      "FK1011",
+      "Treatments Eye Care",
+      "15ml",
+      "With",
+      "Vitamin",
+      "Peptides"
+    ],
     "image": "public/images/products/kalahari/fk1011.webp",
-    "imageAlt": "Kalahari Nourishing Eye Balm | Tube 15ml",
+    "imageAlt": "Kalahari Nourishing Eye Balm | Tube",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "With Vitamin B5 & Peptides",
@@ -2136,7 +2945,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 29,
     "seoTitle": "Kalahari Nourishing Eye Balm | Tube 15ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Nourishing Eye Balm | Tube 15ml for R277 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Nourishing Eye Balm | Tube from Lullubelle. With Vitamin B5 & Peptides. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment"
@@ -2153,9 +2962,20 @@
     "description": "Rice Protein enriched and Peptides",
     "benefit": "Rice Protein enriched and Peptides",
     "price": 559,
-    "searchKeywords": "Kalahari, FK1021, Anti-puffiness Eye Serum, Treatment, 20ml, Rice, Protein, enriched, Peptides",
+    "searchKeywords": [
+      "Kalahari",
+      "Anti-puffiness Eye Serum",
+      "Treatment",
+      "FK1021",
+      "Treatments Eye Care",
+      "20ml",
+      "Rice",
+      "Protein",
+      "enriched",
+      "Peptides"
+    ],
     "image": "public/images/products/kalahari/fk1021.webp",
-    "imageAlt": "Kalahari Anti-puffiness Eye Serum 20ml",
+    "imageAlt": "Kalahari Anti-puffiness Eye Serum catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Rice Protein enriched and Peptides",
@@ -2168,7 +2988,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 30,
     "seoTitle": "Kalahari Anti-puffiness Eye Serum 20ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Anti-puffiness Eye Serum 20ml for R559 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Anti-puffiness Eye Serum from Lullubelle. Rice Protein enriched and Peptides. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment"
@@ -2185,9 +3005,19 @@
     "description": "Advanced Peptide Complexes",
     "benefit": "Advanced Peptide Complexes",
     "price": 583,
-    "searchKeywords": "Kalahari, FK1150, Phyto Eye Contour Mask | Tube, Treatment, 15ml, Advanced, Peptide, Complexes",
+    "searchKeywords": [
+      "Kalahari",
+      "Phyto Eye Contour Mask | Tube",
+      "Treatment",
+      "FK1150",
+      "Treatments Eye Care",
+      "15ml",
+      "Advanced",
+      "Peptide",
+      "Complexes"
+    ],
     "image": "public/images/products/kalahari/fk1150.webp",
-    "imageAlt": "Kalahari Phyto Eye Contour Mask | Tube 15ml",
+    "imageAlt": "Kalahari Phyto Eye Contour Mask | Tube catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Advanced Peptide Complexes",
@@ -2200,7 +3030,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 31,
     "seoTitle": "Kalahari Phyto Eye Contour Mask | Tube 15ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Phyto Eye Contour Mask | Tube 15ml for R583 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Phyto Eye Contour Mask | Tube from Lullubelle. Advanced Peptide Complexes. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment"
@@ -2222,8 +3052,19 @@
     "slug": "kalahari-hydrating-collagen-eye-patches",
     "sku": "CEP001",
     "size": "1 set",
-    "searchKeywords": "Kalahari, CEP001, Hydrating Collagen Eye Patches, Treatment, 1 set, Hydrolysed, Collagen, Hydrogel",
-    "imageAlt": "Kalahari Hydrating Collagen Eye Patches 1 set",
+    "searchKeywords": [
+      "Kalahari",
+      "Hydrating Collagen Eye Patches",
+      "Treatment",
+      "All skin types",
+      "CEP001",
+      "Treatments Eye Care",
+      "1 set",
+      "Hydrolysed",
+      "Collagen",
+      "Hydrogel"
+    ],
+    "imageAlt": "Kalahari Hydrating Collagen Eye Patches catalogue product",
     "active": true,
     "published": true,
     "status": "active",
@@ -2232,7 +3073,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 32,
     "seoTitle": "Kalahari Hydrating Collagen Eye Patches 1 set | Lullubelle",
-    "seoDescription": "Shop Kalahari Hydrating Collagen Eye Patches 1 set for R69 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Hydrating Collagen Eye Patches from Lullubelle. Hydrolysed Collagen, Hydrogel. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment"
@@ -2249,9 +3090,18 @@
     "description": "De-ageing, Rejuvenating",
     "benefit": "De-ageing, Rejuvenating",
     "price": 342,
-    "searchKeywords": "Kalahari, FK1080, Anti-ageing Gel, Correcting Gels, 35ml, De-ageing, Rejuvenating",
+    "searchKeywords": [
+      "Kalahari",
+      "Anti-ageing Gel",
+      "Correcting Gels",
+      "FK1080",
+      "Correctors — Gels & Lotion",
+      "35ml",
+      "De-ageing",
+      "Rejuvenating"
+    ],
     "image": "public/images/products/kalahari/fk1080.webp",
-    "imageAlt": "Kalahari Anti-ageing Gel 35ml",
+    "imageAlt": "Kalahari Anti-ageing Gel catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "De-ageing, Rejuvenating",
@@ -2264,7 +3114,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 33,
     "seoTitle": "Kalahari Anti-ageing Gel 35ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Anti-ageing Gel 35ml for R342 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Anti-ageing Gel from Lullubelle. De-ageing, Rejuvenating. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Correcting Gels"
@@ -2281,9 +3131,20 @@
     "description": "Peptides & Hyaluronic enriched | Hydrating",
     "benefit": "Peptides & Hyaluronic enriched | Hydrating",
     "price": 322,
-    "searchKeywords": "Kalahari, FK1000, Revitalising Booster Gel, Correcting Gels, 35ml, Peptides, Hyaluronic, enriched, Hydrating",
+    "searchKeywords": [
+      "Kalahari",
+      "Revitalising Booster Gel",
+      "Correcting Gels",
+      "FK1000",
+      "Correctors — Gels & Lotion",
+      "35ml",
+      "Peptides",
+      "Hyaluronic",
+      "enriched",
+      "Hydrating"
+    ],
     "image": "public/images/products/kalahari/fk1000.webp",
-    "imageAlt": "Kalahari Revitalising Booster Gel 35ml",
+    "imageAlt": "Kalahari Revitalising Booster Gel catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Peptides & Hyaluronic enriched | Hydrating",
@@ -2296,7 +3157,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 34,
     "seoTitle": "Kalahari Revitalising Booster Gel 35ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Revitalising Booster Gel 35ml for R322 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Revitalising Booster Gel from Lullubelle. Peptides & Hyaluronic enriched | Hydrating. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Correcting Gels"
@@ -2313,9 +3174,22 @@
     "description": "Sensitive Skin, calming, soothing, with lemon oil",
     "benefit": "Sensitive Skin, calming, soothing, with lemon oil",
     "price": 322,
-    "searchKeywords": "Kalahari, PHYL01, Phyto Comfort Lotion, Correcting Gels, 35ml, Sensitive, Skin, calming, soothing, with, lemon",
+    "searchKeywords": [
+      "Kalahari",
+      "Phyto Comfort Lotion",
+      "Correcting Gels",
+      "PHYL01",
+      "Correctors — Gels & Lotion",
+      "35ml",
+      "Sensitive",
+      "Skin",
+      "calming",
+      "soothing",
+      "with",
+      "lemon"
+    ],
     "image": "public/images/products/kalahari/phyl01.webp",
-    "imageAlt": "Kalahari Phyto Comfort Lotion 35ml",
+    "imageAlt": "Kalahari Phyto Comfort Lotion catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Sensitive Skin, calming, soothing, with lemon oil",
@@ -2328,7 +3202,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 35,
     "seoTitle": "Kalahari Phyto Comfort Lotion 35ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Phyto Comfort Lotion 35ml for R322 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Phyto Comfort Lotion from Lullubelle. Sensitive Skin, calming, soothing, with lemon oil. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Correcting Gels"
@@ -2345,9 +3219,19 @@
     "description": "Hyperpigmentation Skin Conditions",
     "benefit": "Hyperpigmentation Skin Conditions",
     "price": 519,
-    "searchKeywords": "Kalahari, FK1070, Skin Brightening Gel, Correcting Gels, 35ml, Hyperpigmentation, Skin, Conditions",
+    "searchKeywords": [
+      "Kalahari",
+      "Skin Brightening Gel",
+      "Correcting Gels",
+      "FK1070",
+      "Correctors — Gels & Lotion",
+      "35ml",
+      "Hyperpigmentation",
+      "Skin",
+      "Conditions"
+    ],
     "image": "public/images/products/kalahari/fk1070.webp",
-    "imageAlt": "Kalahari Skin Brightening Gel 35ml",
+    "imageAlt": "Kalahari Skin Brightening Gel catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Hyperpigmentation Skin Conditions",
@@ -2360,7 +3244,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 36,
     "seoTitle": "Kalahari Skin Brightening Gel 35ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Skin Brightening Gel 35ml for R519 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Skin Brightening Gel from Lullubelle. Hyperpigmentation Skin Conditions. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Correcting Gels"
@@ -2377,9 +3261,21 @@
     "description": "Oily Skin, Acne Prone, Active Acne",
     "benefit": "Oily Skin, Acne Prone, Active Acne",
     "price": 354,
-    "searchKeywords": "Kalahari, FK1060, Oily Skin Correction Gel, Correcting Gels, 35ml, Oily, Skin, Acne, Prone, Active",
+    "searchKeywords": [
+      "Kalahari",
+      "Oily Skin Correction Gel",
+      "Correcting Gels",
+      "FK1060",
+      "Correctors — Gels & Lotion",
+      "35ml",
+      "Oily",
+      "Skin",
+      "Acne",
+      "Prone",
+      "Active"
+    ],
     "image": "public/images/products/kalahari/fk1060.webp",
-    "imageAlt": "Kalahari Oily Skin Correction Gel 35ml",
+    "imageAlt": "Kalahari Oily Skin Correction Gel catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Oily Skin, Acne Prone, Active Acne",
@@ -2392,7 +3288,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 37,
     "seoTitle": "Kalahari Oily Skin Correction Gel 35ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Oily Skin Correction Gel 35ml for R354 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Oily Skin Correction Gel from Lullubelle. Oily Skin, Acne Prone, Active Acne. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Correcting Gels"
@@ -2409,9 +3305,22 @@
     "description": "Restore skins balance | Microbiome, All Skin Conditions",
     "benefit": "Restore skins balance | Microbiome, All Skin Conditions",
     "price": 484,
-    "searchKeywords": "Kalahari, PHY10, PhytoFlora Serum, Serums and Face Oil, 20ml, Restore, skins, balance, Microbiome, Skin, Conditions",
+    "searchKeywords": [
+      "Kalahari",
+      "PhytoFlora Serum",
+      "Serums and Face Oil",
+      "PHY10",
+      "Support Serums & Face Oil",
+      "20ml",
+      "Restore",
+      "skins",
+      "balance",
+      "Microbiome",
+      "Skin",
+      "Conditions"
+    ],
     "image": "public/images/products/kalahari/phy10.webp",
-    "imageAlt": "Kalahari PhytoFlora Serum 20ml",
+    "imageAlt": "Kalahari PhytoFlora Serum catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Restore skins balance | Microbiome, All Skin Conditions",
@@ -2424,7 +3333,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 38,
     "seoTitle": "Kalahari PhytoFlora Serum 20ml | Lullubelle",
-    "seoDescription": "Shop Kalahari PhytoFlora Serum 20ml for R484 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari PhytoFlora Serum from Lullubelle. Restore skins balance | Microbiome, All Skin Conditions. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Serums and Face Oil"
@@ -2441,9 +3350,19 @@
     "description": "Lifting, Firming and Tightening",
     "benefit": "Lifting, Firming and Tightening",
     "price": 370,
-    "searchKeywords": "Kalahari, FK1050, Instant Lifting Serum, Serums and Face Oil, 20ml, Lifting, Firming, Tightening",
+    "searchKeywords": [
+      "Kalahari",
+      "Instant Lifting Serum",
+      "Serums and Face Oil",
+      "FK1050",
+      "Support Serums & Face Oil",
+      "20ml",
+      "Lifting",
+      "Firming",
+      "Tightening"
+    ],
     "image": "public/images/products/kalahari/fk1050.webp",
-    "imageAlt": "Kalahari Instant Lifting Serum 20ml",
+    "imageAlt": "Kalahari Instant Lifting Serum catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Lifting, Firming and Tightening",
@@ -2456,7 +3375,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 39,
     "seoTitle": "Kalahari Instant Lifting Serum 20ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Instant Lifting Serum 20ml for R370 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Instant Lifting Serum from Lullubelle. Lifting, Firming and Tightening. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Serums and Face Oil"
@@ -2473,9 +3392,19 @@
     "description": "Restoration, Rejuvenating and De-ageing",
     "benefit": "Restoration, Rejuvenating and De-ageing",
     "price": 384,
-    "searchKeywords": "Kalahari, FK1040, Intensive Night Serum, Serums and Face Oil, 20ml, Restoration, Rejuvenating, De-ageing",
+    "searchKeywords": [
+      "Kalahari",
+      "Intensive Night Serum",
+      "Serums and Face Oil",
+      "FK1040",
+      "Support Serums & Face Oil",
+      "20ml",
+      "Restoration",
+      "Rejuvenating",
+      "De-ageing"
+    ],
     "image": "public/images/products/kalahari/fk1040.webp",
-    "imageAlt": "Kalahari Intensive Night Serum 20ml",
+    "imageAlt": "Kalahari Intensive Night Serum catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Restoration, Rejuvenating and De-ageing",
@@ -2488,7 +3417,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 40,
     "seoTitle": "Kalahari Intensive Night Serum 20ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Intensive Night Serum 20ml for R384 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Intensive Night Serum from Lullubelle. Restoration, Rejuvenating and De-ageing. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Serums and Face Oil"
@@ -2505,9 +3434,22 @@
     "description": "Acne, comedone, area specific application. 10% Glycolic.",
     "benefit": "Acne, comedone, area specific application. 10% Glycolic.",
     "price": 319,
-    "searchKeywords": "Kalahari, PHY01, Phyto-correct Serum, Serums and Face Oil, 10ml, Acne, comedone, area, specific, application, Glycolic",
+    "searchKeywords": [
+      "Kalahari",
+      "Phyto-correct Serum",
+      "Serums and Face Oil",
+      "PHY01",
+      "Support Serums & Face Oil",
+      "10ml",
+      "Acne",
+      "comedone",
+      "area",
+      "specific",
+      "application",
+      "Glycolic"
+    ],
     "image": "public/images/products/kalahari/phy01.webp",
-    "imageAlt": "Kalahari Phyto-correct Serum 10ml",
+    "imageAlt": "Kalahari Phyto-correct Serum catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Acne, comedone, area specific application. 10% Glycolic.",
@@ -2520,7 +3462,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 41,
     "seoTitle": "Kalahari Phyto-correct Serum 10ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Phyto-correct Serum 10ml for R319 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Phyto-correct Serum from Lullubelle. Acne, comedone, area specific application. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Serums and Face Oil"
@@ -2537,9 +3479,25 @@
     "description": "Creates protective barrier,draw impurities & excess sebum out,faster healing",
     "benefit": "Creates protective barrier,draw impurities & excess sebum out,faster healing",
     "price": 176,
-    "searchKeywords": "Kalahari, FK1024, Clear Touch Blemish Patches, Serums and Face Oil, 72pc, Creates, protective, barrier, draw, impurities, excess, sebum, faster, healing",
+    "searchKeywords": [
+      "Kalahari",
+      "Clear Touch Blemish Patches",
+      "Serums and Face Oil",
+      "FK1024",
+      "Support Serums & Face Oil",
+      "72pc",
+      "Creates",
+      "protective",
+      "barrier",
+      "draw",
+      "impurities",
+      "excess",
+      "sebum",
+      "faster",
+      "healing"
+    ],
     "image": "public/images/products/kalahari/fk1024.webp",
-    "imageAlt": "Kalahari Clear Touch Blemish Patches 72pc",
+    "imageAlt": "Kalahari Clear Touch Blemish Patches catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Creates protective barrier,draw impurities & excess sebum out,faster healing",
@@ -2552,7 +3510,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 42,
     "seoTitle": "Kalahari Clear Touch Blemish Patches 72pc | Lullubelle",
-    "seoDescription": "Shop Kalahari Clear Touch Blemish Patches 72pc for R176 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Clear Touch Blemish Patches from Lullubelle. Creates protective barrier,draw impurities & excess sebum out,faster healing.",
     "catalogueTotal": 77,
     "categories": [
       "Serums and Face Oil"
@@ -2569,9 +3527,20 @@
     "description": "Powerful Pro-oxidant, Ultra rejuvenating.",
     "benefit": "Powerful Pro-oxidant, Ultra rejuvenating.",
     "price": 531,
-    "searchKeywords": "Kalahari, FK1002, Ferulic CEB+ Serum, Serums and Face Oil, 20ml, Powerful, Pro-oxidant, Ultra, rejuvenating",
+    "searchKeywords": [
+      "Kalahari",
+      "Ferulic CEB+ Serum",
+      "Serums and Face Oil",
+      "FK1002",
+      "Support Serums & Face Oil",
+      "20ml",
+      "Powerful",
+      "Pro-oxidant",
+      "Ultra",
+      "rejuvenating"
+    ],
     "image": "public/images/products/kalahari/fk1002.webp",
-    "imageAlt": "Kalahari Ferulic CEB+ Serum 20ml",
+    "imageAlt": "Kalahari Ferulic CEB+ Serum catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Powerful Pro-oxidant, Ultra rejuvenating.",
@@ -2584,7 +3553,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 43,
     "seoTitle": "Kalahari Ferulic CEB+ Serum 20ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Ferulic CEB+ Serum 20ml for R531 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Ferulic CEB+ Serum from Lullubelle. Powerful Pro-oxidant, Ultra rejuvenating. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Serums and Face Oil"
@@ -2601,9 +3570,20 @@
     "description": "Moisturising and Nourishing | Natural plant oil",
     "benefit": "Moisturising and Nourishing | Natural plant oil",
     "price": 464,
-    "searchKeywords": "Kalahari, MAU04, Marula Face Oil, Serums and Face Oil, 15ml, Moisturising, Nourishing, Natural, plant",
+    "searchKeywords": [
+      "Kalahari",
+      "Marula Face Oil",
+      "Serums and Face Oil",
+      "MAU04",
+      "Support Serums & Face Oil",
+      "15ml",
+      "Moisturising",
+      "Nourishing",
+      "Natural",
+      "plant"
+    ],
     "image": "public/images/products/kalahari/mau04.webp",
-    "imageAlt": "Kalahari Marula Face Oil 15ml",
+    "imageAlt": "Kalahari Marula Face Oil catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Moisturising and Nourishing | Natural plant oil",
@@ -2616,7 +3596,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 44,
     "seoTitle": "Kalahari Marula Face Oil 15ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Marula Face Oil 15ml for R464 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Marula Face Oil from Lullubelle. Moisturising and Nourishing | Natural plant oil. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Serums and Face Oil"
@@ -2633,9 +3613,22 @@
     "description": "Treatment Booster Oil with Vitamin C , Baobab & Squalene",
     "benefit": "Treatment Booster Oil with Vitamin C , Baobab & Squalene",
     "price": 464,
-    "searchKeywords": "Kalahari, FK1028, Vitamin C Booster Oil, Serums and Face Oil, 15ml, Treatment, Booster, with, Vitamin, Baobab, Squalene",
+    "searchKeywords": [
+      "Kalahari",
+      "Vitamin C Booster Oil",
+      "Serums and Face Oil",
+      "FK1028",
+      "Support Serums & Face Oil",
+      "15ml",
+      "Treatment",
+      "Booster",
+      "with",
+      "Vitamin",
+      "Baobab",
+      "Squalene"
+    ],
     "image": "public/images/products/kalahari/fk1028.webp",
-    "imageAlt": "Kalahari Vitamin C Booster Oil 15ml",
+    "imageAlt": "Kalahari Vitamin C Booster Oil catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Treatment Booster Oil with Vitamin C , Baobab & Squalene",
@@ -2648,7 +3641,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 45,
     "seoTitle": "Kalahari Vitamin C Booster Oil 15ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Vitamin C Booster Oil 15ml for R464 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Vitamin C Booster Oil from Lullubelle. Treatment Booster Oil with Vitamin C, Baobab & Squalene. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Serums and Face Oil"
@@ -2671,8 +3664,19 @@
     "slug": "kalahari-essential-daily-moisturiser",
     "sku": "ES01",
     "size": "50ml",
-    "searchKeywords": "Kalahari, ES01, Essential Daily Moisturiser, Treatment Moisturisers, 50ml, Rooibos, Extract, Vitamin, enriched, Phase",
-    "imageAlt": "Kalahari Essential Daily Moisturiser 50ml",
+    "searchKeywords": [
+      "Kalahari",
+      "Essential Daily Moisturiser",
+      "Treatment Moisturisers",
+      "ES01",
+      "50ml",
+      "Rooibos",
+      "Extract",
+      "Vitamin",
+      "enriched",
+      "Phase"
+    ],
+    "imageAlt": "Kalahari Essential Daily Moisturiser",
     "active": true,
     "published": true,
     "status": "active",
@@ -2681,7 +3685,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 46,
     "seoTitle": "Kalahari Essential Daily Moisturiser 50ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Essential Daily Moisturiser 50ml for R386 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Essential Daily Moisturiser from Lullubelle. Rooibos Extract & Vitamin enriched | Phase 1. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment Moisturisers"
@@ -2703,8 +3707,19 @@
     "slug": "kalahari-evening-moisturiser",
     "sku": "ES02",
     "size": "50ml",
-    "searchKeywords": "Kalahari, ES02, Evening Moisturiser, Treatment Moisturisers, 50ml, Shea, Butter, Kigelia, africana, Phase",
-    "imageAlt": "Kalahari Evening Moisturiser 50ml",
+    "searchKeywords": [
+      "Kalahari",
+      "Evening Moisturiser",
+      "Treatment Moisturisers",
+      "ES02",
+      "50ml",
+      "Shea",
+      "Butter",
+      "Kigelia",
+      "africana",
+      "Phase"
+    ],
+    "imageAlt": "Kalahari Evening Moisturiser catalogue product",
     "active": true,
     "published": true,
     "status": "active",
@@ -2713,7 +3728,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 47,
     "seoTitle": "Kalahari Evening Moisturiser 50ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Evening Moisturiser 50ml for R410 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Evening Moisturiser from Lullubelle. Shea Butter, Kigelia africana | Phase 1. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment Moisturisers"
@@ -2735,8 +3750,18 @@
     "slug": "kalahari-hydralite-moisturiser",
     "sku": "K1046",
     "size": "50ml",
-    "searchKeywords": "Kalahari, K1046, Hydralite Moisturiser, Treatment Moisturisers, 50ml, Fragrance, Free, Abyssinian, Phase",
-    "imageAlt": "Kalahari Hydralite Moisturiser 50ml",
+    "searchKeywords": [
+      "Kalahari",
+      "Hydralite Moisturiser",
+      "Treatment Moisturisers",
+      "K1046",
+      "50ml",
+      "Fragrance",
+      "Free",
+      "Abyssinian",
+      "Phase"
+    ],
+    "imageAlt": "Kalahari Hydralite Moisturiser",
     "active": true,
     "published": true,
     "status": "active",
@@ -2745,7 +3770,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 48,
     "seoTitle": "Kalahari Hydralite Moisturiser 50ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Hydralite Moisturiser 50ml for R421 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Hydralite Moisturiser from Lullubelle. Fragrance Free, Abyssinian Oil | Phase 1. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment Moisturisers"
@@ -2767,8 +3792,18 @@
     "slug": "kalahari-phyto-rich-moisturiser",
     "sku": "ES03",
     "size": "50ml",
-    "searchKeywords": "Kalahari, ES03, Phyto Rich Moisturiser, Treatment Moisturisers, 50ml, Dehydrated, Skin, Conditions, Phase",
-    "imageAlt": "Kalahari Phyto Rich Moisturiser 50ml",
+    "searchKeywords": [
+      "Kalahari",
+      "Phyto Rich Moisturiser",
+      "Treatment Moisturisers",
+      "ES03",
+      "50ml",
+      "Dehydrated",
+      "Skin",
+      "Conditions",
+      "Phase"
+    ],
+    "imageAlt": "Kalahari Phyto Rich Moisturiser catalogue product",
     "active": true,
     "published": true,
     "status": "active",
@@ -2777,7 +3812,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 49,
     "seoTitle": "Kalahari Phyto Rich Moisturiser 50ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Phyto Rich Moisturiser 50ml for R569 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Phyto Rich Moisturiser from Lullubelle. Dry, Dehydrated Skin Conditions | Phase 2. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment Moisturisers"
@@ -2794,9 +3829,20 @@
     "description": "PM use: Ocean Plant extract & Vitamin C | Phase 2",
     "benefit": "PM use: Ocean Plant extract & Vitamin C | Phase 2",
     "price": 684,
-    "searchKeywords": "Kalahari, FK1014, Ultra-rich Skin Complex, Treatment Moisturisers, 50ml, Ocean, Plant, extract, Vitamin, Phase",
+    "searchKeywords": [
+      "Kalahari",
+      "Ultra-rich Skin Complex",
+      "Treatment Moisturisers",
+      "FK1014",
+      "50ml",
+      "Ocean",
+      "Plant",
+      "extract",
+      "Vitamin",
+      "Phase"
+    ],
     "image": "public/images/products/kalahari/fk1014.webp",
-    "imageAlt": "Kalahari Ultra-rich Skin Complex 50ml",
+    "imageAlt": "Kalahari Ultra-rich Skin Complex catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "PM use: Ocean Plant extract & Vitamin C | Phase 2",
@@ -2809,7 +3855,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 50,
     "seoTitle": "Kalahari Ultra-rich Skin Complex 50ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Ultra-rich Skin Complex 50ml for R684 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Ultra-rich Skin Complex from Lullubelle. PM use: Ocean Plant extract & Vitamin C | Phase 2. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment Moisturisers"
@@ -2826,9 +3872,22 @@
     "description": "Natural botanical remedy for all skin ailments, sunburn, rosacea",
     "benefit": "Natural botanical remedy for all skin ailments, sunburn, rosacea",
     "price": 428,
-    "searchKeywords": "Kalahari, PH010, Phyto Salve (Therapeutic), Treatment Moisturisers, 50ml, Natural, botanical, remedy, skin, ailments, sunburn, rosacea",
+    "searchKeywords": [
+      "Kalahari",
+      "Phyto Salve (Therapeutic)",
+      "Treatment Moisturisers",
+      "PH010",
+      "50ml",
+      "Natural",
+      "botanical",
+      "remedy",
+      "skin",
+      "ailments",
+      "sunburn",
+      "rosacea"
+    ],
     "image": "public/images/products/kalahari/ph010.webp",
-    "imageAlt": "Kalahari Phyto Salve (Therapeutic) 50ml",
+    "imageAlt": "Kalahari Phyto Salve (Therapeutic) catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Natural botanical remedy for all skin ailments, sunburn, rosacea",
@@ -2841,7 +3900,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 51,
     "seoTitle": "Kalahari Phyto Salve (Therapeutic) 50ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Phyto Salve (Therapeutic) 50ml for R428 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Phyto Salve (Therapeutic) from Lullubelle. Natural botanical remedy for all skin ailments, sunburn, rosacea. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment Moisturisers"
@@ -2858,9 +3917,22 @@
     "description": "Plant base essential fatty acids, rich texture",
     "benefit": "Plant base essential fatty acids, rich texture",
     "price": 473,
-    "searchKeywords": "Kalahari, FK1013, Lipid Plus Recovery (Therapeutic), Treatment Moisturisers, 50ml, Plant, base, essential, fatty, acids, rich, texture",
+    "searchKeywords": [
+      "Kalahari",
+      "Lipid Plus Recovery (Therapeutic)",
+      "Treatment Moisturisers",
+      "FK1013",
+      "50ml",
+      "Plant",
+      "base",
+      "essential",
+      "fatty",
+      "acids",
+      "rich",
+      "texture"
+    ],
     "image": "public/images/products/kalahari/fk1013.webp",
-    "imageAlt": "Kalahari Lipid Plus Recovery (Therapeutic) 50ml",
+    "imageAlt": "Kalahari Lipid Plus Recovery (Therapeutic) catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Plant base essential fatty acids, rich texture",
@@ -2873,7 +3945,7 @@
     "cataloguePage": 1,
     "catalogueOrder": 52,
     "seoTitle": "Kalahari Lipid Plus Recovery (Therapeutic) 50ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Lipid Plus Recovery (Therapeutic) 50ml for R473 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Lipid Plus Recovery (Therapeutic) from Lullubelle. Plant base essential fatty acids, rich texture. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment Moisturisers"
@@ -2890,9 +3962,21 @@
     "description": "Super antioxidant, de-ageing benefits TUBE",
     "benefit": "Super antioxidant, de-ageing benefits TUBE",
     "price": 829,
-    "searchKeywords": "Kalahari, FK1001, Alpha lipoic Complex with Astaxanthin, Anti-Aging, 50ml, Super, antioxidant, de-ageing, benefits, TUBE",
+    "searchKeywords": [
+      "Kalahari",
+      "Alpha lipoic Complex with Astaxanthin",
+      "Anti-Aging",
+      "FK1001",
+      "De-age Complex Treatments",
+      "50ml",
+      "Super",
+      "antioxidant",
+      "de-ageing",
+      "benefits",
+      "TUBE"
+    ],
     "image": "public/images/products/kalahari/fk1001.webp",
-    "imageAlt": "Kalahari Alpha lipoic Complex with Astaxanthin 50ml",
+    "imageAlt": "Kalahari Alpha lipoic Complex with Astaxanthin catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Super antioxidant, de-ageing benefits TUBE",
@@ -2905,7 +3989,7 @@
     "cataloguePage": 2,
     "catalogueOrder": 53,
     "seoTitle": "Kalahari Alpha lipoic Complex with Astaxanthin 50ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Alpha lipoic Complex with Astaxanthin 50ml for R829 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Alpha lipoic Complex with Astaxanthin from Lullubelle. Super antioxidant, de-ageing benefits TUBE. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Anti-Aging"
@@ -2922,9 +4006,21 @@
     "description": "Superior Nourishing & Hydrating benefits TUBE",
     "benefit": "Superior Nourishing & Hydrating benefits TUBE",
     "price": 924,
-    "searchKeywords": "Kalahari, FK1003, Omega+ Complex with Folic acid, Anti-Aging, 50ml, Superior, Nourishing, Hydrating, benefits, TUBE",
+    "searchKeywords": [
+      "Kalahari",
+      "Omega+ Complex with Folic acid",
+      "Anti-Aging",
+      "FK1003",
+      "De-age Complex Treatments",
+      "50ml",
+      "Superior",
+      "Nourishing",
+      "Hydrating",
+      "benefits",
+      "TUBE"
+    ],
     "image": "public/images/products/kalahari/fk1003.webp",
-    "imageAlt": "Kalahari Omega+ Complex with Folic acid 50ml",
+    "imageAlt": "Kalahari Omega+ Complex with Folic acid catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Superior Nourishing & Hydrating benefits TUBE",
@@ -2937,7 +4033,7 @@
     "cataloguePage": 2,
     "catalogueOrder": 54,
     "seoTitle": "Kalahari Omega+ Complex with Folic acid 50ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Omega+ Complex with Folic acid 50ml for R924 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Omega+ Complex with Folic acid from Lullubelle. Superior Nourishing & Hydrating benefits TUBE. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Anti-Aging"
@@ -2954,9 +4050,22 @@
     "description": "Phase 1: Evening Leave-on Treatment with Retinyl Palmitate",
     "benefit": "Phase 1: Evening Leave-on Treatment with Retinyl Palmitate",
     "price": 266,
-    "searchKeywords": "Kalahari, FK1015, Vitamin A Booster, Anti-Aging, Treatment, 10ml, Phase, Evening, Leave-on, Treatment, with, Retinyl, Palmitate",
+    "searchKeywords": [
+      "Kalahari",
+      "Vitamin A Booster",
+      "Anti-Aging",
+      "Treatment",
+      "FK1015",
+      "10ml",
+      "Phase",
+      "Evening",
+      "Leave-on",
+      "with",
+      "Retinyl",
+      "Palmitate"
+    ],
     "image": "public/images/products/kalahari/fk1015.webp",
-    "imageAlt": "Kalahari Vitamin A Booster 10ml",
+    "imageAlt": "Kalahari Vitamin A Booster catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Phase 1: Evening Leave-on Treatment with Retinyl Palmitate",
@@ -2969,7 +4078,7 @@
     "cataloguePage": 2,
     "catalogueOrder": 55,
     "seoTitle": "Kalahari Vitamin A Booster 10ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Vitamin A Booster 10ml for R266 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Vitamin A Booster from Lullubelle. Phase 1: Evening Leave-on Treatment with Retinyl Palmitate. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Anti-Aging",
@@ -2987,9 +4096,25 @@
     "description": "Phase 2: Overnight Leave-on Mask with Curcylic acid for advance rejuvenation",
     "benefit": "Phase 2: Overnight Leave-on Mask with Curcylic acid for advance rejuvenation",
     "price": 266,
-    "searchKeywords": "Kalahari, FK1016, De-age Leave-on Mask, Anti-Aging, Treatment Masks, 10ml, Phase, Overnight, Leave-on, Mask, with, Curcylic, acid, advance, rejuvenation",
+    "searchKeywords": [
+      "Kalahari",
+      "De-age Leave-on Mask",
+      "Anti-Aging",
+      "Treatment Masks",
+      "FK1016",
+      "10ml",
+      "Phase",
+      "Overnight",
+      "Leave-on",
+      "Mask",
+      "with",
+      "Curcylic",
+      "acid",
+      "advance",
+      "rejuvenation"
+    ],
     "image": "public/images/products/kalahari/fk1016.webp",
-    "imageAlt": "Kalahari De-age Leave-on Mask 10ml",
+    "imageAlt": "Kalahari De-age Leave-on Mask catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Phase 2: Overnight Leave-on Mask with Curcylic acid for advance rejuvenation",
@@ -3002,7 +4127,7 @@
     "cataloguePage": 2,
     "catalogueOrder": 56,
     "seoTitle": "Kalahari De-age Leave-on Mask 10ml | Lullubelle",
-    "seoDescription": "Shop Kalahari De-age Leave-on Mask 10ml for R266 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari De-age Leave-on Mask from Lullubelle. Phase 2: Overnight Leave-on Mask with Curcylic acid for advance rejuvenation. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Anti-Aging",
@@ -3020,9 +4145,18 @@
     "description": "Kalahari Watermelon Seed Oil",
     "benefit": "Kalahari Watermelon Seed Oil",
     "price": 513,
-    "searchKeywords": "Kalahari, PH06, Phyto Barrier Shield, UVA/UVB Protection, 50ml, Watermelon, Seed",
+    "searchKeywords": [
+      "Kalahari",
+      "Phyto Barrier Shield",
+      "UVA/UVB Protection",
+      "PH06",
+      "Effective UVA/UVB Protection",
+      "50ml",
+      "Watermelon",
+      "Seed"
+    ],
     "image": "public/images/products/kalahari/ph06.webp",
-    "imageAlt": "Kalahari Phyto Barrier Shield 50ml",
+    "imageAlt": "Kalahari Phyto Barrier Shield catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Kalahari Watermelon Seed Oil",
@@ -3035,7 +4169,7 @@
     "cataloguePage": 2,
     "catalogueOrder": 57,
     "seoTitle": "Kalahari Phyto Barrier Shield 50ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Phyto Barrier Shield 50ml for R513 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Phyto Barrier Shield from Lullubelle. Kalahari Watermelon Seed Oil. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "UVA/UVB Protection"
@@ -3057,8 +4191,21 @@
     "slug": "kalahari-solar-defence-fluid-50",
     "sku": "FK1017",
     "size": "50ml",
-    "searchKeywords": "Kalahari, FK1017, Solar Defence Fluid 50, UVA/UVB Protection, 50ml, Dermal, protection, against, solar, radiation, Photo-ageing",
-    "imageAlt": "Kalahari Solar Defence Fluid 50 50ml",
+    "searchKeywords": [
+      "Kalahari",
+      "Solar Defence Fluid 50",
+      "UVA/UVB Protection",
+      "FK1017",
+      "Effective UVA/UVB Protection",
+      "50ml",
+      "Dermal",
+      "protection",
+      "against",
+      "solar",
+      "radiation",
+      "Photo-ageing"
+    ],
+    "imageAlt": "Kalahari Solar Defence Fluid 50",
     "active": true,
     "published": true,
     "status": "active",
@@ -3067,7 +4214,7 @@
     "cataloguePage": 2,
     "catalogueOrder": 58,
     "seoTitle": "Kalahari Solar Defence Fluid 50 50ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Solar Defence Fluid 50 50ml for R553 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Solar Defence Fluid 50 from Lullubelle. Dermal protection against solar radiation & Photo-ageing. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "UVA/UVB Protection"
@@ -3089,8 +4236,18 @@
     "slug": "kalahari-spf-40-sun-protection",
     "sku": "TU004",
     "size": "50ml",
-    "searchKeywords": "Kalahari, TU004, SPF 40 Sun Protection, UVA/UVB Protection, 50ml, Mongongo, Kigelia, africana",
-    "imageAlt": "Kalahari SPF 40 Sun Protection 50ml",
+    "searchKeywords": [
+      "Kalahari",
+      "SPF 40 Sun Protection",
+      "UVA/UVB Protection",
+      "TU004",
+      "Effective UVA/UVB Protection",
+      "50ml",
+      "Mongongo",
+      "Kigelia",
+      "africana"
+    ],
+    "imageAlt": "Kalahari SPF 40 Sun Protection",
     "active": true,
     "published": true,
     "status": "active",
@@ -3099,7 +4256,7 @@
     "cataloguePage": 2,
     "catalogueOrder": 59,
     "seoTitle": "Kalahari SPF 40 Sun Protection 50ml | Lullubelle",
-    "seoDescription": "Shop Kalahari SPF 40 Sun Protection 50ml for R435 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari SPF 40 Sun Protection from Lullubelle. Mongongo oil & Kigelia africana. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "UVA/UVB Protection"
@@ -3116,9 +4273,21 @@
     "description": "Light Treatment Tint Daily Defence",
     "benefit": "Light Treatment Tint Daily Defence",
     "price": 234,
-    "searchKeywords": "Kalahari, DD05, Phyto DD Cream Marble, Tinted SPF, 35ml, Light, Treatment, Tint, Daily, Defence",
+    "searchKeywords": [
+      "Kalahari",
+      "Phyto DD Cream Marble",
+      "Tinted SPF",
+      "DD05",
+      "Tinted Treatment Moisturisers & Phyto Fluid Foundation",
+      "35ml",
+      "Light",
+      "Treatment",
+      "Tint",
+      "Daily",
+      "Defence"
+    ],
     "image": "public/images/products/kalahari/dd05.webp",
-    "imageAlt": "Kalahari Phyto DD Cream Marble 35ml",
+    "imageAlt": "Kalahari Phyto DD Cream Marble catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Light Treatment Tint Daily Defence",
@@ -3131,7 +4300,7 @@
     "cataloguePage": 2,
     "catalogueOrder": 60,
     "seoTitle": "Kalahari Phyto DD Cream Marble 35ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Phyto DD Cream Marble 35ml for R234 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Phyto DD Cream Marble from Lullubelle. Light Treatment Tint Daily Defence. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Tinted SPF"
@@ -3148,9 +4317,21 @@
     "description": "Medium Treatment Tint Daily Defence",
     "benefit": "Medium Treatment Tint Daily Defence",
     "price": 234,
-    "searchKeywords": "Kalahari, DD03, Phyto DD Cream Ivory, Tinted SPF, 35ml, Medium, Treatment, Tint, Daily, Defence",
+    "searchKeywords": [
+      "Kalahari",
+      "Phyto DD Cream Ivory",
+      "Tinted SPF",
+      "DD03",
+      "Tinted Treatment Moisturisers & Phyto Fluid Foundation",
+      "35ml",
+      "Medium",
+      "Treatment",
+      "Tint",
+      "Daily",
+      "Defence"
+    ],
     "image": "public/images/products/kalahari/dd03.webp",
-    "imageAlt": "Kalahari Phyto DD Cream Ivory 35ml",
+    "imageAlt": "Kalahari Phyto DD Cream Ivory catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Medium Treatment Tint Daily Defence",
@@ -3163,7 +4344,7 @@
     "cataloguePage": 2,
     "catalogueOrder": 61,
     "seoTitle": "Kalahari Phyto DD Cream Ivory 35ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Phyto DD Cream Ivory 35ml for R234 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Phyto DD Cream Ivory from Lullubelle. Medium Treatment Tint Daily Defence. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Tinted SPF"
@@ -3180,9 +4361,22 @@
     "description": "Medium Plus Treatment Tint Daily Defence",
     "benefit": "Medium Plus Treatment Tint Daily Defence",
     "price": 234,
-    "searchKeywords": "Kalahari, DD04, Phyto DD Cream Sun Kissed, Tinted SPF, 35ml, Medium, Plus, Treatment, Tint, Daily, Defence",
+    "searchKeywords": [
+      "Kalahari",
+      "Phyto DD Cream Sun Kissed",
+      "Tinted SPF",
+      "DD04",
+      "Tinted Treatment Moisturisers & Phyto Fluid Foundation",
+      "35ml",
+      "Medium",
+      "Plus",
+      "Treatment",
+      "Tint",
+      "Daily",
+      "Defence"
+    ],
     "image": "public/images/products/kalahari/product-image-coming-soon.webp",
-    "imageAlt": "Kalahari Phyto DD Cream Sun Kissed — product image coming soon",
+    "imageAlt": "Kalahari Phyto DD Cream Sun Kissed catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Medium Plus Treatment Tint Daily Defence",
@@ -3195,7 +4389,7 @@
     "cataloguePage": 2,
     "catalogueOrder": 62,
     "seoTitle": "Kalahari Phyto DD Cream Sun Kissed 35ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Phyto DD Cream Sun Kissed 35ml for R234 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Phyto DD Cream Sun Kissed from Lullubelle. Medium Plus Treatment Tint Daily Defence. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Tinted SPF"
@@ -3212,9 +4406,19 @@
     "description": "Fitzpatrick 1 Skin Complexion",
     "benefit": "Fitzpatrick 1 Skin Complexion",
     "price": 557,
-    "searchKeywords": "Kalahari, PFF01, Phyto Fluid Foundation Alabaster, Tinted SPF, 30ml, Fitzpatrick, Skin, Complexion",
+    "searchKeywords": [
+      "Kalahari",
+      "Phyto Fluid Foundation Alabaster",
+      "Tinted SPF",
+      "PFF01",
+      "Tinted Treatment Moisturisers & Phyto Fluid Foundation",
+      "30ml",
+      "Fitzpatrick",
+      "Skin",
+      "Complexion"
+    ],
     "image": "public/images/products/kalahari/product-image-coming-soon.webp",
-    "imageAlt": "Kalahari Phyto Fluid Foundation Alabaster — product image coming soon",
+    "imageAlt": "Kalahari Phyto Fluid Foundation Alabaster catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Fitzpatrick 1 Skin Complexion",
@@ -3227,7 +4431,7 @@
     "cataloguePage": 2,
     "catalogueOrder": 63,
     "seoTitle": "Kalahari Phyto Fluid Foundation Alabaster 30ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Phyto Fluid Foundation Alabaster 30ml for R557 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Phyto Fluid Foundation Alabaster from Lullubelle. Fitzpatrick 1 Skin Complexion. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Tinted SPF"
@@ -3244,9 +4448,19 @@
     "description": "Fitzpatrick 2 Skin Complexion",
     "benefit": "Fitzpatrick 2 Skin Complexion",
     "price": 557,
-    "searchKeywords": "Kalahari, PFF02, Phyto Fluid Foundation Honey, Tinted SPF, 30ml, Fitzpatrick, Skin, Complexion",
+    "searchKeywords": [
+      "Kalahari",
+      "Phyto Fluid Foundation Honey",
+      "Tinted SPF",
+      "PFF02",
+      "Tinted Treatment Moisturisers & Phyto Fluid Foundation",
+      "30ml",
+      "Fitzpatrick",
+      "Skin",
+      "Complexion"
+    ],
     "image": "public/images/products/kalahari/pff02.webp",
-    "imageAlt": "Kalahari Phyto Fluid Foundation Honey 30ml",
+    "imageAlt": "Kalahari Phyto Fluid Foundation Honey catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Fitzpatrick 2 Skin Complexion",
@@ -3259,7 +4473,7 @@
     "cataloguePage": 2,
     "catalogueOrder": 64,
     "seoTitle": "Kalahari Phyto Fluid Foundation Honey 30ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Phyto Fluid Foundation Honey 30ml for R557 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Phyto Fluid Foundation Honey from Lullubelle. Fitzpatrick 2 Skin Complexion. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Tinted SPF"
@@ -3276,9 +4490,19 @@
     "description": "Fitzpatrick 3-4 Skin Complexion",
     "benefit": "Fitzpatrick 3-4 Skin Complexion",
     "price": 557,
-    "searchKeywords": "Kalahari, PFF03, Phyto Fluid Foundation Savannah, Tinted SPF, 30ml, Fitzpatrick, Skin, Complexion",
+    "searchKeywords": [
+      "Kalahari",
+      "Phyto Fluid Foundation Savannah",
+      "Tinted SPF",
+      "PFF03",
+      "Tinted Treatment Moisturisers & Phyto Fluid Foundation",
+      "30ml",
+      "Fitzpatrick",
+      "Skin",
+      "Complexion"
+    ],
     "image": "public/images/products/kalahari/pff03.webp",
-    "imageAlt": "Kalahari Phyto Fluid Foundation Savannah 30ml",
+    "imageAlt": "Kalahari Phyto Fluid Foundation Savannah catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Fitzpatrick 3-4 Skin Complexion",
@@ -3291,7 +4515,7 @@
     "cataloguePage": 2,
     "catalogueOrder": 65,
     "seoTitle": "Kalahari Phyto Fluid Foundation Savannah 30ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Phyto Fluid Foundation Savannah 30ml for R557 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Phyto Fluid Foundation Savannah from Lullubelle. Fitzpatrick 3-4 Skin Complexion. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Tinted SPF"
@@ -3308,9 +4532,22 @@
     "description": "Collagen rich lip treatment mask. Single application (Pink)",
     "benefit": "Collagen rich lip treatment mask. Single application (Pink)",
     "price": 53,
-    "searchKeywords": "Kalahari, CMP01, Collagen Lip Mask, Treatment Lip Care, 1 x set, Collagen, rich, treatment, mask, Single, application, Pink",
+    "searchKeywords": [
+      "Kalahari",
+      "Collagen Lip Mask",
+      "Treatment Lip Care",
+      "CMP01",
+      "1 x set",
+      "Collagen",
+      "rich",
+      "treatment",
+      "mask",
+      "Single",
+      "application",
+      "Pink"
+    ],
     "image": "public/images/products/kalahari/cmp01.webp",
-    "imageAlt": "Kalahari Collagen Lip Mask 1 x set",
+    "imageAlt": "Kalahari Collagen Lip Mask catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Collagen rich lip treatment mask. Single application (Pink)",
@@ -3323,7 +4560,7 @@
     "cataloguePage": 2,
     "catalogueOrder": 66,
     "seoTitle": "Kalahari Collagen Lip Mask 1 x set | Lullubelle",
-    "seoDescription": "Shop Kalahari Collagen Lip Mask 1 x set for R53 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Collagen Lip Mask from Lullubelle. Collagen rich lip treatment mask. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment Lip Care"
@@ -3340,9 +4577,22 @@
     "description": "Jojoba oil, Hyaluronic acid and Vitamin E - Earth Color (Available 1 Dec)",
     "benefit": "Jojoba oil, Hyaluronic acid and Vitamin E - Earth Color (Available 1 Dec)",
     "price": 121,
-    "searchKeywords": "Kalahari, PRM20, Treatment Lip Glaze, Treatment Lip Care, 18ml, Jojoba, Hyaluronic, acid, Vitamin, Earth, Color, Available",
+    "searchKeywords": [
+      "Kalahari",
+      "Treatment Lip Glaze",
+      "Treatment Lip Care",
+      "PRM20",
+      "18ml",
+      "Jojoba",
+      "Hyaluronic",
+      "acid",
+      "Vitamin",
+      "Earth",
+      "Color",
+      "Available"
+    ],
     "image": "public/images/products/kalahari/product-image-coming-soon.webp",
-    "imageAlt": "Kalahari Treatment Lip Glaze — product image coming soon",
+    "imageAlt": "Kalahari Treatment Lip Glaze catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Jojoba oil, Hyaluronic acid and Vitamin E - Earth Color (Available 1 Dec)",
@@ -3355,7 +4605,7 @@
     "cataloguePage": 2,
     "catalogueOrder": 67,
     "seoTitle": "Kalahari Treatment Lip Glaze 18ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Treatment Lip Glaze 18ml for R121 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Treatment Lip Glaze from Lullubelle. Jojoba oil, Hyaluronic acid and Vitamin E - Earth Color (Available 1 Dec). View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment Lip Care"
@@ -3372,9 +4622,18 @@
     "description": "Wild Honey Blend",
     "benefit": "Wild Honey Blend",
     "price": 134,
-    "searchKeywords": "Kalahari, FK1170, Soothing Lips Wild Honey, Treatment Lip Care, 5g, Wild, Honey, Blend",
+    "searchKeywords": [
+      "Kalahari",
+      "Soothing Lips Wild Honey",
+      "Treatment Lip Care",
+      "FK1170",
+      "5g",
+      "Wild",
+      "Honey",
+      "Blend"
+    ],
     "image": "public/images/products/kalahari/fk1170.webp",
-    "imageAlt": "Kalahari Soothing Lips Wild Honey 5g",
+    "imageAlt": "Kalahari Soothing Lips Wild Honey catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Wild Honey Blend",
@@ -3387,7 +4646,7 @@
     "cataloguePage": 2,
     "catalogueOrder": 68,
     "seoTitle": "Kalahari Soothing Lips Wild Honey 5g | Lullubelle",
-    "seoDescription": "Shop Kalahari Soothing Lips Wild Honey 5g for R134 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Soothing Lips Wild Honey from Lullubelle. Wild Honey Blend. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment Lip Care"
@@ -3404,9 +4663,17 @@
     "description": "Buchu Fragrance",
     "benefit": "Buchu Fragrance",
     "price": 136,
-    "searchKeywords": "Kalahari, FK1175, Buchu Kisses, Treatment Lip Care, 5g, Buchu, Fragrance",
+    "searchKeywords": [
+      "Kalahari",
+      "Buchu Kisses",
+      "Treatment Lip Care",
+      "FK1175",
+      "5g",
+      "Buchu",
+      "Fragrance"
+    ],
     "image": "public/images/products/kalahari/fk1175.webp",
-    "imageAlt": "Kalahari Buchu Kisses 5g",
+    "imageAlt": "Kalahari Buchu Kisses catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Buchu Fragrance",
@@ -3419,7 +4686,7 @@
     "cataloguePage": 2,
     "catalogueOrder": 69,
     "seoTitle": "Kalahari Buchu Kisses 5g | Lullubelle",
-    "seoDescription": "Shop Kalahari Buchu Kisses 5g for R136 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Buchu Kisses from Lullubelle. Buchu Fragrance. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment Lip Care"
@@ -3436,9 +4703,19 @@
     "description": "Nourishing Lip Balm with SPF & Grapeseed",
     "benefit": "Nourishing Lip Balm with SPF & Grapeseed",
     "price": 97,
-    "searchKeywords": "Kalahari, FK1007, Lip Balm with SPF & Grapeseed, Treatment Lip Care, 5g, Nourishing, Balm, with, Grapeseed",
+    "searchKeywords": [
+      "Kalahari",
+      "Lip Balm with SPF & Grapeseed",
+      "Treatment Lip Care",
+      "FK1007",
+      "5g",
+      "Nourishing",
+      "Balm",
+      "with",
+      "Grapeseed"
+    ],
     "image": "public/images/products/kalahari/fk1007.webp",
-    "imageAlt": "Kalahari Lip Balm with SPF & Grapeseed 5g",
+    "imageAlt": "Kalahari Lip Balm with SPF & Grapeseed catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Nourishing Lip Balm with SPF & Grapeseed",
@@ -3451,7 +4728,7 @@
     "cataloguePage": 2,
     "catalogueOrder": 70,
     "seoTitle": "Kalahari Lip Balm with SPF & Grapeseed 5g | Lullubelle",
-    "seoDescription": "Shop Kalahari Lip Balm with SPF & Grapeseed 5g for R97 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Lip Balm with SPF & Grapeseed from Lullubelle. Nourishing Lip Balm with SPF & Grapeseed. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment Lip Care"
@@ -3468,9 +4745,19 @@
     "description": "Lip Care Sheer Peach Tint",
     "benefit": "Lip Care Sheer Peach Tint",
     "price": 157,
-    "searchKeywords": "Kalahari, FK1180, Soothing Lips Desert Rose, Treatment Lip Care, 5g, Care, Sheer, Peach, Tint",
+    "searchKeywords": [
+      "Kalahari",
+      "Soothing Lips Desert Rose",
+      "Treatment Lip Care",
+      "FK1180",
+      "5g",
+      "Care",
+      "Sheer",
+      "Peach",
+      "Tint"
+    ],
     "image": "public/images/products/kalahari/fk1180.webp",
-    "imageAlt": "Kalahari Soothing Lips Desert Rose 5g",
+    "imageAlt": "Kalahari Soothing Lips Desert Rose catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Lip Care Sheer Peach Tint",
@@ -3483,7 +4770,7 @@
     "cataloguePage": 2,
     "catalogueOrder": 71,
     "seoTitle": "Kalahari Soothing Lips Desert Rose 5g | Lullubelle",
-    "seoDescription": "Shop Kalahari Soothing Lips Desert Rose 5g for R157 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Soothing Lips Desert Rose from Lullubelle. Lip Care Sheer Peach Tint. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment Lip Care"
@@ -3500,9 +4787,19 @@
     "description": "Lip Care Sheer Burgundy Tint",
     "benefit": "Lip Care Sheer Burgundy Tint",
     "price": 157,
-    "searchKeywords": "Kalahari, FK1190, Soothing Lips Kalahari Sunset, Treatment Lip Care, 5g, Care, Sheer, Burgundy, Tint",
+    "searchKeywords": [
+      "Kalahari",
+      "Soothing Lips Kalahari Sunset",
+      "Treatment Lip Care",
+      "FK1190",
+      "5g",
+      "Care",
+      "Sheer",
+      "Burgundy",
+      "Tint"
+    ],
     "image": "public/images/products/kalahari/fk1190.webp",
-    "imageAlt": "Kalahari Soothing Lips Kalahari Sunset 5g",
+    "imageAlt": "Kalahari Soothing Lips Kalahari Sunset catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Lip Care Sheer Burgundy Tint",
@@ -3515,7 +4812,7 @@
     "cataloguePage": 2,
     "catalogueOrder": 72,
     "seoTitle": "Kalahari Soothing Lips Kalahari Sunset 5g | Lullubelle",
-    "seoDescription": "Shop Kalahari Soothing Lips Kalahari Sunset 5g for R157 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Soothing Lips Kalahari Sunset from Lullubelle. Lip Care Sheer Burgundy Tint. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment Lip Care"
@@ -3532,9 +4829,19 @@
     "description": "Lip Care Sheer Pink Tint",
     "benefit": "Lip Care Sheer Pink Tint",
     "price": 157,
-    "searchKeywords": "Kalahari, FK1025, Soothing Lips African Flowers, Treatment Lip Care, 5g, Care, Sheer, Pink, Tint",
+    "searchKeywords": [
+      "Kalahari",
+      "Soothing Lips African Flowers",
+      "Treatment Lip Care",
+      "FK1025",
+      "5g",
+      "Care",
+      "Sheer",
+      "Pink",
+      "Tint"
+    ],
     "image": "public/images/products/kalahari/fk1025.webp",
-    "imageAlt": "Kalahari Soothing Lips African Flowers 5g",
+    "imageAlt": "Kalahari Soothing Lips African Flowers catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Lip Care Sheer Pink Tint",
@@ -3547,7 +4854,7 @@
     "cataloguePage": 2,
     "catalogueOrder": 73,
     "seoTitle": "Kalahari Soothing Lips African Flowers 5g | Lullubelle",
-    "seoDescription": "Shop Kalahari Soothing Lips African Flowers 5g for R157 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Soothing Lips African Flowers from Lullubelle. Lip Care Sheer Pink Tint. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment Lip Care"
@@ -3564,9 +4871,17 @@
     "description": "Lip Care Collection",
     "benefit": "Lip Care Collection",
     "price": 279,
-    "searchKeywords": "Kalahari, FK1200, Desert Rose Set, Treatment Lip Care, 1 unit, Care, Collection",
+    "searchKeywords": [
+      "Kalahari",
+      "Desert Rose Set",
+      "Treatment Lip Care",
+      "FK1200",
+      "1 unit",
+      "Care",
+      "Collection"
+    ],
     "image": "public/images/products/kalahari/fk1200.webp",
-    "imageAlt": "Kalahari Desert Rose Set 1 unit",
+    "imageAlt": "Kalahari Desert Rose Set catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Lip Care Collection",
@@ -3579,7 +4894,7 @@
     "cataloguePage": 2,
     "catalogueOrder": 74,
     "seoTitle": "Kalahari Desert Rose Set 1 unit | Lullubelle",
-    "seoDescription": "Shop Kalahari Desert Rose Set 1 unit for R279 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Desert Rose Set from Lullubelle. Lip Care Collection. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment Lip Care"
@@ -3596,9 +4911,17 @@
     "description": "Lip Care Collection",
     "benefit": "Lip Care Collection",
     "price": 279,
-    "searchKeywords": "Kalahari, FK1201, Kalahari Sunset Set, Treatment Lip Care, 1 unit, Care, Collection",
+    "searchKeywords": [
+      "Kalahari",
+      "Kalahari Sunset Set",
+      "Treatment Lip Care",
+      "FK1201",
+      "1 unit",
+      "Care",
+      "Collection"
+    ],
     "image": "public/images/products/kalahari/fk1201.webp",
-    "imageAlt": "Kalahari Kalahari Sunset Set 1 unit",
+    "imageAlt": "Kalahari Kalahari Sunset Set catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Lip Care Collection",
@@ -3611,7 +4934,7 @@
     "cataloguePage": 2,
     "catalogueOrder": 75,
     "seoTitle": "Kalahari Kalahari Sunset Set 1 unit | Lullubelle",
-    "seoDescription": "Shop Kalahari Kalahari Sunset Set 1 unit for R279 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Kalahari Sunset Set from Lullubelle. Lip Care Collection. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment Lip Care"
@@ -3628,9 +4951,19 @@
     "description": "Mega Lip Pop Wild Honey Blend",
     "benefit": "Mega Lip Pop Wild Honey Blend",
     "price": 220,
-    "searchKeywords": "Kalahari, PM022, Lip Pop Wild Honey, Treatment Lip Care, 15ml, Mega, Wild, Honey, Blend",
+    "searchKeywords": [
+      "Kalahari",
+      "Lip Pop Wild Honey",
+      "Treatment Lip Care",
+      "PM022",
+      "15ml",
+      "Mega",
+      "Wild",
+      "Honey",
+      "Blend"
+    ],
     "image": "public/images/products/kalahari/pm022.webp",
-    "imageAlt": "Kalahari Lip Pop Wild Honey 15ml",
+    "imageAlt": "Kalahari Lip Pop Wild Honey catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Mega Lip Pop Wild Honey Blend",
@@ -3643,7 +4976,7 @@
     "cataloguePage": 2,
     "catalogueOrder": 76,
     "seoTitle": "Kalahari Lip Pop Wild Honey 15ml | Lullubelle",
-    "seoDescription": "Shop Kalahari Lip Pop Wild Honey 15ml for R220 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Lip Pop Wild Honey from Lullubelle. Mega Lip Pop Wild Honey Blend. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment Lip Care"
@@ -3660,9 +4993,17 @@
     "description": "Lip Care Collection",
     "benefit": "Lip Care Collection",
     "price": 154,
-    "searchKeywords": "Kalahari, AP03, Shea Butter Lip Balm - Rose Round, Treatment Lip Care, 1 unit, Care, Collection",
+    "searchKeywords": [
+      "Kalahari",
+      "Shea Butter Lip Balm - Rose Round",
+      "Treatment Lip Care",
+      "AP03",
+      "1 unit",
+      "Care",
+      "Collection"
+    ],
     "image": "public/images/products/kalahari/ap03.webp",
-    "imageAlt": "Kalahari Shea Butter Lip Balm - Rose Round 1 unit",
+    "imageAlt": "Kalahari Shea Butter Lip Balm - Rose Round catalogue product",
     "directions": "Use as directed on the product packaging or by your skin therapist.",
     "ingredients": "Please confirm the current ingredient list with Lullubelle before purchase.",
     "suitable": "Lip Care Collection",
@@ -3675,7 +5016,7 @@
     "cataloguePage": 2,
     "catalogueOrder": 77,
     "seoTitle": "Kalahari Shea Butter Lip Balm - Rose Round 1 unit | Lullubelle",
-    "seoDescription": "Shop Kalahari Shea Butter Lip Balm - Rose Round 1 unit for R154 from Lullubelle Beauty Specialist in Centurion.",
+    "seoDescription": "Kalahari Shea Butter Lip Balm - Rose Round from Lullubelle. Lip Care Collection. View current product details.",
     "catalogueTotal": 77,
     "categories": [
       "Treatment Lip Care"

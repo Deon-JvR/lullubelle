@@ -93,13 +93,16 @@ const migrated = products.map((product) => {
   const invalid = categories.filter((category) => !approvedSet.has(category));
   if (!categories.length || invalid.length) throw new Error(`${product.id} requires category review: ${invalid.join(", ") || "empty"}`);
   const { category: _oldCategory, ...rest } = product;
-  const searchKeywords = String(rest.searchKeywords || "")
-    .replaceAll("Treatment Eye Care", "Treatment")
-    .replaceAll("Corrects, Gels and Lotions", "Correcting Gels")
-    .replaceAll("De-age Complex Treatments", "Anti-Aging")
-    .replaceAll("Glassglow Treatment Products", categories.join(", "))
-    .replaceAll("Tinted Treatment Moisturisers", "Tinted SPF");
-  return { ...rest, ...(searchKeywords ? { searchKeywords } : {}), categories };
+  const searchKeywords = (Array.isArray(rest.searchKeywords) ? rest.searchKeywords : String(rest.searchKeywords || "").split(","))
+    .map((value) => String(value)
+      .replaceAll("Treatment Eye Care", "Treatment")
+      .replaceAll("Corrects, Gels and Lotions", "Correcting Gels")
+      .replaceAll("De-age Complex Treatments", "Anti-Aging")
+      .replaceAll("Glassglow Treatment Products", categories.join(", "))
+      .replaceAll("Tinted Treatment Moisturisers", "Tinted SPF")
+      .trim())
+    .filter(Boolean);
+  return { ...rest, ...(searchKeywords.length ? { searchKeywords } : {}), categories };
 });
 
 await writeFile(productsUrl, `${JSON.stringify(migrated, null, 2)}\n`);

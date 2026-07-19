@@ -153,7 +153,18 @@ const setupResultsFilters = () => {
 };
 
 const appendStructuredData = (key, data) => {
-  if (document.querySelector(`script[data-generated-schema="${key}"]`)) return;
+  const serverNode = key === "product-detail"
+    ? document.querySelector("script[data-server-product-schema]")
+    : key === "breadcrumb" ? document.querySelector("script[data-server-breadcrumb-schema]") : null;
+  if (serverNode) {
+    serverNode.textContent = JSON.stringify(data);
+    return;
+  }
+  const existing = document.querySelector(`script[data-generated-schema="${key}"]`);
+  if (existing) {
+    existing.textContent = JSON.stringify(data);
+    return;
+  }
   const node = document.createElement("script");
   node.type = "application/ld+json";
   node.dataset.generatedSchema = key;
@@ -227,6 +238,7 @@ const setupPageStructuredData = () => {
 };
 
 const setupShopCatalogue = (content) => {
+  document.querySelector("[data-server-category-products]")?.remove();
   const products = getActiveCatalogueProducts(content?.products).map(normaliseManagedProduct);
   const brands = getCatalogueBrands(content, products);
   const tabs = document.querySelector(".supplier-tabs");
@@ -261,6 +273,8 @@ const setupShopCatalogue = (content) => {
   const status = section.querySelector("[data-shop-catalogue-status]");
   const search = section.querySelector("[data-shop-product-search]");
   const categorySelect = section.querySelector("[data-shop-category]");
+  const shopHeroHeading = document.querySelector(".shop-hero h1");
+  const shopHeroDescription = document.querySelector(".shop-hero .lead");
   if (selectedCategory !== "all" && !categories.includes(selectedCategory)) selectedCategory = "all";
 
   const updateUrl = () => {
@@ -283,13 +297,21 @@ const setupShopCatalogue = (content) => {
       return brandMatch && categoryMatch && searchMatch;
     });
     const title = selectedCategory !== "all" ? `${selectedCategory} products${brand ? ` from ${brand.name}` : ""}` : brand ? `${brand.name} products` : "All products";
-    const description = selectedCategory !== "all" ? `Browse ${selectedCategory} skincare selected by Lullubelle, with brand, price, stock and search filters.` : "Browse current products available through Lullubelle.";
+    const description = selectedCategory !== "all" ? `Browse Lullubelle products assigned to the ${selectedCategory} category. Compare available brands and open each product for its current details.` : "Browse current products available through Lullubelle.";
     heading.innerHTML = `<p class="eyebrow">Product catalogue</p><h2>${escapeHtml(title)}</h2><p>${escapeHtml(description)}</p>`;
-    document.title = selectedCategory !== "all" ? `${selectedCategory} Products | Lullubelle Centurion` : "Shop Skin Products | Lullubelle Beauty Specialist Centurion";
+    const pageTitle = selectedCategory !== "all" ? `${selectedCategory} Skincare Products | Lullubelle` : "Shop Skin Products | Lullubelle Beauty Specialist Centurion";
+    document.title = pageTitle;
+    if (shopHeroHeading) shopHeroHeading.textContent = selectedCategory !== "all" ? `${selectedCategory} skincare products` : "Invest in your skin.";
+    if (shopHeroDescription) shopHeroDescription.textContent = selectedCategory !== "all" ? description : "Choose a professional skincare range for your home-care routine.";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) metaDescription.content = description;
     const canonical = document.querySelector('link[rel="canonical"]');
     if (canonical) canonical.href = selectedCategory !== "all" ? `${window.location.origin}/shop?category=${encodeURIComponent(selectedCategory)}` : `${window.location.origin}/shop`;
+    setMetaContent('meta[property="og:title"]', pageTitle);
+    setMetaContent('meta[property="og:description"]', description);
+    setMetaContent('meta[property="og:url"]', canonical?.href || `${window.location.origin}/shop`);
+    setMetaContent('meta[name="twitter:title"]', pageTitle);
+    setMetaContent('meta[name="twitter:description"]', description);
     grid.innerHTML = filtered.length ? filtered.map(renderManagedProductCard).join("") : `<p>No products match the selected brand, category and search.</p>`;
     status.textContent = `Showing ${filtered.length} of ${products.length} active products`;
     tabs.querySelectorAll("[data-brand-filter]").forEach((button) => {
@@ -606,7 +628,7 @@ const normaliseManagedProduct = (product) => {
     brandId: product.brandId || slugify(brand),
     brand,
     name,
-    price: Number(product.price) || 0,
+    price: Object.hasOwn(product, "price") ? product.price : 0,
     image: product.image || "lullubelle-logo.jpg",
     benefit: product.benefit || product.description || "Professional home care selected by Lullubelle.",
     description: product.description || product.benefit || "Professional skincare available from Lullubelle Beauty Specialist.",
@@ -1053,7 +1075,7 @@ const renderProductDetailPage = async () => {
             <h3>${escapeHtml(item.name)}</h3>
             <strong>${formatCurrency(item.price)}</strong>
             <p>${escapeHtml(item.benefit || "Professional home care selected by Lullubelle.")}</p>
-            <div class="product-card-actions"><a class="button secondary" href="${escapeHtml(productDetailUrl(item.slug))}">View Product</a></div>
+            <div class="product-card-actions"><a class="button secondary" href="${escapeHtml(productDetailUrl(item.slug))}" data-product-navigation>View Product</a></div>
           </article>`).join("")}
       </div>
     </section>
@@ -1077,24 +1099,39 @@ const renderProductDetailPage = async () => {
     button.textContent = "Added";
     window.setTimeout(() => { button.textContent = "Add to Cart"; }, 1100);
   });
+  container.querySelectorAll("[data-product-navigation]").forEach((link) => link.addEventListener("click", (event) => {
+    event.preventDefault();
+    window.history.pushState({}, "", link.getAttribute("href"));
+    renderProductDetailPage();
+  }));
 
   appendStructuredData("product-detail", {
     "@context": "https://schema.org",
     "@type": "Product",
-    name: `${product.brand} ${product.name}`,
+    name: product.name,
     description,
-    image: new URL(product.image, window.location.href).href,
+    image: [product.image, ...product.galleryImages.map((item) => item.url)].map((url) => new URL(url, window.location.href).href),
     sku: product.sku || product.id,
     brand: { "@type": "Brand", name: product.brand },
     category: product.categories.join(", "),
+    url: productUrl,
     offers: {
       "@type": "Offer",
-      url: window.location.href.split("#")[0],
+      url: productUrl,
       priceCurrency: "ZAR",
-      price: Number(product.price) || 0,
-      availability: "https://schema.org/InStock",
+      price: product.price,
+      availability: /out/i.test(product.stockStatus) ? "https://schema.org/OutOfStock" : /coming|pre.?order/i.test(product.stockStatus) ? "https://schema.org/PreOrder" : "https://schema.org/InStock",
       itemCondition: "https://schema.org/NewCondition",
     },
+  });
+  appendStructuredData("breadcrumb", {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: `${window.location.origin}/` },
+      { "@type": "ListItem", position: 2, name: "Shop", item: `${window.location.origin}/shop` },
+      { "@type": "ListItem", position: 3, name: product.name, item: productUrl },
+    ],
   });
 };
 
@@ -2036,3 +2073,4 @@ loadManagedContent()
     setupPageStructuredData();
     renderProductDetailPage();
   });
+window.addEventListener("popstate", () => renderProductDetailPage());

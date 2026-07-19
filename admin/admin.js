@@ -548,7 +548,7 @@ const renderProductEditor = (product) => `
           ${field("SEO title", product.seoTitle || "", "seoTitle", "text", "wide")}
           ${field("SEO slug", product.slug || product.id || "", "slug", "text", "wide")}
           ${field("SEO meta description", product.seoDescription || product.metaDescription || "", "seoDescription", "textarea", "wide")}
-          ${field("Search keywords", product.searchKeywords || "", "searchKeywords", "textarea", "wide")}
+          ${field("Search keywords", Array.isArray(product.searchKeywords) ? product.searchKeywords.join(", ") : product.searchKeywords || "", "searchKeywords", "textarea", "wide")}
         </div>
       </section>
       <section class="editor-section">
@@ -1116,7 +1116,7 @@ const updateRecord = (card, key, value) => {
   if (["price", "amount", "order", "total", "value", "minimumOrderAmount", "maximumDiscountAmount", "usageLimit", "usageLimitPerCustomer"].includes(key)) item[key] = value === "" ? null : Number(value) || 0;
   else if (["brandIds", "productIds", "excludedBrandIds", "excludedProductIds"].includes(key)) item[key] = Array.isArray(value) ? value : [];
   else if (key === "categoriesText") item.categories = String(value || "").split(",").map((entry) => entry.trim()).filter(Boolean);
-  else if (key === "tags" || key === "relatedProducts") {
+  else if (key === "tags" || key === "relatedProducts" || key === "searchKeywords") {
     item[key] = String(value || "").split(",").map((entry) => entry.trim()).filter(Boolean);
   } else if (key === "id" && collection !== "products") {
     item.id = String(value || "").trim();

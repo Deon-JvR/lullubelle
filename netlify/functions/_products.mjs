@@ -1,9 +1,11 @@
 import { createHash } from "node:crypto";
 import productCategories from "../../data/product-categories.json" with { type: "json" };
+import productSeoMigration from "../../data/product-seo-overrides.json" with { type: "json" };
 
 const PLACEHOLDER_IMAGE_PATTERN = /(?:^|\/)(?:lullubelle-logo|placeholder|default-product|sample-product)(?:[._/?-]|$)/i;
 const PRODUCT_ID_PATTERN = /^[a-z0-9][a-z0-9_-]*$/;
-export const CATALOGUE_SCHEMA_VERSION = 7;
+export const CATALOGUE_SCHEMA_VERSION = 8;
+const PRODUCT_SEO_MIGRATION = Object.freeze(productSeoMigration.products || {});
 export const PRODUCT_CATEGORIES = Object.freeze([...productCategories]);
 export const PRODUCT_CATEGORY_MIGRATIONS = Object.freeze({
   "HOCl Collection": "HOCL Collection",
@@ -32,6 +34,22 @@ export const isApprovedProductCategory = (category) => PRODUCT_CATEGORIES.includ
 export const normaliseProductCategories = (product = {}) => {
   const source = Array.isArray(product.categories) ? product.categories : [product.category];
   return [...new Set(source.map(migrateProductCategory).filter(isApprovedProductCategory))];
+};
+
+export const applyProductSeoMigration = (product = {}) => {
+  const correction = PRODUCT_SEO_MIGRATION[String(product.id || "")] || {};
+  // The migration is deliberately allow-listed: catalogue commerce fields can
+  // never be introduced by the SEO correction file.
+  return {
+    ...product,
+    ...(correction.seoTitle ? { seoTitle: correction.seoTitle } : {}),
+    ...(correction.seoDescription ? { seoDescription: correction.seoDescription } : {}),
+    ...(correction.description ? { description: correction.description } : {}),
+    ...(correction.benefit ? { benefit: correction.benefit } : {}),
+    ...(correction.imageAlt ? { imageAlt: correction.imageAlt } : {}),
+    ...(Array.isArray(correction.searchKeywords) ? { searchKeywords: correction.searchKeywords } : {}),
+    ...(Array.isArray(correction.galleryImages) ? { galleryImages: correction.galleryImages } : {}),
+  };
 };
 
 export const productIdentityKey = (value) => String(value || "").trim().toLowerCase();
@@ -182,6 +200,7 @@ export const migrateCatalogueContent = (storedContent = {}, seedContent = {}) =>
   });
 
   const synchronised = synchroniseProductCatalogue(seedContent?.products, cleanedStoredProducts);
+  const products = synchronised.products.map(applyProductSeoMigration);
 
   return {
     changed: true,
@@ -189,7 +208,7 @@ export const migrateCatalogueContent = (storedContent = {}, seedContent = {}) =>
     content: {
       ...storedContent,
       brands,
-      products: synchronised.products,
+      products,
       catalogueSchemaVersion: CATALOGUE_SCHEMA_VERSION,
       catalogueSeedSignature: seedSignature,
       catalogueSync: {
