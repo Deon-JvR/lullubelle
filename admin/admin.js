@@ -67,6 +67,33 @@ const productEditorBrands = (product) => {
   return current && !active.some((brand) => brand.id === current.id) ? [...active, current] : active;
 };
 const productCategories = () => Array.isArray(state.content.productCategories) ? state.content.productCategories : [];
+const PRODUCT_CATEGORY_MIGRATIONS = {
+  "HOCl Collection": "HOCL Collection",
+  "Correctors — Gels & Lotion": "Correcting Gels",
+  "Corrects, Gels and Lotions": "Correcting Gels",
+  "Correct Gels and Lotions": "Correcting Gels",
+  "Effective UVA/UVB Protection": "UVA/UVB Protection",
+  "Support Serums & Face Oil": "Serums and Face Oil",
+  "Tinted Treatment Moisturisers & Phyto Fluid Foundation": "Tinted SPF",
+  "Tinted Treatment Moisturisers": "Tinted SPF",
+  "Tinted Treatment Moisturiser": "Tinted SPF",
+  "Treatments Eye Care": "Treatment",
+  "Treatment Eye Care": "Treatment",
+  "De-age Complex Treatments": "Anti-Aging",
+  "De-Age Complex Treatments": "Anti-Aging",
+};
+const migrateProductCategory = (value = "") => PRODUCT_CATEGORY_MIGRATIONS[String(value || "").trim()] || String(value || "").trim();
+const normaliseProductCategories = (product = {}) => {
+  const source = Array.isArray(product.categories) && product.categories.length ? product.categories : [product.category];
+  const approved = productCategories();
+  return [...new Set(source.map(migrateProductCategory).filter((category) => approved.includes(category)))];
+};
+const sanitiseProductSchema = (product = {}) => {
+  const next = { ...product, categories: normaliseProductCategories(product) };
+  delete next.category;
+  return next;
+};
+const sanitiseCatalogueProductSchema = (products = []) => (Array.isArray(products) ? products : []).map((product) => sanitiseProductSchema(product));
 const productCategorySelect = (product) => {
   const selected = Array.isArray(product.categories) ? product.categories : [];
   return `<fieldset class="wide product-category-selector" data-product-categories aria-describedby="product-category-help">
@@ -879,7 +906,7 @@ const render = () => {
 
 const loadAll = async () => {
   state.content = await request("content");
-  state.content.products = (Array.isArray(state.content.products) ? state.content.products : []).map((product) => ({
+  state.content.products = sanitiseCatalogueProductSchema(state.content.products).map((product) => ({
     ...product,
     galleryImages: productGallery(product),
   }));
@@ -1084,6 +1111,7 @@ const persistWebsiteContent = async (successMessage) => {
   }
 
   const submitted = JSON.parse(JSON.stringify(state.content));
+  submitted.products = sanitiseCatalogueProductSchema(submitted.products);
   const changedProductIds = [...state.productUi.dirtyIds];
   setSavingState(true);
   setStatus("Saving product data and image references…");

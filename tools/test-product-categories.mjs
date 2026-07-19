@@ -57,6 +57,6 @@ for (const invalidCategories of [[], ["All categories"], ["Unknown category"]]) 
 }
 const retiredField = structuredClone(validContent);
 retiredField.products[0].category = categories[0];
-assert.match(validateProductCatalogue(retiredField), /retired single category field/);
+assert.equal(validateProductCatalogue(retiredField), "");
 
 console.log(`Product category validation passed: ${categories.length} approved categories; ${products.length} products use category arrays.`);

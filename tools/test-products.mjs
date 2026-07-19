@@ -110,6 +110,16 @@ assert.deepEqual(migration.content.products.map((item) => [item.id, item.brand])
   ["product_real_new_product", "SunSkin Tinted SPF"],
 ]);
 assert.equal(migrateCatalogueContent(migration.content, canonicalSeed).changed, false, "The migration must run only once so later Admin brand renames remain authoritative");
+const staleLegacyContent = {
+  ...migration.content,
+  products: migration.content.products.map((product, index) => (index
+    ? product
+    : { ...product, category: "Prepare", categories: [] })),
+};
+const staleLegacyMigration = migrateCatalogueContent(staleLegacyContent, canonicalSeed);
+assert.equal(staleLegacyMigration.changed, true, "Legacy category fields must trigger migration even on current schema versions.");
+assert.ok(staleLegacyMigration.content.products.every((product) => !Object.hasOwn(product, "category")));
+assert.deepEqual(staleLegacyMigration.content.products[0].categories, ["Prepare"]);
 
 const catalogueSeed = {
   brands: [{ id: "kalahari", name: "Kalahari", active: true }],

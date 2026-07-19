@@ -32,8 +32,26 @@ export const MANAGED_PRODUCT_CATEGORY_REASSIGNMENTS = Object.freeze({
 export const migrateProductCategory = (category) => PRODUCT_CATEGORY_MIGRATIONS[String(category || "").trim()] || String(category || "").trim();
 export const isApprovedProductCategory = (category) => PRODUCT_CATEGORIES.includes(String(category || "").trim());
 export const normaliseProductCategories = (product = {}) => {
-  const source = Array.isArray(product.categories) ? product.categories : [product.category];
+  const source = Array.isArray(product.categories) && product.categories.length ? product.categories : [product.category];
   return [...new Set(source.map(migrateProductCategory).filter(isApprovedProductCategory))];
+};
+
+const reviewedProductCategories = (product = {}) => {
+  const categories = normaliseProductCategories(product);
+  return categories.length ? categories : MANAGED_PRODUCT_CATEGORY_REASSIGNMENTS[productIdentityKey(product.id)] || [];
+};
+
+const productNeedsCategoryMigration = (product = {}) => {
+  if (Object.hasOwn(product, "category")) return true;
+  const existing = Array.isArray(product.categories) ? product.categories : [];
+  const reviewed = reviewedProductCategories(product);
+  if (existing.length !== reviewed.length) return true;
+  return existing.some((category, index) => String(category || "").trim() !== reviewed[index]);
+};
+
+const contentNeedsCategoryMigration = (content = {}) => {
+  const products = Array.isArray(content.products) ? content.products : [];
+  return products.some((product) => productNeedsCategoryMigration(product));
 };
 
 export const applyProductSeoMigration = (product = {}) => {
@@ -180,7 +198,8 @@ export const synchroniseProductCatalogue = (seedProducts = [], storedProducts = 
 export const migrateCatalogueContent = (storedContent = {}, seedContent = {}) => {
   const seedSignature = catalogueSeedSignature(seedContent?.products);
   if (Number(storedContent?.catalogueSchemaVersion) >= CATALOGUE_SCHEMA_VERSION
-    && storedContent?.catalogueSeedSignature === seedSignature) {
+    && storedContent?.catalogueSeedSignature === seedSignature
+    && !contentNeedsCategoryMigration(storedContent)) {
     return { content: storedContent, changed: false, removedPlaceholderIds: [] };
   }
 
@@ -193,8 +212,7 @@ export const migrateCatalogueContent = (storedContent = {}, seedContent = {}) =>
       return [];
     }
     const canonicalBrand = brandNamesById.get(productIdentityKey(product?.brandId));
-    const categories = normaliseProductCategories(product);
-    const reviewedCategories = categories.length ? categories : MANAGED_PRODUCT_CATEGORY_REASSIGNMENTS[productIdentityKey(product.id)] || [];
+    const reviewedCategories = reviewedProductCategories(product);
     const { category: _legacyCategory, ...withoutLegacyCategory } = product;
     return [{ ...withoutLegacyCategory, categories: reviewedCategories, ...(canonicalBrand ? { brand: canonicalBrand } : {}) }];
   });
@@ -263,12 +281,12 @@ export const validateProductCatalogue = (content, { minimumProducts = 65, existi
     const id = String(product?.id || "").trim();
     const brand = brandsById.get(productIdentityKey(product?.brandId));
     const price = Number(product?.price);
+    const categories = normaliseProductCategories(product);
     if (!id || !PRODUCT_ID_PATTERN.test(id)) return `Every product requires a stable lowercase ID. Please review: ${product?.name || "Unnamed product"}.`;
     if (!String(product?.name || "").trim()) return `Product name is required for ${id}.`;
-    if (!Array.isArray(product?.categories) || !product.categories.length) return `Select at least one approved category for ${product?.name || id}.`;
-    const invalidCategory = product.categories.find((category) => !isApprovedProductCategory(category));
+    if (!categories.length) return `Select at least one approved category for ${product?.name || id}.`;
+    const invalidCategory = categories.find((category) => !isApprovedProductCategory(category));
     if (invalidCategory) return `Select an approved category for ${product?.name || id}. "${invalidCategory}" is not a valid product category.`;
-    if (Object.hasOwn(product, "category")) return `Product ${product?.name || id} still uses the retired single category field.`;
     if (!brand) return `Select a valid brand for ${product?.name || id}. Saving was blocked.`;
     if (String(product?.brand || "").trim() !== String(brand.name || "").trim()) {
       return `Brand data does not match the selected brand for ${product?.name || id}. Re-select the intended brand.`;
