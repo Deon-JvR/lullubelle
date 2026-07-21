@@ -209,6 +209,12 @@ const logIkhokhaDiagnostic = (level, message, diagnostic) => {
 
 const orderNumber = () => `LUL-${Date.now()}`;
 const PAYMENT_ATTEMPT_TTL_MS = 30 * 60 * 1000;
+// Checkout writes are protected by onlyIfNew/onlyIfMatch. Normal Blob reads
+// are therefore safe: a stale ETag fails closed instead of overwriting data,
+// and works in Functions runtimes that do not expose uncachedEdgeURL.
+export const CHECKOUT_BLOB_READ_OPTIONS = Object.freeze({ strong: false });
+const mutateOrders = (mutator) => mutateList(ORDERS_KEY, mutator, CHECKOUT_BLOB_READ_OPTIONS);
+const readPaymentAttempt = (key) => readRecord(key, CHECKOUT_BLOB_READ_OPTIONS);
 const terminalPaymentStatus = (order) => ["paid", "refunded", "partially refunded"].includes(String(order?.paymentStatus || "").toLowerCase())
   || ["fulfilling", "shipped", "completed"].includes(String(order?.orderStatus || "").toLowerCase());
 const attemptKey = (id) => `ikhokha-attempts/${String(id).replace(/[^a-z0-9_-]/gi, "").slice(0, 128)}`;
@@ -373,12 +379,12 @@ const createPendingOrder = async ({ customer, delivery, address, notes, products
     paymentStatus: "Pending",
     orderStatus: "New",
   };
-  await mutateList(ORDERS_KEY, (orders) => [order, ...orders.filter((item) => item.orderNumber !== order.orderNumber)].slice(0, 500));
+  await mutateOrders((orders) => [order, ...orders.filter((item) => item.orderNumber !== order.orderNumber)].slice(0, 500));
   return order;
 };
 
 const persistPaylinkOrder = async (pendingOrder, paylinkId, paymentUrl = "") => {
-  await mutateList(ORDERS_KEY, (latestOrders) => {
+  await mutateOrders((latestOrders) => {
     const index = latestOrders.findIndex((item) => item.orderNumber === pendingOrder.orderNumber);
     const enriched = index >= 0 ? { ...latestOrders[index], ikhokhaPaylinkId: paylinkId, paymentUrl } : { ...pendingOrder, ikhokhaPaylinkId: paylinkId, paymentUrl };
     return index >= 0 ? latestOrders.map((item, itemIndex) => itemIndex === index ? enriched : item) : [enriched, ...latestOrders].slice(0, 500);
@@ -534,7 +540,7 @@ const markOrderPaid = async (orderNumber, providerPayload) => {
   const providerPaidAt = objectValue(providerPayload, ["paidAt", "paid_at"]);
   const now = new Date().toISOString();
   let updated = false;
-  await mutateList(ORDERS_KEY, (orders) => {
+  await mutateOrders((orders) => {
     const index = findPaymentOrderIndex(orders, providerPayload, orderNumber);
     if (index === -1) return orders;
     const order = orders[index];
@@ -568,7 +574,7 @@ const markOrderPaid = async (orderNumber, providerPayload) => {
     const paidOrder = (await readList(ORDERS_KEY)).find((order) => normaliseReference(order.externalTransactionID || order.orderNumber) === normaliseReference(extractPaymentReference(providerPayload) || orderNumber));
     if (paidOrder?.paymentAttemptId && String(paidOrder.paymentStatus).toLowerCase() === "paid") {
       const recordKey = attemptKey(paidOrder.paymentAttemptId);
-      const attempt = await readRecord(recordKey);
+      const attempt = await readPaymentAttempt(recordKey);
       if (attempt.value && attempt.etag) await updateRecord(recordKey, { ...attempt.value, state: "paid", paidAt: paidOrder.paidAt, updatedAt: new Date().toISOString() }, attempt.etag);
     }
   }
@@ -587,7 +593,7 @@ const markOrderCancelled = async (orderNumber, providerPayload, internalStatus =
   const callbackPaylinkId = String(data.paylinkID || data.paylinkId || "").trim();
   const transactionId = String(data.transactionID || data.transactionId || data.transaction_id || data.paylinkID || "").trim();
   let updated = false;
-  await mutateList(ORDERS_KEY, (latest) => {
+  await mutateOrders((latest) => {
     const latestIndex = latest.findIndex((order) => normaliseReference(order.orderNumber) === normaliseReference(orderNumber));
     if (latestIndex < 0 || terminalPaymentStatus(latest[latestIndex])) { updated = latestIndex >= 0; return latest; }
     updated = true;
@@ -828,14 +834,16 @@ export const handler = async (event) => {
     let recordKey = attemptKey(paymentAttemptId);
     const paymentReference = orderNumber();
     let recoveryOrder = null;
-    let claimed = await createRecord(recordKey, {
+    const initialAttempt = {
       paymentAttemptId,
       checkoutFingerprint: fingerprint,
       externalTransactionID: paymentReference,
       state: "creating",
       createdAt: new Date().toISOString(),
-    });
-    let attempt = await readRecord(recordKey);
+    };
+    let claimed = await createRecord(recordKey, initialAttempt);
+    if (claimed.modified && !claimed.etag) throw new Error("Payment attempt claim did not return a storage version.");
+    let attempt = claimed.modified ? { value: initialAttempt, etag: claimed.etag } : await readPaymentAttempt(recordKey);
     const attemptAge = Date.now() - Date.parse(String(attempt.value?.updatedAt || attempt.value?.createdAt || ""));
     if (!claimed.modified && attempt.value && Number.isFinite(attemptAge) && attemptAge > PAYMENT_ATTEMPT_TTL_MS && !["paid", "refunded"].includes(String(attempt.value.state || "").toLowerCase())) {
       // An abandoned attempt is eligible for a genuinely new purchase after
@@ -843,10 +851,11 @@ export const handler = async (event) => {
       paymentAttemptId = `${paymentAttemptId}-retry-${Date.now()}`;
       recordKey = attemptKey(paymentAttemptId);
       const freshReference = orderNumber();
-      const freshClaim = await createRecord(recordKey, { paymentAttemptId, checkoutFingerprint: fingerprint, externalTransactionID: freshReference, state: "creating", createdAt: new Date().toISOString() });
-      if (!freshClaim.modified) return json(409, { ok: false, code: "PAYMENT_ATTEMPT_IN_PROGRESS", error: "A new payment attempt is already being prepared. Please retry shortly." });
+      const freshAttempt = { paymentAttemptId, checkoutFingerprint: fingerprint, externalTransactionID: freshReference, state: "creating", createdAt: new Date().toISOString() };
+      const freshClaim = await createRecord(recordKey, freshAttempt);
+      if (!freshClaim.modified || !freshClaim.etag) return json(409, { ok: false, code: "PAYMENT_ATTEMPT_IN_PROGRESS", error: "A new payment attempt is already being prepared. Please retry shortly." });
       claimed = freshClaim;
-      attempt = await readRecord(recordKey);
+      attempt = { value: freshAttempt, etag: freshClaim.etag };
     }
     if (!claimed.modified) {
       if (!attempt.value || attempt.value.checkoutFingerprint !== fingerprint) return json(409, { ok: false, code: "PAYMENT_ATTEMPT_MISMATCH", error: "This payment attempt belongs to a different checkout." });
@@ -895,7 +904,6 @@ export const handler = async (event) => {
     const ikhokhaPaylinkId = extractPaylinkId(checkout.providerResponse);
     if (ikhokhaPaylinkId) await persistPaylinkOrder(order, ikhokhaPaylinkId, checkout.paymentUrl);
     if (!ikhokhaPaylinkId) console.warn(`iKhokha checkout response missing paylink ID ${JSON.stringify({ orderNumber: order.orderNumber })}`);
-    attempt = await readRecord(recordKey);
     await updateRecord(recordKey, { ...attempt.value, state: "active", orderNumber: order.orderNumber, externalTransactionID: order.externalTransactionID, paylinkID: ikhokhaPaylinkId || "", paymentUrl: checkout.paymentUrl, updatedAt: new Date().toISOString() }, attempt.etag);
 
     if (!wantsJson(event)) {

@@ -192,7 +192,12 @@ export const writeList = async (key, items) => {
   }
 };
 
-export const mutateList = async (key, mutator, { attempts = 8 } = {}) => {
+export const metadataReadOptions = ({ strong = true } = {}) => ({
+  type: "json",
+  ...(strong ? { consistency: "strong" } : {}),
+});
+
+export const mutateList = async (key, mutator, { attempts = 8, strong = true } = {}) => {
   if (!isNetlifyRuntime()) {
     const current = [...(localLists.get(key) || [])];
     const next = mutator(current);
@@ -200,7 +205,7 @@ export const mutateList = async (key, mutator, { attempts = 8 } = {}) => {
     return Array.isArray(next) ? next : current;
   }
   for (let attempt = 0; attempt < attempts; attempt += 1) {
-    const stored = await contentStore().getWithMetadata(key, { type: "json", consistency: "strong" });
+    const stored = await contentStore().getWithMetadata(key, metadataReadOptions({ strong }));
     const current = Array.isArray(stored?.data) ? stored.data : [];
     const next = mutator([...current]);
     const result = await contentStore().setJSON(key, Array.isArray(next) ? next : current, stored?.etag ? { onlyIfMatch: stored.etag } : { onlyIfNew: true });
@@ -209,9 +214,9 @@ export const mutateList = async (key, mutator, { attempts = 8 } = {}) => {
   throw new Error(`Concurrent storage update could not be committed for ${key}.`);
 };
 
-export const readRecord = async (key) => {
+export const readRecord = async (key, { strong = true } = {}) => {
   try {
-    const result = await contentStore().getWithMetadata(key, { type: "json", consistency: "strong" });
+    const result = await contentStore().getWithMetadata(key, metadataReadOptions({ strong }));
     return result ? { value: result.data, etag: result.etag || "" } : { value: null, etag: "" };
   } catch (error) {
     if (isNetlifyRuntime()) throw error;
