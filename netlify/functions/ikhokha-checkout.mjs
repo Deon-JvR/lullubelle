@@ -145,15 +145,35 @@ export const escapeIkhokhaSignatureString = (value) => String(value)
   .replace(/[\\"']/g, "\\$&")
   .replace(/\u0000/g, "\\0");
 
-export const createIkhokhaSignature = ({ requestUrl, serializedBody = "", secret, escapePayload = true }) => {
-  const urlText = String(requestUrl);
-  const uri = urlText.includes("//") ? urlText.slice(urlText.indexOf("//") + 2) : urlText;
-  const slashIndex = uri.indexOf("/");
-  const basePath = slashIndex >= 0 ? uri.slice(slashIndex) : "/";
-  const signingPayload = basePath + serializedBody;
+export const ikhokhaRequestParts = ({ requestUrl, serializedBody = "", method = "GET", timestamp = "" }) => {
+  const url = new URL(String(requestUrl), "https://api.ikhokha.com");
+  return {
+    requestUrl: url.toString(),
+    pathname: url.pathname || "/",
+    query: url.search,
+    serializedBody: String(serializedBody),
+    method: String(method || "GET").toUpperCase(),
+    timestamp: String(timestamp || ""),
+  };
+};
+
+export const createIkhokhaSignature = ({ requestUrl, serializedBody = "", secret, escapePayload = true, method = "GET", timestamp = "" }) => {
+  const parts = ikhokhaRequestParts({ requestUrl, serializedBody, method, timestamp });
+  // iKhokha signs pathname + exact body. Query parameters remain on the
+  // outgoing request URL but are explicitly excluded from the signature base.
+  const signingPayload = parts.pathname + parts.serializedBody;
   return createHmac("sha256", String(secret || "").trim())
     .update(escapePayload ? escapeIkhokhaSignatureString(signingPayload) : signingPayload, "utf8")
     .digest("hex");
+};
+
+export const createIkhokhaSignedRequest = ({ requestUrl, serializedBody = "", secret, escapePayload = true, method = "GET", timestamp = "" }) => {
+  const parts = ikhokhaRequestParts({ requestUrl, serializedBody, method, timestamp });
+  return {
+    ...parts,
+    signingBase: escapePayload ? escapeIkhokhaSignatureString(parts.pathname + parts.serializedBody) : parts.pathname + parts.serializedBody,
+    signature: createIkhokhaSignature({ ...parts, secret, escapePayload }),
+  };
 };
 
 export const generateIkhokhaSignature = ({ path, requestBody, requestBodyString, secret }) => {
@@ -491,16 +511,17 @@ const callIkhokha = async ({ event, order, testMode }) => {
 
 const findPaymentOrderIndex = (orders, providerPayload, fallbackReference = "") => {
   const externalTransactionID = String(extractPaymentReference(providerPayload) || "").trim();
-  if (externalTransactionID) {
-    const index = orders.findIndex((order) => order.externalTransactionID && normaliseReference(order.externalTransactionID) === normaliseReference(externalTransactionID));
-    if (index >= 0) return index;
-  }
   const paylinkId = extractPaylinkId(providerPayload);
+  if (externalTransactionID) {
+    const index = orders.findIndex((order) => normaliseReference(order.externalTransactionID || order.orderNumber) === normaliseReference(externalTransactionID));
+    if (index < 0) return -1;
+    return index;
+  }
   if (paylinkId) {
     const index = orders.findIndex((order) => String(order.ikhokhaPaylinkId || "") === paylinkId);
-    if (index >= 0) return index;
+    return index;
   }
-  const legacyReference = String(fallbackReference || externalTransactionID).trim();
+  const legacyReference = String(fallbackReference).trim();
   return legacyReference ? orders.findIndex((order) => !order.externalTransactionID && normaliseReference(order.orderNumber) === normaliseReference(legacyReference)) : -1;
 };
 
@@ -597,37 +618,43 @@ const safeCompare = (left, right) => {
 
 // Keep the provider-specific string-to-sign isolated here. Replace only this
 // function when iKhokha supplies its official webhook specification.
-export const callbackSignatureCandidates = ({ rawBodyBytes, eventPath, signatureSecret }) => {
-  const body = Buffer.from(rawBodyBytes);
-  const secret = String(signatureSecret || "").trim();
-  return [
-    createHmac("sha256", secret).update(body).digest("hex"),
-    createHmac("sha256", secret).update(body).digest("base64"),
-    createHmac("sha256", secret).update(escapeIkhokhaSignatureString(`${eventPath}${body.toString("utf8")}`)).digest("hex"),
-  ];
+const callbackBodyForSigning = (event) => {
+  const parsed = parseCallbackBody(event);
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return "";
+  const canonical = { ...parsed };
+  delete canonical.text;
+  return JSON.stringify(canonical);
 };
 
-const verifySignature = (event) => {
-  const signature = event.headers["x-ikhokha-signature"]
-    || event.headers["X-iKhokha-Signature"]
-    || event.headers["x-ik-signature"]
-    || event.headers["X-iK-Signature"]
-    || event.headers["x-signature"]
-    || event.headers["X-Signature"]
-    || event.headers["ik-sign"]
-    || event.headers["IK-SIGN"]
-    || event.headers["ik-signature"]
-    || event.headers["IK-Signature"];
-  if (!signature || !process.env.IKHOKHA_API_SECRET) return false;
+const callbackPathname = (event) => {
+  const source = event.rawUrl || event.path || "/.netlify/functions/ikhokha-checkout";
+  return new URL(String(source), "https://www.lullubelle.co.za").pathname;
+};
 
-  const body = event.isBase64Encoded ? Buffer.from(event.body || "", "base64") : Buffer.from(event.body || "", "utf8");
-  const path = event.path || "/.netlify/functions/ikhokha-checkout";
+export const callbackSignatureCandidates = ({ eventPath, canonicalBody = "", signatureSecret }) => {
+  const secret = String(signatureSecret || "").trim();
+  if (!canonicalBody || !secret) return [];
+  return [createHmac("sha256", secret).update(escapeIkhokhaSignatureString(`${eventPath}${canonicalBody}`)).digest("hex")];
+};
+
+const headerValue = (headers = {}, names = []) => {
+  const accepted = new Set(names.map((name) => name.toLowerCase()));
+  return Object.entries(headers).find(([name]) => accepted.has(name.toLowerCase()))?.[1] || "";
+};
+
+export const verifyIkhokhaCallbackSignature = (event, { signatureSecret = process.env.IKHOKHA_API_SECRET, applicationId = process.env.IKHOKHA_API_KEY } = {}) => {
+  const signature = headerValue(event.headers, ["x-ikhokha-signature", "x-ik-signature", "x-signature", "ik-sign", "ik-signature"]);
+  const receivedAppId = headerValue(event.headers, ["ik-appid"]);
+  if (!signature || !signatureSecret || !receivedAppId || !safeCompare(receivedAppId, String(applicationId || "").trim())) return false;
+
+  const path = callbackPathname(event);
+  const canonicalBody = callbackBodyForSigning(event);
   const cleaned = String(signature).replace(/^sha256=/i, "");
-  return callbackSignatureCandidates({ rawBodyBytes: body, eventPath: path, signatureSecret: process.env.IKHOKHA_API_SECRET })
+  return callbackSignatureCandidates({ eventPath: path, canonicalBody, signatureSecret })
     .some((candidate) => safeCompare(cleaned, candidate));
 };
 
-const isVerifiedIkhokhaConfirmation = (event) => verifySignature(event);
+const isVerifiedIkhokhaConfirmation = (event) => verifyIkhokhaCallbackSignature(event);
 
 const handleConfirmation = async (event) => {
   const correlationId = event.headers["x-correlation-id"] || event.headers["X-Correlation-Id"] || randomUUID();
@@ -635,9 +662,8 @@ const handleConfirmation = async (event) => {
   const signatureVerified = isVerifiedIkhokhaConfirmation(event);
   if (!signatureVerified) {
     const unverifiedReference = extractPaymentReference(body) || event.queryStringParameters?.order;
-    console.warn("iKhokha payment callback requires server verification", { correlationId, eventType: "callback", signatureVerified, externalTransactionID: String(unverifiedReference || "").slice(0, 80) });
-    if (!unverifiedReference) return json(401, { ok: false, error: "Invalid iKhokha signature." });
-    return handleReconciliation({ ...event, body: JSON.stringify({ orderNumber: unverifiedReference }), queryStringParameters: { action: "reconcile", order: unverifiedReference } }, { trustedAdmin: true, callbackPayload: body });
+    console.warn("iKhokha payment callback rejected", { correlationId, eventType: "callback", signatureVerified, externalTransactionID: String(unverifiedReference || "").slice(0, 80), responseStatus: 401 });
+    return json(401, { ok: false, error: "Invalid iKhokha signature." });
   }
   const order = extractPaymentReference(body) || event.queryStringParameters?.order;
   if (!order) return json(400, { ok: false, error: "Missing payment reference." });
@@ -684,7 +710,8 @@ export const handleReconciliation = async (event, { trustedAdmin = false, callba
   const baseUrl = ikhokhaBaseUrl();
   const appId = String(process.env.IKHOKHA_API_KEY || "").trim();
   const requestUrl = `${baseUrl}${path}`;
-  const signature = createIkhokhaSignature({ requestUrl, serializedBody: requestBody, secret: process.env.IKHOKHA_API_SECRET, escapePayload: false });
+  const signedRequest = createIkhokhaSignedRequest({ requestUrl, serializedBody: requestBody, secret: process.env.IKHOKHA_API_SECRET, escapePayload: false, method: "GET" });
+  const signature = signedRequest.signature;
   let response;
   try {
     console.info("Sending verification request to iKhokha", { signingPath: path, signingBodyLength: requestBody.length, signingPayloadLength: path.length + requestBody.length, digestEncoding: "hex", digestCharacterLength: signature.length, secretByteLength: Buffer.byteLength(String(process.env.IKHOKHA_API_SECRET || "").trim(), "utf8") });
