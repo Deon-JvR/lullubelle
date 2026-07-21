@@ -65,6 +65,7 @@ export const assetStore = () => isNetlifyRuntime()
   : getConfiguredStore("lullubelle-admin-assets");
 
 const localLists = new Map();
+const localRecords = new Map();
 
 export const defaultContent = () => ({
   catalogueSchemaVersion: CATALOGUE_SCHEMA_VERSION,
@@ -188,6 +189,56 @@ export const writeList = async (key, items) => {
   } catch (error) {
     if (isNetlifyRuntime()) throw error;
     localLists.set(key, next);
+  }
+};
+
+export const mutateList = async (key, mutator, { attempts = 8 } = {}) => {
+  if (!isNetlifyRuntime()) {
+    const current = [...(localLists.get(key) || [])];
+    const next = mutator(current);
+    localLists.set(key, Array.isArray(next) ? next : current);
+    return Array.isArray(next) ? next : current;
+  }
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    const stored = await contentStore().getWithMetadata(key, { type: "json", consistency: "strong" });
+    const current = Array.isArray(stored?.data) ? stored.data : [];
+    const next = mutator([...current]);
+    const result = await contentStore().setJSON(key, Array.isArray(next) ? next : current, stored?.etag ? { onlyIfMatch: stored.etag } : { onlyIfNew: true });
+    if (result?.modified) return Array.isArray(next) ? next : current;
+  }
+  throw new Error(`Concurrent storage update could not be committed for ${key}.`);
+};
+
+export const readRecord = async (key) => {
+  try {
+    const result = await contentStore().getWithMetadata(key, { type: "json", consistency: "strong" });
+    return result ? { value: result.data, etag: result.etag || "" } : { value: null, etag: "" };
+  } catch (error) {
+    if (isNetlifyRuntime()) throw error;
+    return { value: localRecords.get(key) || null, etag: "local" };
+  }
+};
+
+export const createRecord = async (key, value) => {
+  try {
+    return await contentStore().setJSON(key, value, { onlyIfNew: true });
+  } catch (error) {
+    if (isNetlifyRuntime()) throw error;
+    if (localRecords.has(key)) return { modified: false };
+    localRecords.set(key, value);
+    return { modified: true, etag: "local" };
+  }
+};
+
+export const updateRecord = async (key, value, etag) => {
+  try {
+    const result = await contentStore().setJSON(key, value, { onlyIfMatch: etag });
+    if (!result?.modified) throw new Error(`Concurrent storage update rejected for ${key}.`);
+    return result;
+  } catch (error) {
+    if (isNetlifyRuntime()) throw error;
+    localRecords.set(key, value);
+    return { modified: true, etag: "local" };
   }
 };
 

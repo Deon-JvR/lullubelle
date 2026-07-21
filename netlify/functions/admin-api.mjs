@@ -178,6 +178,12 @@ export const handler = async (event) => {
     const orders = await readList(ORDERS_KEY);
     const index = orders.findIndex((order) => String(order.orderNumber) === orderNumber);
     if (index < 0) return json(404, { ok: false, code: "ORDER_NOT_FOUND", message: `No matching order was found for: ${orderNumber}.` });
+    const existing = orders[index];
+    const existingPayment = String(existing.paymentStatus || "").toLowerCase();
+    const incomingPayment = String(incoming.paymentStatus || existing.paymentStatus || "").toLowerCase();
+    if (["paid", "refunded", "partially refunded"].includes(existingPayment) && incomingPayment !== existingPayment) {
+      return json(409, { ok: false, code: "PAID_ORDER_IMMUTABLE", message: "A paid order cannot be moved back to an unpaid payment state." });
+    }
     const saved = { ...orders[index], ...incoming, id: orders[index].id, orderNumber: orders[index].orderNumber };
     orders[index] = saved;
     await writeList(ORDERS_KEY, orders);

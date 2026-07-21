@@ -4,7 +4,19 @@ import { applyProductSeoMigration, migrateCatalogueContent, PRODUCT_CATEGORIES }
 import { renderProductHtml } from "../netlify/functions/product-page.mjs";
 import { categorySeo, renderShopHtml } from "../netlify/functions/shop-page.mjs";
 
-const production = JSON.parse(await readFile("/tmp/lullubelle-seo-production-before.json", "utf8"));
+// This is an intentionally generated production comparison export, not a repository
+// fixture. CI/local checkouts without that export must not fabricate production data.
+let productionText;
+try {
+  productionText = await readFile("/tmp/lullubelle-seo-production-before.json", "utf8");
+} catch (error) {
+  if (error?.code === "ENOENT") {
+    console.warn("Product SEO production comparison skipped: /tmp/lullubelle-seo-production-before.json is an optional generated export.");
+    process.exit(0);
+  }
+  throw error;
+}
+const production = JSON.parse(productionText);
 const priceBefore = JSON.parse(await readFile("reports/seo/product-price-before.json", "utf8"));
 const priceAfter = JSON.parse(await readFile("reports/seo/product-price-after.json", "utf8"));
 const audit = JSON.parse(await readFile("reports/seo/product-seo-audit.json", "utf8"));

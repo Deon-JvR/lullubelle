@@ -1526,6 +1526,12 @@ const startIkhokhaCheckout = async () => {
   });
   if (status) status.textContent = "Redirecting to secure payment…";
   setCheckoutLoading(true);
+  const paymentAttemptStorageKey = "lullubelle_ikhokha_payment_attempt";
+  let paymentAttemptId = sessionStorage.getItem(paymentAttemptStorageKey);
+  if (!paymentAttemptId) {
+    paymentAttemptId = globalThis.crypto?.randomUUID?.() || `attempt-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    sessionStorage.setItem(paymentAttemptStorageKey, paymentAttemptId);
+  }
 
   try {
     const response = await fetch(IKHOKHA_CHECKOUT_ENDPOINT, {
@@ -1544,6 +1550,7 @@ const startIkhokhaCheckout = async () => {
         finalTotal: totals.finalTotal,
         total: totals.finalTotal,
         totalAmount: totals.finalTotal,
+        paymentAttemptId,
       }),
     });
     const data = await readCheckoutResponse(response);
@@ -1570,6 +1577,7 @@ const startIkhokhaCheckout = async () => {
       deliveryLabel: delivery.label,
       deliveryFee: totals.deliveryFee,
     }));
+    sessionStorage.removeItem(paymentAttemptStorageKey);
     clearCart();
     window.location.href = data.paymentUrl;
   } catch (error) {
