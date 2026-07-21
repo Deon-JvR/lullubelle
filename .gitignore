@@ -1,3 +1,5 @@
 .pnpm-store/
+dist/
 vitaderm_extractor/node_modules/
 products/mesoestetic/*.png
+.netlify/
