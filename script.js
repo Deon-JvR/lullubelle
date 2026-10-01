@@ -883,7 +883,7 @@ const applyManagedTreatments = (treatments = []) => {
     }, new Map());
     menuGrid.innerHTML = Array.from(grouped.entries()).map(([category, items]) => `
       <article class="treatment-menu-card${items.length >= 8 ? " treatment-menu-card--wide" : ""}" id="category-${slugify(category)}" data-service-category="${escapeHtml(category)}">
-        <h2 class="treatment-heading">${escapeHtml(category)}</h2>
+        <h2 class="treatment-heading">${category === "Dermaplaning" ? '<a href="/dermaplaning-centurion">Dermaplaning</a>' : escapeHtml(category)}</h2>
         ${renderTreatmentItems(items)}
       </article>`).join("");
   }

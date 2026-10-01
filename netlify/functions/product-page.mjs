@@ -103,9 +103,11 @@ export const renderProductHtml = (product, content = {}) => {
 };
 
 export const productResponse = (event, content) => {
-  const lookup = event.queryStringParameters?.product || event.queryStringParameters?.id;
+  const pathSlug = String(event.path || "").match(/\/products\/([^/?#]+)/)?.[1];
+  // A canonical path owns its identity, even when an old query survives a link.
+  const lookup = pathSlug ? undefined : event.queryStringParameters?.product || event.queryStringParameters?.id;
   const legacy = LEGACY_PRODUCT_IDS[lookup] || lookup;
-  const slug = legacy || decodeURIComponent(String(event.path || "").match(/\/products\/([^/?#]+)/)?.[1] || "");
+  const slug = legacy || decodeURIComponent(pathSlug || "");
   const product = (content.products || []).find((item) => ((item.slug || item.id) === slug || (legacy && item.id === slug)) && publicProduct(item));
 
   if (!product) {

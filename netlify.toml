@@ -2,6 +2,13 @@
   command = "npm run build:verified"
   publish = "dist"
 
+[[edge_functions]]
+  function = "legacy-product-redirect"
+  path = "/product"
+[[edge_functions]]
+  function = "legacy-product-redirect"
+  path = "/product.html"
+
 
 [[redirects]]
   from = "/shipping-policy.html"
@@ -210,11 +217,6 @@
   to = "/.netlify/functions/product-page"
   status = 200
 [[redirects]]
-  from = "/product"
-  to = "/.netlify/functions/product-page"
-  status = 200
-  force = true
-[[redirects]]
   from = "/pricelist"
   to = "/pricelist.html"
   status = 200
@@ -357,11 +359,6 @@
 [[redirects]]
   from = "/shop/*"
   to = "/.netlify/functions/shop-page"
-  status = 200
-  force = true
-[[redirects]]
-  from = "/product.html"
-  to = "/.netlify/functions/product-page"
   status = 200
   force = true
 
