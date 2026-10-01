@@ -4,6 +4,8 @@ import { test, expect } from "@playwright/test";
 // stub keeps this test deterministic and, importantly, catches regressions
 // where nested order data is dumped into textareas as JSON.
 const base = "http://127.0.0.1:4173";
+// The fixed fixture is a new order on 20 July; keep age-based counts deterministic.
+test.beforeEach(async ({ page }) => { await page.clock.setFixedTime(new Date("2026-07-20T12:00:00Z")); });
 const order = {
   id: "ord_test_1",
   orderNumber: "LB-1001",

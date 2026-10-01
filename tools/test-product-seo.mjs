@@ -1,3 +1,4 @@
+import { reconcileProductImage } from "../netlify/functions/_product-image-reconciliation.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { applyProductSeoMigration, migrateCatalogueContent, PRODUCT_CATEGORIES } from "../netlify/functions/_products.mjs";
@@ -8,7 +9,7 @@ import { categorySeo, renderShopHtml } from "../netlify/functions/shop-page.mjs"
 // fixture. CI/local checkouts without that export must not fabricate production data.
 let productionText;
 try {
-  productionText = await readFile("/tmp/lullubelle-seo-production-before.json", "utf8");
+  productionText = await readFile(process.env.PRODUCT_SEO_COMPARISON_SNAPSHOT || "/tmp/lullubelle-seo-production-before.json", "utf8");
 } catch (error) {
   if (error?.code === "ENOENT") {
     console.warn("Product SEO production comparison skipped: /tmp/lullubelle-seo-production-before.json is an optional generated export.");
@@ -27,7 +28,7 @@ assert.equal(production.products.length, 163, "the captured production catalogue
 assert.equal(priceBefore.sha256, priceAfter.sha256, "price snapshot hashes must be identical");
 assert.deepEqual(priceAfter.records, priceBefore.records, "no price, sale or discount field may change");
 
-const corrected = production.products.map(applyProductSeoMigration);
+const corrected = production.products.map(applyProductSeoMigration).map(reconcileProductImage);
 assert.deepEqual(corrected.map(({ id }) => id), production.products.map(({ id }) => id), "managed-only products and ordering must remain intact");
 assert.equal(new Set(corrected.map(({ id }) => id)).size, corrected.length, "stable product IDs must remain unique");
 assert(corrected.every((product) => Array.isArray(product.categories) && product.categories.length));
@@ -67,7 +68,9 @@ for (const product of corrected.filter((item) => item.hidden !== true && item.ac
   assert.equal(schema.offers.url, canonical);
   assert.equal(schema.sku, product.sku || product.id);
   assert.equal(schema.brand.name, product.brand);
-  assert(schema.image.length && schema.image.every((image) => new URL(image).protocol === "https:"));
+  if (product.id === "kalahari-treatment-lip-glaze") {
+    assert.equal(schema.image.length, 0, "Do not represent an unapproved placeholder as a Merchant product photograph");
+  } else assert(schema.image.length && schema.image.every((image) => new URL(image).protocol === "https:"));
   for (const category of product.categories) assert(html.includes(`/shop?category=${encodeURIComponent(category)}`));
 }
 

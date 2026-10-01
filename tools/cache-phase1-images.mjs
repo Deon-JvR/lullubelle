@@ -1,0 +1,5 @@
+import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';import{createHash}from'node:crypto';
+const content=JSON.parse(readFileSync(process.env.PHASE1_CATALOGUE_SNAPSHOT || '/private/tmp/lullubelle-seo-audit-2026-09-30/catalogue.json'));const out='/private/tmp/lullubelle-phase1-review/image-cache';mkdirSync(out,{recursive:true});
+const images=[...new Set([...content.products,...content.gallery].flatMap(p=>[p.image,...(p.galleryImages || []).map(i=>typeof i==='string'?i:i.url)]).filter(i=>i?.startsWith('/.netlify/functions/admin-asset?')))];const index={};
+for(const path of images){const r=await fetch('https://www.lullubelle.co.za'+path);if(!r.ok)throw new Error(`Image HTTP ${r.status}`);const file=createHash('sha256').update(path).digest('hex');writeFileSync(`${out}/${file}`,Buffer.from(await r.arrayBuffer()));index[path]={file,type:r.headers.get('content-type')};}
+writeFileSync(`${out}/index.json`,JSON.stringify(index));console.log(`Cached ${images.length} approved managed images using GET only.`);

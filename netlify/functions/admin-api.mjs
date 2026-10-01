@@ -1,3 +1,4 @@
+import { notificationStatus, notifyPaidOrder } from "./_order-notification.mjs";
 import {
   BOOKINGS_KEY,
   ORDERS_KEY,
@@ -165,6 +166,19 @@ export const handler = async (event) => {
   if (method === "PUT" && action === "bookings") {
     await writeList(BOOKINGS_KEY, body.items || []);
     return json(200, { ok: true });
+  }
+
+  if (method === "GET" && action === "order-notifications") {
+    const orders=(await readList(ORDERS_KEY)).filter(o=>o.newOrderNotificationVersion===1);
+    return json(200,await Promise.all(orders.map(notificationStatus)));
+  }
+  if (method === "POST" && action === "retry-order-notification") {
+    const host=event.headers?.host || event.headers?.Host || "";
+    const origin=event.headers?.origin || event.headers?.Origin || "";
+    if (!origin || origin !== `${host.includes("localhost") ? "http" : "https"}://${host}`) return json(403,{error:"Same-origin request required."});
+    const order=(await readList(ORDERS_KEY)).find(o=>o.orderNumber===body.orderNumber);
+    if (!order) return json(404,{error:"Order not found."});
+    return json(200,await notifyPaidOrder(order));
   }
 
   if (method === "GET" && action === "orders") {

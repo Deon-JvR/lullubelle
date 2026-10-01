@@ -1,3 +1,7 @@
+import { genuineProductImage } from "./_product-image-reconciliation.mjs";
+import { LEGACY_PRODUCT_IDS } from "./content-page.mjs";
+import "../../public/product-markup.js";
+import { publicProduct, saleProduct, shippingDetails, bootstrap, brandSlug, productCard } from "./_public-catalogue.mjs";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { connectBlobContext, readContent } from "./_admin-shared.mjs";
@@ -37,13 +41,13 @@ const availabilityUrl = (stockStatus) => {
   return "https://schema.org/InStock";
 };
 
-export const productStructuredData = (product, canonical) => ({
+export const productStructuredData = (product, canonical, deliverySettings) => ({
   "@context": "https://schema.org",
   "@type": "Product",
   name: product.name,
   description: product.description || product.benefit || product.seoDescription,
   image: [product.image, ...(product.galleryImages || []).map((item) => typeof item === "string" ? item : item.url)]
-    .filter(Boolean).map(absoluteImageUrl),
+    .filter(genuineProductImage).map(absoluteImageUrl),
   sku: product.sku || product.id,
   brand: { "@type": "Brand", name: product.brand },
   category: (product.categories || []).join(", "),
@@ -57,6 +61,7 @@ export const productStructuredData = (product, canonical) => ({
     price: product.price,
     availability: availabilityUrl(product.stockStatus),
     itemCondition: "https://schema.org/NewCondition",
+    ...(deliverySettings ? { shippingDetails: shippingDetails(deliverySettings, product.price) } : {}),
   },
 });
 
@@ -70,7 +75,7 @@ export const breadcrumbStructuredData = (product, canonical) => ({
   ],
 });
 
-export const renderProductHtml = (product) => {
+export const renderProductHtml = (product, content = {}) => {
   const slug = product.slug || product.id;
   const title = product.seoTitle || `${product.brand} ${product.name} | Lullubelle Skincare Centurion`;
   const description = product.seoDescription || `${product.brand} ${product.name} from Lullubelle Beauty Specialist in Centurion. View benefits, directions, skin suitability and order online.`;
@@ -89,20 +94,19 @@ export const renderProductHtml = (product) => {
   html = replaceMeta(html, "name", "twitter:title", title);
   html = replaceMeta(html, "name", "twitter:description", description);
   html = replaceMeta(html, "name", "twitter:image", image);
-  const categoryLinks = (product.categories || []).map((category) => `<a href="/shop?category=${encodeURIComponent(category)}">${escapeHtml(category)}</a>`).join(", ");
-  const summary = product.description || product.benefit || description;
-  const serverContent = `<section class="section product-detail product-detail-page-hero" data-server-product="${escapeAttribute(product.id)}"><div class="product-detail-media"><img class="product-detail-main-image" src="${escapeAttribute(product.image)}" alt="${escapeAttribute(product.imageAlt || `${product.brand} ${product.name}`)}" width="900" height="900" decoding="async" loading="eager" fetchpriority="high"></div><div class="product-detail-copy"><p class="eyebrow">${escapeHtml(product.brand)} skincare</p><h1>${escapeHtml(product.name)}</h1><p class="lead">${escapeHtml(summary)}</p>${categoryLinks ? `<p>Categories: ${categoryLinks}</p>` : ""}</div></section>`;
+  const serverContent = globalThis.LullubelleProductMarkup(product, (content.products || []).filter(p => publicProduct(p) && p.id !== product.id && p.brand === product.brand).slice(0,3), content.deliverySettings);
   html = html.replace(/(<main\s+id="main-content"\s+data-product-detail>)[\s\S]*?(<\/main>)/i, `$1${serverContent}$2`);
-  const schemas = `<script type="application/ld+json" data-server-product-schema>${safeJson(productStructuredData(product, canonical))}</script><script type="application/ld+json" data-server-breadcrumb-schema>${safeJson(breadcrumbStructuredData(product, canonical))}</script>`;
-  html = html.replace("</head>", `${schemas}</head>`);
+  html = html.replace('data-product-detail>', `data-product-detail data-rendered-product="${escapeHtml(product.id)}">`);
+  const schemas = `<script type="application/ld+json" data-server-product-schema>${safeJson(productStructuredData(product, canonical, content.deliverySettings))}</script><script type="application/ld+json" data-server-breadcrumb-schema>${safeJson(breadcrumbStructuredData(product, canonical))}</script>`;
+  html = html.replace("</head>", `${schemas}${content.products ? bootstrap(content, {mode:"product", ids:[product.id, ...(content.products || []).filter(p => publicProduct(p) && p.id !== product.id && p.brand === product.brand).slice(0,3).map(p=>p.id)]}) : ""}</head>`);
   return html;
 };
 
-export const handler = async (event) => {
-  connectBlobContext(event);
-  const content = await readContent();
-  const slug = decodeURIComponent(String(event.path || "").match(/\/products\/([^/?#]+)/)?.[1] || "");
-  const product = (content.products || []).find((item) => (item.slug || item.id) === slug && item.hidden !== true && item.active !== false && item.published !== false);
+export const productResponse = (event, content) => {
+  const lookup = event.queryStringParameters?.product || event.queryStringParameters?.id;
+  const legacy = LEGACY_PRODUCT_IDS[lookup] || lookup;
+  const slug = legacy || decodeURIComponent(String(event.path || "").match(/\/products\/([^/?#]+)/)?.[1] || "");
+  const product = (content.products || []).find((item) => ((item.slug || item.id) === slug || (legacy && item.id === slug)) && publicProduct(item));
 
   if (!product) {
     return {
@@ -112,9 +116,13 @@ export const handler = async (event) => {
     };
   }
 
+  if (legacy) return { statusCode: 301, headers: { Location: `/products/${encodeURIComponent(product.slug || product.id)}`, "Cache-Control": "no-store" }, body: "" };
+
   return {
     statusCode: 200,
     headers: mergeSecurityHeaders({ "Content-Type": "text/html; charset=UTF-8", "Cache-Control": "public, max-age=0, must-revalidate" }, htmlSecurityHeaders),
-    body: renderProductHtml(product),
+    body: renderProductHtml(product, content),
   };
 };
+
+export const handler = async event => { connectBlobContext(event); try { return productResponse(event, await readContent()); } catch { return {statusCode:503,headers:{"Content-Type":"text/html; charset=UTF-8","Retry-After":"60"},body:"<h1>Catalogue temporarily unavailable</h1>"}; } };

@@ -2,312 +2,325 @@
   command = "npm run build:verified"
   publish = "dist"
 
+
+[[redirects]]
+  from = "/shipping-policy.html"
+  to = "/.netlify/functions/content-page"
+  status = 200
+  force = true
+[[redirects]]
+  from = "/shipping-policy"
+  to = "/.netlify/functions/content-page"
+  status = 200
+  force = true
+[[redirects]]
+  from = "/cart.html"
+  to = "/.netlify/functions/content-page"
+  status = 200
+  force = true
+[[redirects]]
+  from = "/cart"
+  to = "/.netlify/functions/content-page"
+  status = 200
+  force = true
+[[redirects]]
+  from = "/skin-care-essentials.html"
+  to = "/.netlify/functions/content-page"
+  status = 200
+  force = true
+[[redirects]]
+  from = "/skin-care-essentials"
+  to = "/.netlify/functions/content-page"
+  status = 200
+  force = true
+[[redirects]]
+  from = "/before-after/index.html"
+  to = "/.netlify/functions/content-page"
+  status = 200
+  force = true
+[[redirects]]
+  from = "/before-after/"
+  to = "/.netlify/functions/content-page"
+  status = 200
+  force = true
+[[redirects]]
+  from = "/before-after"
+  to = "/.netlify/functions/content-page"
+  status = 200
+  force = true
+[[redirects]]
+  from = "/pricelist.html"
+  to = "/.netlify/functions/content-page"
+  status = 200
+  force = true
+[[redirects]]
+  from = "/pricelist"
+  to = "/.netlify/functions/content-page"
+  status = 200
+  force = true
+[[redirects]]
+  from = "/index.html"
+  to = "/.netlify/functions/content-page"
+  status = 200
+  force = true
+[[redirects]]
+  from = "/"
+  to = "/.netlify/functions/content-page"
+  status = 200
+  force = true
 [[redirects]]
   from = "/tools/*"
   to = "/index.html"
   status = 404
   force = true
-
 [[redirects]]
   from = "/Docs/*"
   to = "/index.html"
   status = 404
   force = true
-
 [[redirects]]
   from = "/docs/*"
   to = "/index.html"
   status = 404
   force = true
-
 [[redirects]]
   from = "/reports/*"
   to = "/index.html"
   status = 404
   force = true
-
 [[redirects]]
   from = "/tests/*"
   to = "/index.html"
   status = 404
   force = true
-
 [[redirects]]
   from = "/scripts/*"
   to = "/index.html"
   status = 404
   force = true
-
 [[redirects]]
   from = "/migrations/*"
   to = "/index.html"
   status = 404
   force = true
-
 [[redirects]]
   from = "/node_modules/*"
   to = "/index.html"
   status = 404
   force = true
-
 [[redirects]]
   from = "/"
   to = "/index.html"
   status = 200
-
 [[redirects]]
   from = "/admin"
   to = "/admin/index.html"
   status = 200
-
 [[redirects]]
   from = "/admin/"
   to = "/admin/index.html"
   status = 200
-
 [[redirects]]
   from = "/before-after"
   to = "/before-after/index.html"
   status = 200
-
 [[redirects]]
   from = "/before-after/"
   to = "/before-after/index.html"
   status = 200
-
 [functions]
   directory = "netlify/functions"
-  included_files = ["data/*.json", "product.html", "shop.html"]
-
+  included_files = ["data/*.json", "*.html", "before-after/index.html", "public/product-markup.js", "public/catalogue-card.js"]
 [[redirects]]
   from = "/sitemap.xml"
   to = "/.netlify/functions/sitemap"
   status = 200
   force = true
-
 [[redirects]]
   from = "/book-appointment"
   to = "/book-appointment.html"
   status = 200
-
 [[redirects]]
   from = "/shop"
   query = { category = "Tinted Treatment Moisturiser" }
   to = "/shop?category=Tinted%20SPF"
   status = 301
   force = true
-
 [[redirects]]
   from = "/shop"
   query = { category = "Tinted Treatment Moisturisers" }
   to = "/shop?category=Tinted%20SPF"
   status = 301
   force = true
-
 [[redirects]]
   from = "/shop"
   query = { category = "Treatment Eye Care" }
   to = "/shop?category=Treatment"
   status = 301
   force = true
-
 [[redirects]]
   from = "/shop"
   query = { category = "Correct Gels and Lotions" }
   to = "/shop?category=Correcting%20Gels"
   status = 301
   force = true
-
 [[redirects]]
   from = "/shop"
   query = { category = "Corrects, Gels and Lotions" }
   to = "/shop?category=Correcting%20Gels"
   status = 301
   force = true
-
 [[redirects]]
   from = "/shop"
   query = { category = "De-Age Complex Treatments" }
   to = "/shop?category=Anti-Aging"
   status = 301
   force = true
-
 [[redirects]]
   from = "/shop"
   query = { category = "De-age Complex Treatments" }
   to = "/shop?category=Anti-Aging"
   status = 301
   force = true
-
 [[redirects]]
   from = "/shop"
   query = { category = "Rescue and Restore" }
   to = "/shop?category=all"
   status = 301
   force = true
-
 [[redirects]]
   from = "/shop"
   query = { category = "Rescue + Restore" }
   to = "/shop?category=all"
   status = 301
   force = true
-
 [[redirects]]
   from = "/shop"
   query = { category = "Glassglow Treatment Products" }
   to = "/shop?category=all"
   status = 301
   force = true
-
 [[redirects]]
   from = "/shop"
   to = "/.netlify/functions/shop-page"
   status = 200
-
+  force = true
 [[redirects]]
   from = "/products/*"
   to = "/.netlify/functions/product-page"
   status = 200
-
 [[redirects]]
   from = "/product"
-  to = "/product.html"
+  to = "/.netlify/functions/product-page"
   status = 200
-
+  force = true
 [[redirects]]
   from = "/pricelist"
   to = "/pricelist.html"
   status = 200
-
 [[redirects]]
   from = "/gift-vouchers"
   to = "/gift-vouchers.html"
   status = 200
-
 [[redirects]]
   from = "/refund-policy"
   to = "/refund-policy.html"
   status = 200
-
 [[redirects]]
   from = "/shipping-policy"
   to = "/shipping-policy.html"
   status = 200
-
 [[redirects]]
   from = "/privacy-policy"
   to = "/privacy-policy.html"
   status = 200
-
 [[redirects]]
   from = "/beauty-salon-centurion"
   to = "/beauty-salon-centurion.html"
   status = 200
-
 [[redirects]]
   from = "/advanced-facials-centurion"
   to = "/facial-treatments-centurion"
   status = 301
-
 [[redirects]]
   from = "/facial-treatments-centurion"
   to = "/facial-treatments-centurion.html"
   status = 200
-
 [[redirects]]
   from = "/microneedling-centurion"
   to = "/microneedling-centurion.html"
   status = 200
-
 [[redirects]]
   from = "/cosmelan-centurion"
   to = "/cosmelan-centurion.html"
   status = 200
-
 [[redirects]]
   from = "/epilfree-centurion"
   to = "/epilfree-hair-removal-centurion.html"
   status = 200
-
 [[redirects]]
   from = "/epilfree-hair-removal-centurion"
   to = "/epilfree-centurion"
   status = 301
   force = true
-
 [[redirects]]
   from = "/epilfree-hair-removal-centurion.html"
   to = "/epilfree-centurion"
   status = 301
   force = true
-
 [[redirects]]
   from = "/skin-consultations"
   to = "/skin-consultation-centurion"
   status = 301
-
 [[redirects]]
   from = "/skin-consultation-centurion"
   to = "/skin-consultation-centurion.html"
   status = 200
-
 [[redirects]]
   from = "/massage-centurion"
   to = "/massage-centurion.html"
   status = 200
-
 [[redirects]]
   from = "/waxing-centurion"
   to = "/waxing-centurion.html"
   status = 200
-
 [[redirects]]
   from = "/cart"
   to = "/cart.html"
   status = 200
-
 [[redirects]]
   from = "/skin-care-essentials"
   to = "/skin-care-essentials.html"
   status = 200
-
 [[redirects]]
   from = "/nail-care-kit"
   to = "/nail-care-kit.html"
   status = 200
-
 [[redirects]]
   from = "/lash-brow-care"
   to = "/lash-brow-care.html"
   status = 200
-
 [[redirects]]
   from = "/body-care-gift-set"
   to = "/body-care-gift-set.html"
   status = 200
-
 [[redirects]]
   from = "/payment-success"
   to = "/payment-success.html"
   status = 200
-
 [[redirects]]
   from = "/payment-cancelled"
   to = "/payment-cancelled.html"
   status = 200
-
 [[headers]]
   for = "/admin/*"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
     Cache-Control = "no-store"
-
 [[headers]]
   for = "/admin/admin.js"
   [headers.values]
     Cache-Control = "no-cache, no-store, must-revalidate"
-
 [[headers]]
   for = "/*"
   [headers.values]
@@ -321,28 +334,42 @@
     Permissions-Policy = "camera=(), geolocation=(), microphone=(), payment=(), usb=()"
     Content-Security-Policy = "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; style-src-attr 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://www.google.com https://www.googletagmanager.com; media-src 'self' blob:; frame-src 'none'; child-src 'none'; worker-src 'self' blob:; manifest-src 'self'; upgrade-insecure-requests"
     Cache-Control = "public, max-age=0, must-revalidate"
-
 [[headers]]
   for = "/*.html"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
-
 [[headers]]
   for = "/*.css"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
-
 [[headers]]
   for = "/*.js"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
-
 [[headers]]
   for = "/brand-logos/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
-
 [[headers]]
   for = "/*.webp"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+[[redirects]]
+  from = "/shop/*"
+  to = "/.netlify/functions/shop-page"
+  status = 200
+  force = true
+[[redirects]]
+  from = "/product.html"
+  to = "/.netlify/functions/product-page"
+  status = 200
+  force = true
+
+[functions."retry-order-notifications"]
+  schedule = "*/5 * * * *"
+
+[[redirects]]
+  from = "/shop.html"
+  to = "/.netlify/functions/shop-page"
+  status = 200
+  force = true

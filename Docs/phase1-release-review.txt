@@ -1,0 +1,78 @@
+Lullubelle Phase 1 release runbook — OWNER REVIEW REQUIRED
+
+No production deployment, catalogue write, order, charge or live email was made
+during implementation. The existing 163-record captured catalogue remains the
+test authority; the repository's older seed is not a replacement production feed.
+
+Before an owner-approved deployment
+1. Review the complete Phase 1 evidence report and git diff.
+2. Configure server-only RESEND_API_KEY and ORDER_NOTIFICATION_FROM with a
+   verified sender. ORDER_NOTIFICATION_TO is optional; its default is the
+   existing business email in homepage business schema. Never expose these
+   variables through window configuration, public assets or analytics.
+3. Review the Resend sender/domain setup separately. No DNS changes have been
+   performed. No old-domain recovery or redirect is required for this release.
+4. Confirm managed delivery settings still reflect the approved configuration.
+   Shipping schema reads those settings; do not replace them with the seed.
+5. Re-run npm run check, npm run build:verified, npm run test:browser and the
+   captured-catalogue Phase 1 tests. PHASE1_CATALOGUE_SNAPSHOT and
+   PRODUCT_SEO_COMPARISON_SNAPSHOT point to an owner-controlled snapshot.
+6. Use an isolated deployment preview/test transport, not production orders,
+   for checkout and notification acceptance. The local review server blocks
+   persistence and payment endpoints. Do not run reconciliation with --apply.
+
+After explicit owner deployment approval
+1. Deploy the reviewed source/build through the existing Netlify workflow.
+   Keep the previous deploy available for rollback. No content-store migration,
+   catalogue import, price update or historical-order mutation is required.
+2. Verify forced SSR route handling on the real Netlify deployment, especially
+   /shop, /shop.html, /shop?category=Prepare, /shop/kalahari, /product?product=ID,
+   /pricelist, /before-after/, /cart and /shipping-policy. The isolated server
+   proves rendering logic but cannot prove deployed platform rewrite behavior.
+3. Check all currently visible product URLs against a fresh read-only snapshot,
+   their self-canonicals and authoritative visible/schema/cart prices.
+4. Check sitemap.xml, robots.txt and private/cart/checkout exclusions.
+5. Check PUDO fee/free basket threshold, door fee and collection against managed
+   settings. Repeat mobile screenshots and production Lighthouse checks.
+6. Use Google Rich Results Test for Product offers and global shipping policy.
+   Then request Search Console shippingDetails validation. Local assertions do
+   not prove Search Console acceptance. Return-policy schema is intentionally
+   absent pending owner decisions; product reviews/ratings are also absent.
+7. Verify GA4 DebugView on an approved test journey without PII. A verified Paid
+   server receipt is required for purchase. Browser storage deduplication does
+   not promise cross-device exactly-once analytics or delivery after consent/
+   network failure; no live GA4 data-flow claim is made.
+8. Confirm the first approved genuine Paid order yields one business email.
+   Do not label payment-pending checkout attempts Paid. Notifications are sent
+   only for new versioned orders with authoritative server payment verification.
+
+Notification diagnosis and retry
+The order/payment transition is durable before notification handling. A separate
+Blob notification record contains an immutable email payload, provider key,
+attempts, lease, sanitized error code and delivery state. Webhook/reconciliation
+and the five-minute scheduled retry use the same function and CAS claim.
+Authenticated admin-api GET action=order-notifications exposes safe state;
+POST action=retry-order-notification with orderNumber retries the same key.
+Notification failures preserve order/payment state and never charge again.
+Resend's idempotency window is 24 hours. Ambiguous attempts older than 23 hours
+enter manual-review; investigate provider delivery before any manual resend.
+Never delete a sent/ambiguous notification record to force another email.
+The admin order link requires the existing admin authentication.
+
+Outstanding owner decisions
+- Return policy remains faulty/damaged/incorrect products reported within seven
+  days. Change-of-mind eligibility, return method and return shipping payer are
+  unspecified. Do not encode hasMerchantReturnPolicy until approved.
+- Kalahari Treatment Lip Glaze PRM20 has no approved product photograph. Its
+  generic UI placeholder is retained but omitted from Product image markup;
+  exclude it from Merchant submissions pending genuine imagery.
+- Nail Care Kit, Lash & Brow Care and Body Care Gift Set are enquiry-only as
+  approved, with no purchasable/catalogue Offer fabricated.
+- No genuine product-specific reviews exist; optional review/aggregateRating
+  warnings remain intentionally unresolved.
+
+Rollback
+Roll back the Netlify deploy if routing, checkout, catalogue availability,
+responsive layout or performance fails acceptance. Do not restore the old
+catalogue seed over managed production data. Notification records preserve
+delivery diagnosis; historical orders remain intact.

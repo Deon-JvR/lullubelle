@@ -1,3 +1,5 @@
+import { notifyPaidOrder } from "./_order-notification.mjs";
+import { saleProduct } from "./_public-catalogue.mjs";
 import {
   ORDERS_KEY,
   connectBlobContext,
@@ -194,7 +196,7 @@ export const buildIkhokhaPayload = ({ base, order }) => {
     requesterUrl: base,
     urls: {
       callbackUrl: `${base}/.netlify/functions/ikhokha-checkout?action=confirm&order=${encodedOrder}`,
-      successPageUrl: `${base}/payment-success?order=${encodedOrder}`,
+      successPageUrl: `${base}/payment-success?order=${encodedOrder}${order.analyticsAccessToken ? `&token=${encodeURIComponent(order.analyticsAccessToken)}` : ""}`,
       failurePageUrl: `${base}/payment-cancelled?order=${encodedOrder}`,
       cancelUrl: `${base}/payment-cancelled?order=${encodedOrder}`,
     },
@@ -294,9 +296,8 @@ export const extractPaylinkId = (payload = {}) => {
   return String(objectValue(payload, ["paylinkID", "paylinkId", "paylink_id"]) || "").trim();
 };
 
-const buildCatalog = async () => {
-  const content = await readContent();
-  const productEntries = (content.products || []).map((product) => [
+export const checkoutCatalogue = (content) => {
+  const productEntries = (content.products || []).filter(saleProduct).map((product) => [
     product.id,
     {
       id: product.id,
@@ -307,7 +308,7 @@ const buildCatalog = async () => {
       categories: Array.isArray(product.categories) ? product.categories : [],
     },
   ]);
-  const voucherEntries = (content.vouchers || []).map((voucher) => [
+  const voucherEntries = (content.vouchers || []).filter(p => p.hidden !== true && p.active !== false && p.published !== false && Number(p.amount) > 0).map((voucher) => [
     voucher.id,
     {
       id: voucher.id,
@@ -324,7 +325,7 @@ const normaliseItems = async (items) => {
     throw new Error("Your cart is empty.");
   }
 
-  const catalog = await buildCatalog();
+  const catalog = checkoutCatalogue(await readContent());
   return items.map((item) => {
     const quantity = Math.max(1, Math.min(99, Number.parseInt(item.quantity, 10) || 1));
     const catalogItem = catalog.get(item.id);
@@ -349,6 +350,8 @@ const normaliseItems = async (items) => {
 const createPendingOrder = async ({ customer, delivery, address, notes, products, subtotal, originalSubtotal, discount, deliveryFee, deliveryCalculation, total, paymentReference, reservationId, paymentAttemptId, fingerprint }) => {
   const order = {
     id: newId("order"),
+    newOrderNotificationVersion: 1,
+    analyticsAccessToken: randomUUID(),
     orderNumber: paymentReference,
     externalTransactionID: paymentReference,
     paymentAttemptId,
@@ -540,7 +543,7 @@ const markOrderPaid = async (orderNumber, providerPayload) => {
   const providerPaidAt = objectValue(providerPayload, ["paidAt", "paid_at"]);
   const now = new Date().toISOString();
   let updated = false;
-  await mutateOrders((orders) => {
+  const committedOrders = await mutateOrders((orders) => {
     const index = findPaymentOrderIndex(orders, providerPayload, orderNumber);
     if (index === -1) return orders;
     const order = orders[index];
@@ -571,7 +574,8 @@ const markOrderPaid = async (orderNumber, providerPayload) => {
     return orders;
   });
   if (updated) {
-    const paidOrder = (await readList(ORDERS_KEY)).find((order) => normaliseReference(order.externalTransactionID || order.orderNumber) === normaliseReference(extractPaymentReference(providerPayload) || orderNumber));
+    const paidOrder = committedOrders.find((order) => normaliseReference(order.externalTransactionID || order.orderNumber) === normaliseReference(extractPaymentReference(providerPayload) || orderNumber));
+    if (paidOrder) await notifyPaidOrder(paidOrder);
     if (paidOrder?.paymentAttemptId && String(paidOrder.paymentStatus).toLowerCase() === "paid") {
       const recordKey = attemptKey(paidOrder.paymentAttemptId);
       const attempt = await readPaymentAttempt(recordKey);
@@ -925,7 +929,7 @@ export const handler = async (event) => {
       testMode,
     });
   } catch (error) {
-    return json(error.diagnostic ? 502 : 400, {
+    return json(error.statusCode || (error.diagnostic ? 502 : 400), {
       error: error.message || "Unable to start iKhokha checkout.",
       diagnostic: error.diagnostic || {
         step: "Checkout function",

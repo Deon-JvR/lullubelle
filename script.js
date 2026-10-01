@@ -4,6 +4,7 @@ const bookingForm = document.querySelector("[data-booking-form]");
 const appointmentBookingForm = document.querySelector("[data-appointment-booking-form]");
 const consultationCartForm = document.querySelector("[data-consultation-cart-form]");
 const config = window.LULLUBELLE_CONFIG || {};
+const pendingAnalyticsEvents = [];
 const analyticsId = config.googleAnalyticsId || "G-7PG6BZR9QV";
 
 const injectLegalFooterLinks = () => {
@@ -31,7 +32,8 @@ const loadAnalytics = () => {
     window.dataLayer.push(arguments);
   };
   window.gtag("js", new Date());
-  window.gtag("config", analyticsId);
+  window.gtag("config", analyticsId, { page_location: `${window.location.origin}${window.location.pathname}` });
+  pendingAnalyticsEvents.splice(0).forEach(([name, parameters]) => window.gtag("event", name, parameters));
 
   const script = document.createElement("script");
   script.async = true;
@@ -49,10 +51,37 @@ window.addEventListener("load", () => {
 
 const isMissing = (value) => !value;
 
+const analyticsItem = p => ({item_id:/^online-skin-consultation/.test(p.id || "") ? "online-skin-consultation" : p.id, item_name:p.name, item_brand:p.brand, price:Number(p.price), quantity:Number(p.quantity || 1)});
 const trackEvent = (eventName, parameters = {}) => {
-  if (typeof window.gtag === "function" && !isMissing(analyticsId)) {
-    window.gtag("event", eventName, parameters);
+  if (isMissing(analyticsId)) return;
+  // Explicit allowlist: never forward names, contact details, appointment dates,
+  // notes, WhatsApp text, receipt tokens or arbitrary user-supplied query strings.
+  const allowed = new Set(["currency","value","items","transaction_id","shipping","item_list_id","item_list_name","shipping_tier","payment_type","form_name","request_type","supplier","payment_provider","page_path","cta_type"]);
+  const safe = Object.fromEntries(Object.entries(parameters).filter(([key]) => allowed.has(key)));
+  if (typeof window.gtag === "function") window.gtag("event", eventName, safe);
+  else pendingAnalyticsEvents.push([eventName, safe]);
+};
+const trackCommerce = (name, products, extra = {}) => trackEvent(name, {currency:"ZAR",value:products.reduce((sum,p)=>sum+Number(p.price)*Number(p.quantity || 1),0),items:products.map(analyticsItem),...extra});
+const trackVerifiedPurchase = async () => {
+  if (!/payment-success/.test(window.location.pathname)) return;
+  const q=new URLSearchParams(window.location.search);
+  if (!q.get("order") || !q.get("token")) return;
+  let receipt;
+  for (let attempt=0;attempt<15;attempt++) {
+    const response=await fetch(`/.netlify/functions/order-receipt?${q}`,{cache:"no-store"});
+    if (!response.ok) return;
+    receipt=await response.json();
+    if (receipt.status === "paid") break;
+    if (attempt<14) await new Promise(resolve=>setTimeout(resolve,2000));
   }
+  if (receipt?.status !== "paid") return;
+  const confirmation=document.querySelector(".section-heading .eyebrow");
+  if (confirmation) confirmation.textContent="Payment confirmed";
+  const key=`lullubellePurchase:${receipt.transaction_id}`;
+  if (localStorage.getItem(key)) return;
+  trackEvent("purchase",receipt);
+  localStorage.setItem(key,"sent");
+  clearCart();
 };
 
 const setupBrandFilters = () => {
@@ -173,6 +202,7 @@ const appendStructuredData = (key, data) => {
 };
 
 const syncProductSchemas = (scope = document) => {
+  if (document.querySelector("[data-product-detail]")) return;
   const buttons = Array.from(scope.querySelectorAll("[data-managed-cart-add], [data-product-detail-cart]"));
   const hasStaticProductSchema = Array.from(document.querySelectorAll('script[type="application/ld+json"]'))
     .some((node) => !node.dataset.productSchema && node.textContent.includes('"@type": "Product"'));
@@ -184,26 +214,28 @@ const syncProductSchemas = (scope = document) => {
     const card = button.closest("article") || button.parentElement;
     const image = button.dataset.productImage || card?.querySelector("img")?.getAttribute("src") || "lullubelle-logo.jpg";
     const description = card?.querySelector("p")?.textContent?.trim() || `${button.dataset.productName} available from Lullubelle Beauty Specialist.`;
-    const brand = (button.dataset.productName || "").split(" ")[0] || "Lullubelle";
+    const managed = (window.LULLUBELLE_CURRENT_CONTENT || window.LULLUBELLE_INITIAL_CONTENT)?.products?.find(p=>p.id===id);
+    const brand = managed?.brand || card?.querySelector(".product-brand-badge")?.textContent?.trim() || (button.dataset.productName || "").split(" ")[0] || "Lullubelle";
     const node = document.createElement("script");
     node.type = "application/ld+json";
     node.dataset.productSchema = id;
     node.textContent = JSON.stringify({
       "@context": "https://schema.org",
       "@type": "Product",
-      name: button.dataset.productName,
+      name: managed?.name || button.dataset.productName,
       description,
-      image: new URL(image, window.location.href).href,
-      sku: button.dataset.productSku || id,
+      image: /catalogue-product\.svg|product-image-coming-soon|placeholder|lullubelle-logo/i.test(image) ? undefined : new URL(image, "https://www.lullubelle.co.za/").href,
+      sku: managed?.sku || button.dataset.productSku || id,
       brand: { "@type": "Brand", name: brand },
       category: card?.dataset.productCategoryNames || undefined,
       offers: {
         "@type": "Offer",
-        url: `${window.location.origin}${productDetailUrl(id)}`,
+        url: `https://www.lullubelle.co.za${productDetailUrl(managed?.slug || id)}`,
         priceCurrency: "ZAR",
         price: Number(button.dataset.productPrice) || 0,
-        availability: "https://schema.org/InStock",
+        availability: /out/i.test(managed?.stockStatus || "") ? "https://schema.org/OutOfStock" : /coming|pre.?order/i.test(managed?.stockStatus || "") ? "https://schema.org/PreOrder" : "https://schema.org/InStock",
         itemCondition: "https://schema.org/NewCondition",
+        ...(window.LULLUBELLE_INITIAL_CONTENT?.deliverySettings ? {shippingDetails:merchantShippingDetails(Number(button.dataset.productPrice))} : {}),
       },
     });
     document.head.appendChild(node);
@@ -246,17 +278,18 @@ const setupShopCatalogue = (content) => {
   if (!tabs || !payments || !brands.length) return;
 
   const parameters = new URLSearchParams(window.location.search);
-  const requestedBrand = parameters.get("brand");
+  const requestedBrand = parameters.get("brand") || window.location.pathname.match(/^\/shop\/([^/]+)/)?.[1]?.replace("launch-bundles", "new-brand");
   const requestedCategory = parameters.get("category");
+  let deliberateBrand = Boolean(requestedBrand);
   let query = parameters.get("q") || "";
   let selectedBrand = brands.find((brand) => requestedBrand && (brand.id.toLowerCase() === requestedBrand.toLowerCase() || brand.name.toLowerCase() === requestedBrand.toLowerCase()))?.id
     || ((requestedCategory || query) ? "all" : brands[0].id);
   let selectedCategory = requestedCategory || "all";
   const categories = Array.isArray(content?.productCategories) ? content.productCategories : [];
 
-  tabs.innerHTML = [{ id: "all", name: "All Products" }, ...brands].map((brand) => `<button class="supplier-tab ${brand.id === selectedBrand ? "is-active" : ""}" type="button" data-brand-filter="${escapeHtml(brand.id)}" aria-pressed="${brand.id === selectedBrand ? "true" : "false"}">${escapeHtml(brand.name)}</button>`).join("");
+  tabs.innerHTML = [{ id: "all", name: "All Products" }, ...brands].map((brand) => `<a class="supplier-tab ${brand.id === selectedBrand ? "is-active" : ""}" href="${brand.id === "all" ? "/shop?category=all" : `/shop/${brand.id === "new-brand" ? "launch-bundles" : encodeURIComponent(brand.id)}`}" role="tab" data-brand-filter="${escapeHtml(brand.id)}" aria-selected="${brand.id === selectedBrand ? "true" : "false"}">${escapeHtml(brand.name)}</a>`).join("");
   document.querySelectorAll("[data-brand-panel]").forEach((panel) => panel.remove());
-  payments.insertAdjacentHTML("beforebegin", `<section class="section product-price-section" data-shop-catalogue>
+  if (!document.querySelector("[data-shop-catalogue]")) payments.insertAdjacentHTML("beforebegin", `<section class="section product-price-section" data-shop-catalogue>
     <div class="section-heading" data-shop-catalogue-heading></div>
     <div class="shop-catalogue-tools">
       <label>Search products<input type="search" value="${escapeHtml(query)}" placeholder="Search by product, SKU or keyword" data-shop-product-search></label>
@@ -279,6 +312,7 @@ const setupShopCatalogue = (content) => {
 
   const updateUrl = () => {
     const next = new URL(window.location.href);
+    next.pathname = "/shop";
     if (selectedBrand === "all") next.searchParams.delete("brand"); else next.searchParams.set("brand", selectedBrand);
     if (selectedCategory === "all") next.searchParams.delete("category"); else next.searchParams.set("category", selectedCategory);
     if (query.trim()) next.searchParams.set("q", query.trim()); else next.searchParams.delete("q");
@@ -297,16 +331,19 @@ const setupShopCatalogue = (content) => {
       return brandMatch && categoryMatch && searchMatch;
     });
     const title = selectedCategory !== "all" ? `${selectedCategory} products${brand ? ` from ${brand.name}` : ""}` : brand ? `${brand.name} products` : "All products";
-    const description = selectedCategory !== "all" ? `Browse Lullubelle products assigned to the ${selectedCategory} category. Compare available brands and open each product for its current details.` : "Browse current products available through Lullubelle.";
+    const description = selectedCategory !== "all" ? `Browse Lullubelle products assigned to the ${selectedCategory} category. Compare available brands and open each product for its current details.` : deliberateBrand && brand ? `Browse the current ${brand.name} range at Lullubelle Beauty Specialist in Centurion. View product details and current catalogue prices.` : "Browse current products available through Lullubelle.";
     heading.innerHTML = `<p class="eyebrow">Product catalogue</p><h2>${escapeHtml(title)}</h2><p>${escapeHtml(description)}</p>`;
-    const pageTitle = selectedCategory !== "all" ? `${selectedCategory} Skincare Products | Lullubelle` : "Shop Skin Products | Lullubelle Beauty Specialist Centurion";
+    const pageTitle = selectedCategory !== "all" ? `${selectedCategory} Skincare Products | Lullubelle` : deliberateBrand && brand ? `${brand.name} Skincare Products | Lullubelle` : "Shop Skin Products | Lullubelle Beauty Specialist Centurion";
     document.title = pageTitle;
-    if (shopHeroHeading) shopHeroHeading.textContent = selectedCategory !== "all" ? `${selectedCategory} skincare products` : "Invest in your skin.";
-    if (shopHeroDescription) shopHeroDescription.textContent = selectedCategory !== "all" ? description : "Choose a professional skincare range for your home-care routine.";
+    if (shopHeroHeading) shopHeroHeading.textContent = selectedCategory !== "all" ? `${selectedCategory} skincare products` : deliberateBrand && brand ? `${brand.name} products` : "Invest in your skin.";
+    if (shopHeroDescription) shopHeroDescription.textContent = selectedCategory !== "all" || deliberateBrand ? description : "Choose a professional skincare range for your home-care routine.";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) metaDescription.content = description;
     const canonical = document.querySelector('link[rel="canonical"]');
-    if (canonical) canonical.href = selectedCategory !== "all" ? `${window.location.origin}/shop?category=${encodeURIComponent(selectedCategory)}` : `${window.location.origin}/shop`;
+    if (canonical) canonical.href = deliberateBrand && brand ? `https://www.lullubelle.co.za/shop/${brand.id === "new-brand" ? "launch-bundles" : brand.id}` : selectedCategory !== "all" ? `https://www.lullubelle.co.za/shop?category=${encodeURIComponent(selectedCategory)}` : "https://www.lullubelle.co.za/shop";
+    let robots = document.querySelector('meta[name="robots"]');
+    if (!robots) { robots = document.createElement("meta"); robots.name = "robots"; document.head.append(robots); }
+    robots.content = query.trim() || (brand && selectedCategory !== "all") ? "noindex,follow" : "index,follow";
     setMetaContent('meta[property="og:title"]', pageTitle);
     setMetaContent('meta[property="og:description"]', description);
     setMetaContent('meta[property="og:url"]', canonical?.href || `${window.location.origin}/shop`);
@@ -317,13 +354,16 @@ const setupShopCatalogue = (content) => {
     tabs.querySelectorAll("[data-brand-filter]").forEach((button) => {
       const active = button.dataset.brandFilter === selectedBrand;
       button.classList.toggle("is-active", active);
-      button.setAttribute("aria-pressed", String(active));
+      button.setAttribute("aria-selected", String(active));
     });
     bindProductButtons(grid);
     syncProductSchemas(grid);
+    trackCommerce("view_item_list", filtered, {item_list_id: brand?.id || selectedCategory, item_list_name:title});
   };
 
-  tabs.querySelectorAll("[data-brand-filter]").forEach((button) => button.addEventListener("click", () => {
+  tabs.querySelectorAll("[data-brand-filter]").forEach((button) => button.addEventListener("click", (event) => {
+    event.preventDefault();
+    deliberateBrand = true;
     selectedBrand = button.dataset.brandFilter;
     updateUrl();
     render();
@@ -347,7 +387,7 @@ const setupHomepageBrands = (content) => {
     const description = productCount
       ? `${productCount} ${productCount === 1 ? "product" : "products"}`
       : "Professional skincare range";
-    return `<a class="shop-brand-card" href="/shop?brand=${encodeURIComponent(brand.id || brand.name)}"><span>${escapeHtml(brand.name)}</span><small>${escapeHtml(description)}</small></a>`;
+    return `<a class="shop-brand-card" href="/shop/${encodeURIComponent(brand.id === "new-brand" ? "launch-bundles" : brand.id || brand.name.toLowerCase())}"><span>${escapeHtml(brand.name)}</span><small>${escapeHtml(description)}</small></a>`;
   }).join("");
 };
 
@@ -387,7 +427,7 @@ const setupFeaturedProducts = (content) => {
   const grid = document.querySelector("[data-featured-products]");
   if (!grid) return;
 
-  const products = getVisibleManagedItems(content?.products).map(normaliseManagedProduct);
+  const products = getActiveCatalogueProducts(content?.products).map(normaliseManagedProduct);
   const featured = selectFeaturedProducts(products, content?.brands);
 
   if (!featured.length) {
@@ -395,26 +435,18 @@ const setupFeaturedProducts = (content) => {
     return;
   }
 
-  grid.innerHTML = featured.slice(0, 8).map((product, index) => `
-    <article class="product-card featured-product-card home-product-card">
-      <a class="product-card__image-wrap featured-product-image" href="${escapeHtml(productDetailUrl(product.id))}" aria-label="View ${escapeHtml(product.brand)} ${escapeHtml(product.name)}">
-        ${product.bestSeller ? '<span class="product-status-badge">Best Seller</span>' : product.featured ? '<span class="product-status-badge">Featured</span>' : ""}
-        <img class="product-card__image" src="${escapeHtml(product.image)}" alt="${escapeHtml(product.imageAlt)}" width="650" height="650" decoding="async" loading="${index < 4 ? "eager" : "lazy"}"${index < 4 ? ' fetchpriority="high"' : ""}>
-      </a>
-      <div class="product-card__content">
-        <span class="product-brand-badge" data-brand="${escapeHtml(product.brand.toLowerCase())}">${escapeHtml(product.brand)}</span>
-        <h3 class="product-card__title" title="${escapeHtml(product.name)}">${escapeHtml(product.name)}</h3>
-        <strong class="product-card__price">${formatCurrency(product.price)}</strong>
-        <p class="product-description">${escapeHtml(product.benefit)}</p>
-        <div class="product-card__actions featured-product-actions">
-          <button class="button secondary" type="button" data-managed-cart-add data-product-id="${escapeHtml(product.id)}" data-product-name="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" data-product-price="${Number(product.price)}" data-product-image="${escapeHtml(product.image)}"${isPurchasable(product) ? "" : " disabled"}>${isPurchasable(product) ? "Add to Cart" : escapeHtml(stockLabel(product.stockStatus))}</button>
-          <a class="text-link" href="${escapeHtml(productDetailUrl(product.id))}">View Product</a>
-        </div>
-      </div>
-    </article>`).join("");
+  const selected = featured.slice(0, 8);
+  const renderedButtons = [...grid.querySelectorAll("[data-managed-cart-add]")];
+  const matchesInitial = content === window.LULLUBELLE_INITIAL_CONTENT
+    && renderedButtons.length === selected.length
+    && renderedButtons.every((button, index) => button.dataset.productId === selected[index].id
+      && Number(button.dataset.productPrice) === Number(selected[index].price));
+  if (!matchesInitial) grid.innerHTML = selected.map(window.LullubelleFeaturedCard).join("");
 
   bindProductButtons(grid);
   syncProductSchemas(grid);
+
+  trackCommerce("view_item_list", featured.slice(0, 8), {item_list_id:"homepage_featured",item_list_name:"Featured products"});
 
   const previousButton = document.querySelector("[data-featured-carousel-prev]");
   const nextButton = document.querySelector("[data-featured-carousel-next]");
@@ -450,7 +482,7 @@ const DOOR_TO_DOOR_METHOD = "door_to_door_flat_rate";
 const DOOR_TO_DOOR_FEE = 80;
 const SUPPORTED_DELIVERY_METHODS = new Set(["collection", "pudo", DOOR_TO_DOOR_METHOD]);
 const DEFAULT_DELIVERY_SETTINGS = { freeDeliveryThreshold: 1000, standardPudoFee: 80, collectionEnabled: true };
-let deliverySettings = { ...DEFAULT_DELIVERY_SETTINGS };
+let deliverySettings = { ...DEFAULT_DELIVERY_SETTINGS, ...window.LULLUBELLE_INITIAL_CONTENT?.deliverySettings };
 let appliedPromo = { code: localStorage.getItem(PROMO_KEY) || "", discountAmount: 0, productDiscount: 0, deliveryFee: null, total: null };
 const currencyFormatter = new Intl.NumberFormat("en-ZA", {
   style: "currency",
@@ -459,6 +491,7 @@ const currencyFormatter = new Intl.NumberFormat("en-ZA", {
   maximumFractionDigits: 2,
 });
 
+const merchantShippingDetails = () => ["pudo","door"].map(method=>({"@type":"OfferShippingDetails",hasShippingService:{"@id":`https://www.lullubelle.co.za/shipping-policy#${method}`}}));
 const formatCurrency = (value) => currencyFormatter.format(Number(value) || 0).replace("ZAR", "R").replace(/\s/g, "").replace(",", ".");
 
 const escapeHtml = (value = "") => String(value)
@@ -476,7 +509,17 @@ const loadStaticContent = async () => {
       const response = await fetch(`/data/${name}.json`, { headers: { Accept: "application/json" } });
       if (!response.ok) return [];
       const items = await response.json();
-      return Array.isArray(items) ? items : [];
+      if (!Array.isArray(items)) return [];
+    const content=window.LULLUBELLE_INITIAL_CONTENT;
+    if (!content?.completeCatalogue) return items;
+    return items.map(item => {
+      if (/^online-skin-consultation/.test(item.id)) return item;
+      const p=content.products.find(p=>p.id===item.id);
+      const voucher=content.vouchers?.find(p=>p.id===item.id);
+      if (voucher) return {...item,price:Number(voucher.amount),unavailable:false};
+      if (!p || !isPurchasable(p)) return {...item,unavailable:true};
+      return {...item,name:`${p.brand} ${p.name}`,price:Number(p.price),image:p.image,unavailable:false};
+    });
     } catch {
       return [];
     }
@@ -488,10 +531,12 @@ const loadStaticContent = async () => {
 };
 
 const loadManagedContent = async () => {
+  if (window.LULLUBELLE_INITIAL_CONTENT && !window.LULLUBELLE_INITIAL_CONTENT.needsCatalogueRefresh) return window.LULLUBELLE_INITIAL_CONTENT;
   if (!managedContentPromise) {
     managedContentPromise = fetch(`/.netlify/functions/admin-content?fresh=${Date.now()}`, { cache: "no-store", headers: { Accept: "application/json", "Cache-Control": "no-cache" } })
       .then((response) => response.ok ? response.json() : null)
       .then(async (content) => {
+        if (content?.publicCatalogue) return content;
         const fallback = await loadStaticContent();
         const managedProducts = Array.isArray(content?.products) ? content.products : [];
         const products = hasCompleteProductCatalogue(managedProducts, fallback.products)
@@ -510,6 +555,7 @@ const loadManagedContent = async () => {
         };
       })
       .catch(async () => {
+        if (window.LULLUBELLE_INITIAL_CONTENT) return window.LULLUBELLE_INITIAL_CONTENT;
         const fallback = await loadStaticContent();
         return {
           ...fallback,
@@ -662,7 +708,7 @@ const stockLabel = (status = "In stock") => {
   return "In stock";
 };
 
-const isPurchasable = (product) => stockLabel(product.stockStatus) === "In stock";
+const isPurchasable = (product) => product.hidden !== true && product.active !== false && product.published !== false && Number(product.price) > 0 && stockLabel(product.stockStatus) === "In stock";
 
 const bindProductButtons = (scope = document) => {
   scope.querySelectorAll("[data-managed-cart-add]").forEach((button) => {
@@ -681,29 +727,7 @@ const bindProductButtons = (scope = document) => {
   });
 };
 
-const renderManagedProductCard = (product, index = 0) => {
-  const disabled = isPurchasable(product) ? "" : " disabled";
-  const label = isPurchasable(product) ? "Add to cart" : stockLabel(product.stockStatus);
-  const badge = product.bestSeller ? "Best Seller" : product.featured ? "Featured" : "";
-  return `
-    <article class="product-card kalahari-item" data-product-id="${escapeHtml(product.id)}" data-product-sku="${escapeHtml(product.sku)}" data-product-categories="${escapeHtml(product.categories.map(slugify).join(" "))}" data-product-category-names="${escapeHtml(product.categories.join(", "))}">
-      ${badge ? `<span class="product-status-badge">${escapeHtml(badge)}</span>` : ""}
-      <div class="product-card__image-wrap product-image-wrap"><img class="product-card__image" src="${escapeHtml(product.image)}" alt="${escapeHtml(product.imageAlt)}" width="650" height="650" decoding="async" loading="${index < 4 ? "eager" : "lazy"}"${index < 4 ? ' fetchpriority="high"' : ""}></div>
-      <div class="product-card__content">
-        <span class="product-brand-badge" data-brand="${escapeHtml(product.brand.toLowerCase())}">${escapeHtml(product.brand)}</span>
-        <h3 class="product-card__title" title="${escapeHtml(product.name)}">${escapeHtml(product.name)}</h3>
-        ${product.size ? `<span class="product-size">${escapeHtml(product.size)}</span>` : ""}
-        ${product.categories.length ? `<div class="product-category-links">${product.categories.map((category) => `<a class="product-category-link" href="/shop?category=${encodeURIComponent(category)}">${escapeHtml(category)}</a>`).join(" ")}</div>` : ""}
-        <p>${escapeHtml(product.benefit)}</p>
-        <strong class="product-card__price">${formatCurrency(product.price)}</strong>
-        <span class="product-stock"><span aria-hidden="true"></span> ${escapeHtml(stockLabel(product.stockStatus))}</span>
-      </div>
-      <div class="product-card__actions product-card-actions">
-        <button class="button secondary" type="button" data-managed-cart-add data-product-id="${escapeHtml(product.id)}" data-product-sku="${escapeHtml(product.sku)}" data-product-name="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" data-product-price="${Number(product.price)}" data-product-image="${escapeHtml(product.image)}"${disabled}>${escapeHtml(label)}</button>
-        <a class="text-link" href="${escapeHtml(productDetailUrl(product.slug))}">View Product</a>
-      </div>
-    </article>`;
-};
+const renderManagedProductCard = (product,index=0) => window.LullubelleCatalogueCard(product,index);
 
 const applyManagedVouchers = (vouchers = []) => {
   const visible = getVisibleManagedItems(vouchers);
@@ -882,7 +906,7 @@ const applyManagedTreatments = (treatments = []) => {
 
   const catalogueSchema = document.querySelector("[data-service-catalogue-schema]");
   if (catalogueSchema) {
-    const offers = visible.filter((treatment) => treatment.pdfSource !== false).map((treatment) => ({
+    const offers = visible.filter((treatment) => /^R\s*[\d,.]+$/.test(treatment.price || "")).map((treatment) => ({
       "@type": "Offer",
       name: [treatment.category, treatment.group, treatment.name].filter(Boolean).join(" — "),
       priceCurrency: "ZAR",
@@ -890,7 +914,7 @@ const applyManagedTreatments = (treatments = []) => {
       itemOffered: {
         "@type": "Service",
         name: [treatment.group, treatment.name].filter(Boolean).join(" — "),
-        ...(treatment.duration ? { duration: treatment.duration } : {}),
+        provider: { "@id": "https://www.lullubelle.co.za/#business" },
       },
     }));
     catalogueSchema.textContent = JSON.stringify({
@@ -899,7 +923,6 @@ const applyManagedTreatments = (treatments = []) => {
       "@id": "https://www.lullubelle.co.za/pricelist#pricelist",
       name: "Lullubelle Beauty Specialist treatment pricelist",
       url: "https://www.lullubelle.co.za/pricelist",
-      provider: { "@id": "https://www.lullubelle.co.za/#business" },
       itemListElement: offers,
     });
   }
@@ -932,6 +955,7 @@ const applyManagedTreatments = (treatments = []) => {
 
 const applyManagedContent = (content) => {
   if (!content) return;
+  window.LULLUBELLE_CURRENT_CONTENT=content;
   setupShopCatalogue(content);
   setupHomepageBrands(content);
   setupFeaturedProducts(content);
@@ -969,7 +993,7 @@ const setMetaContent = (selector, content) => document.querySelector(selector)?.
 
 const getAllShopProducts = async () => {
   const managedContent = await loadManagedContent();
-  return getVisibleManagedItems(managedContent?.products).map(normaliseManagedProduct);
+  return getActiveCatalogueProducts(managedContent?.products).map(normaliseManagedProduct);
 };
 
 const renderProductDetailPage = async () => {
@@ -990,9 +1014,11 @@ const renderProductDetailPage = async () => {
     return;
   }
 
-  const requestedId = new URLSearchParams(window.location.search).get("product")
+  const requestedId = new URLSearchParams(window.location.search).get("product") || new URLSearchParams(window.location.search).get("id")
     || window.location.pathname.match(/^\/products\/([^/]+)\/?$/)?.[1];
-  const product = products.find((item) => item.id === requestedId || item.slug === requestedId) || products[0];
+  const product = products.find((item) => item.id === requestedId || item.slug === requestedId) ;
+  if (!product) { document.title = "Product not found | Lullubelle"; container.innerHTML = '<section class="section"><h1>Product not found</h1><a href="/shop">Back to Shop</a></section>'; document.querySelector('link[rel="canonical"]')?.remove(); return; }
+  trackCommerce("view_item", [product]);
   const related = products
     .filter((item) => item.id !== product.id && item.brand === product.brand)
     .slice(0, 3);
@@ -1015,78 +1041,8 @@ const renderProductDetailPage = async () => {
   setMetaContent('meta[name="twitter:description"]', productDescription);
   setMetaContent('meta[name="twitter:image"]', productImage);
 
-  container.innerHTML = `
-    <section class="section product-detail product-detail-page-hero">
-      <div class="product-detail-media">
-        <img class="product-detail-main-image" src="${escapeHtml(product.image)}" alt="${escapeHtml(product.imageAlt)}" width="900" height="900" decoding="async" loading="eager" fetchpriority="high">
-        ${product.galleryImages.length ? `<div class="product-detail-gallery" aria-label="Additional product images">${product.galleryImages.map((image) => `<img src="${escapeHtml(image.url)}" alt="${escapeHtml(image.alt)}" width="320" height="320" decoding="async" loading="lazy">`).join("")}</div>` : ""}
-      </div>
-      <div class="product-detail-copy">
-        <p class="eyebrow">${escapeHtml(product.brand)} skincare</p>
-        <h1>${escapeHtml(product.name)}</h1>
-        <strong>${formatCurrency(product.price)}</strong>
-        ${product.size ? `<p class="product-size">${escapeHtml(product.size)}</p>` : ""}
-        <p class="lead">${escapeHtml(product.benefit || description)}</p>
-        <div class="product-buy-actions">
-          <button class="button primary" type="button" data-product-detail-cart data-product-id="${escapeHtml(product.id)}" data-product-name="${escapeHtml(product.brand)} ${escapeHtml(product.name)}" data-product-price="${Number(product.price)}" data-product-image="${escapeHtml(product.image)}">Add to Cart</button>
-          <a class="button secondary" href="shop?brand=${encodeURIComponent(product.brandId)}">Back to ${escapeHtml(product.brand)}</a>
-        </div>
-      </div>
-    </section>
-    <section class="section product-detail-info">
-      <div class="treatment-info-grid">
-        <article>
-          <p class="eyebrow">Description</p>
-          <h2>Professional home-care support</h2>
-          <p>${escapeHtml(description)}</p>
-        </article>
-        <article>
-          <p class="eyebrow">Benefits</p>
-          <h2>Why clients choose it</h2>
-          ${product.benefits.length ? `<ul class="simple-list">${product.benefits.map((benefit) => `<li>${escapeHtml(benefit)}</li>`).join("")}</ul>` : `<p>${escapeHtml(product.benefit || description)}</p>`}
-        </article>
-        <article>
-          <p class="eyebrow">Directions</p>
-          <h2>How to use</h2>
-          <p>${escapeHtml(product.directions || "Use as directed by your skin therapist.")}</p>
-        </article>
-        <article>
-          <p class="eyebrow">Suitable skin type</p>
-          <h2>Best suited for</h2>
-          <p>${escapeHtml(product.suitable || "Selected skin routines after consultation.")}</p>
-        </article>
-      </div>
-      ${product.storage.length ? `<div class="stock-note"><h2>Storage</h2><ul class="simple-list">${product.storage.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></div>` : ""}
-      <details class="ingredients-disclosure">
-        <summary>Ingredients</summary>
-        <p>${escapeHtml(product.ingredients || "Please confirm current ingredients with Lullubelle before purchase.")}</p>
-      </details>
-    </section>
-    <section class="section related-products-section" aria-labelledby="related-products-heading">
-      <div class="section-heading">
-        <p class="eyebrow">Related products</p>
-        <h2 id="related-products-heading">Complete your routine</h2>
-      </div>
-      <div class="kalahari-grid">
-        ${related.map((item) => `
-          <article class="kalahari-item">
-            <div class="product-image-wrap"><img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.brand)} ${escapeHtml(item.name)}" width="650" height="650" decoding="async" loading="lazy"></div>
-            <span class="product-brand-badge" data-brand="${escapeHtml(item.brand.toLowerCase())}">${escapeHtml(item.brand)}</span>
-            <h3>${escapeHtml(item.name)}</h3>
-            <strong>${formatCurrency(item.price)}</strong>
-            <p>${escapeHtml(item.benefit || "Professional home care selected by Lullubelle.")}</p>
-            <div class="product-card-actions"><a class="button secondary" href="${escapeHtml(productDetailUrl(item.slug))}" data-product-navigation>View Product</a></div>
-          </article>`).join("")}
-      </div>
-    </section>
-    <section class="section faq-section">
-      <div class="section-heading"><p class="eyebrow">Product FAQ</p><h2>Before you order</h2></div>
-      <div class="faq-list">
-        <details><summary>Is this product in stock?</summary><p>Products are marked as available online, but Lullubelle confirms final stock before completing your order.</p></details>
-        <details><summary>Can I get help choosing products?</summary><p>Yes. Book a skin consultation or contact Lullubelle for personalised home-care guidance.</p></details>
-        <details><summary>Are ingredients always current?</summary><p>Brands may update formulations. Please confirm the latest ingredient list before purchase if you have sensitivities or allergies.</p></details>
-      </div>
-    </section>`;
+  const alreadyRendered = container.dataset.renderedProduct === product.id;
+  if (!alreadyRendered) container.innerHTML = window.LullubelleProductMarkup(product, related, window.LULLUBELLE_INITIAL_CONTENT?.deliverySettings);
 
   container.querySelector("[data-product-detail-cart]")?.addEventListener("click", (event) => {
     const button = event.currentTarget;
@@ -1099,18 +1055,15 @@ const renderProductDetailPage = async () => {
     button.textContent = "Added";
     window.setTimeout(() => { button.textContent = "Add to Cart"; }, 1100);
   });
-  container.querySelectorAll("[data-product-navigation]").forEach((link) => link.addEventListener("click", (event) => {
-    event.preventDefault();
-    window.history.pushState({}, "", link.getAttribute("href"));
-    renderProductDetailPage();
-  }));
+
+  if (alreadyRendered) return;
 
   appendStructuredData("product-detail", {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
     description,
-    image: [product.image, ...product.galleryImages.map((item) => item.url)].map((url) => new URL(url, window.location.href).href),
+    image: [product.image, ...product.galleryImages.map((item) => item.url)].filter(image=>!/catalogue-product\.svg|product-image-coming-soon|placeholder|lullubelle-logo/i.test(image)).map((url) => new URL(url, "https://www.lullubelle.co.za/").href),
     sku: product.sku || product.id,
     brand: { "@type": "Brand", name: product.brand },
     category: product.categories.join(", "),
@@ -1122,6 +1075,7 @@ const renderProductDetailPage = async () => {
       price: product.price,
       availability: /out/i.test(product.stockStatus) ? "https://schema.org/OutOfStock" : /coming|pre.?order/i.test(product.stockStatus) ? "https://schema.org/PreOrder" : "https://schema.org/InStock",
       itemCondition: "https://schema.org/NewCondition",
+      ...(window.LULLUBELLE_INITIAL_CONTENT?.deliverySettings ? {shippingDetails:merchantShippingDetails(product.price)} : {}),
     },
   });
   appendStructuredData("breadcrumb", {
@@ -1175,7 +1129,7 @@ const injectFooterTrustSection = () => {
     }
     bottom.innerHTML = bottomMarkup;
   } else {
-    footer.innerHTML = `<div class="footer-bottom">${bottomMarkup}</div>`;
+    footer.innerHTML = `<p class="footer-business-details">41 Tiemie Singel, Rooihuiskraal North, Centurion<br>Monday–Friday: 08:00–17:00 · Saturday: 08:00–15:00</p><nav class="footer-links legal-footer-links" aria-label="Legal policies" data-legal-footer-links><a href="/refund-policy">Refund Policy</a><a href="/shipping-policy">Shipping Policy</a><a href="/privacy-policy">Privacy Policy</a></nav><div class="footer-bottom">${bottomMarkup}</div>`;
   }
 };
 
@@ -1318,12 +1272,7 @@ const addToCart = (product) => {
   updateCartCount();
   renderCart();
   if (appliedPromo.code) validatePromoCode(appliedPromo.code);
-  trackEvent("add_to_cart", {
-    item_id: product.id,
-    item_name: product.name,
-    value: product.price,
-    currency: "ZAR",
-  });
+  trackCommerce("add_to_cart", [product]);
 };
 
 const updateCartItem = (productId, quantity) => {
@@ -1452,6 +1401,7 @@ const validateCheckout = () => {
   const status = document.querySelector("[data-cart-status]");
   const items = getCart();
   const totals = getOrderTotals(items);
+  if (items.some(item=>item.unavailable)) { if (status) status.textContent="Please remove unavailable products before checkout."; return null; }
   const checkoutDetails = getCheckoutDetails();
 
   if (!items.length) {
@@ -1562,11 +1512,9 @@ const startIkhokhaCheckout = async () => {
       throw new Error(data.error || "Unable to start secure checkout. Please contact Lullubelle for support.");
     }
 
-    trackEvent("begin_checkout", {
-      payment_provider: "ikhokha",
-      value: totals.finalTotal,
-      currency: "ZAR",
-    });
+    trackCommerce("begin_checkout", items, {value:totals.finalTotal});
+    trackCommerce("add_shipping_info", items, {value:totals.finalTotal, shipping_tier:delivery.option});
+    trackCommerce("add_payment_info", items, {value:totals.finalTotal, payment_type:"iKhokha"});
     console.info("Redirecting to iKhokha hosted payment page.", {
       orderNumber: data.orderNumber,
       testMode: data.testMode,
@@ -1578,7 +1526,6 @@ const startIkhokhaCheckout = async () => {
       deliveryFee: totals.deliveryFee,
     }));
     sessionStorage.removeItem(paymentAttemptStorageKey);
-    clearCart();
     window.location.href = data.paymentUrl;
   } catch (error) {
     console.error("Unable to start iKhokha checkout.", error);
@@ -1649,7 +1596,7 @@ const renderCart = () => {
       <img src="${escapeHtml(item.image || "lullubelle-logo.jpg")}" alt="${escapeHtml(item.name)}" width="88" height="88" loading="lazy" decoding="async">
       <div>
         <h3>${escapeHtml(item.name)}</h3>
-        <p>${formatCurrency(item.price)} each</p>
+        <p>${formatCurrency(item.price)} each</p>${item.unavailable ? '<p role="status">This product is no longer available. Please remove it before checkout.</p>' : ""}
         ${item.notes ? `<p class="cart-item-note">${escapeHtml(item.notes)}</p>` : ""}
         <div class="quantity-control" aria-label="Quantity for ${escapeHtml(item.name)}">
           <button type="button" data-cart-qty="${escapeHtml(item.id)}" data-cart-qty-change="-1" aria-label="Decrease quantity">-</button>
@@ -1863,6 +1810,14 @@ document.addEventListener("click", (event) => {
     link_url: link.href || href,
     page_path: window.location.pathname,
   };
+
+  if (/\/products\//.test(href)) {
+    const slug=decodeURIComponent(href.split("/").pop());
+    const source=window.LULLUBELLE_CURRENT_CONTENT || window.LULLUBELLE_INITIAL_CONTENT;
+    const p=source?.products?.find(p=>(p.slug || p.id)===slug);
+    if (p) trackCommerce("select_item",[p]);
+  }
+  if (/book-appointment/.test(href)) trackEvent("booking_start",{cta_type:"booking_link"});
 
   if (href.startsWith("tel:")) {
     trackEvent("phone_click", parameters);
@@ -2082,3 +2037,10 @@ loadManagedContent()
     renderProductDetailPage();
   });
 window.addEventListener("popstate", () => renderProductDetailPage());
+
+if (document.querySelector("[data-cart-items]")) trackCommerce("view_cart", getCart());
+trackVerifiedPurchase().catch(() => {});
+
+if (appointmentBookingForm || bookingForm) trackEvent("booking_start",{cta_type:"booking_form_view"});
+
+if (window.LULLUBELLE_INITIAL_CONTENT) bindProductButtons(document);

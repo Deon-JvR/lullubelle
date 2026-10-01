@@ -1,9 +1,10 @@
-import { ORDERS_KEY, connectBlobContext, json, newId, parseJson, readList, writeList } from "./_admin-shared.mjs";
+import { ORDERS_KEY, requireSession, connectBlobContext, json, newId, parseJson, readList, writeList } from "./_admin-shared.mjs";
 
 export const handler = async (event) => {
   connectBlobContext(event);
   if (event.httpMethod !== "POST") return json(405, { error: "Method not allowed." });
 
+  if (!requireSession(event)) return json(401, {error:"Authentication required."});
   const body = parseJson(event);
   const order = {
     id: newId("order"),

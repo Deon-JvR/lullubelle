@@ -1,3 +1,4 @@
+import { brandsFor } from "../netlify/functions/_public-catalogue.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { handler as adminContentHandler } from "../netlify/functions/admin-content.mjs";
@@ -72,7 +73,9 @@ assert.equal(sitemapResponse.headers["Content-Type"], "application/xml; charset=
 assertHeaders(sitemapResponse.headers, xmlSecurityHeaders);
 const generatedUrls = [...sitemapResponse.body.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
 const activeProducts = products.filter((product) => (product?.slug || product?.id) && product.hidden !== true && product.active !== false && product.published !== false);
-assert.equal(generatedUrls.length, 25 + activeProducts.length);
+const publicCatalogue = JSON.parse((await adminContentHandler({})).body);
+assert.equal(generatedUrls.length, 25 + activeProducts.length + brandsFor(publicCatalogue).length);
+for (const brand of brandsFor(publicCatalogue)) assert(generatedUrls.includes(`${canonicalHost}/shop/${brand.id === "new-brand" ? "launch-bundles" : brand.id}`));
 assert.equal(new Set(generatedUrls).size, generatedUrls.length);
 assert.ok(generatedUrls.includes(`${canonicalHost}/before-after/`));
 assert.ok(!generatedUrls.includes(`${canonicalHost}/before-after`));

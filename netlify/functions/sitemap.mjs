@@ -1,3 +1,4 @@
+import { publicProduct, brandsFor, brandSlug } from "./_public-catalogue.mjs";
 import { connectBlobContext, readContent } from "./_admin-shared.mjs";
 import { mergeSecurityHeaders, xmlSecurityHeaders } from "./lib/security-headers.mjs";
 
@@ -37,13 +38,11 @@ const escapeXml = (value) => String(value)
   .replace(/"/g, "&quot;")
   .replace(/'/g, "&apos;");
 
-export const handler = async (event) => {
-  connectBlobContext(event);
-  const content = await readContent();
+export const sitemapResponse = content => {
   const productPaths = (content.products || [])
-    .filter((product) => (product?.slug || product?.id) && product.hidden !== true && product.active !== false && product.published !== false)
+    .filter((product) => (product?.slug || product?.id) && publicProduct(product))
     .map((product) => `/products/${encodeURIComponent(product.slug || product.id)}`);
-  const urls = [...PAGE_PATHS, ...productPaths];
+  const urls = [...PAGE_PATHS, ...brandsFor(content).map(b => `/shop/${brandSlug(b)}`), ...productPaths];
   const body = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls
     .map((path) => `  <url><loc>${escapeXml(`${SITE_URL}${path}`)}</loc></url>`)
     .join("\n")}\n</urlset>`;
@@ -57,3 +56,5 @@ export const handler = async (event) => {
     body,
   };
 };
+
+export const handler = async event => { connectBlobContext(event); try { return sitemapResponse(await readContent()); } catch { return {statusCode:503,headers:{"Content-Type":"text/html; charset=UTF-8","Retry-After":"60"},body:"<h1>Catalogue temporarily unavailable</h1>"}; } };

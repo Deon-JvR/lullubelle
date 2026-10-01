@@ -1,3 +1,4 @@
+import { reconcileProductImage } from "./_product-image-reconciliation.mjs";
 import { connectLambda, getStore } from "@netlify/blobs";
 import {
   createHmac,
@@ -30,6 +31,7 @@ export const json = (statusCode, data, headers = {}) => ({
   headers: mergeSecurityHeaders({
     "Content-Type": "application/json; charset=utf-8",
     "Cache-Control": "no-store",
+    "X-Robots-Tag": "noindex",
     ...headers,
   }, apiSecurityHeaders),
   body: JSON.stringify(data),
@@ -121,10 +123,14 @@ export const readContent = async () => {
   try {
     stored = await contentStore().get(CONTENT_KEY, { type: "json" });
   } catch (error) {
-    console.error("Admin content read failed; using static fallback", { message: error?.message });
+    console.error("Managed content read failed", { message: error?.message });
+    if (isNetlifyRuntime()) throw Object.assign(new Error("The managed catalogue is temporarily unavailable. Please try again shortly."), {statusCode:503});
     stored = null;
   }
-  if (!stored) return seed;
+  if (!stored) {
+    if (isNetlifyRuntime()) throw Object.assign(new Error("The managed catalogue is temporarily unavailable. Please try again shortly."), {statusCode:503});
+    return seed;
+  }
   const catalogueMigration = migrateCatalogueContent(stored, seed);
   const serviceMigration = migrateServiceCatalogue(catalogueMigration.content, seed);
   if (catalogueMigration.changed || serviceMigration.changed) {
@@ -139,7 +145,7 @@ export const readContent = async () => {
     ...seed,
     ...stored,
     brands: mergeBrands(seed.brands, stored.brands),
-    products: mergeProductCatalogue(seed.products, stored.products),
+    products: mergeProductCatalogue(seed.products, stored.products).map(reconcileProductImage),
     productCategories: [...PRODUCT_CATEGORIES],
     treatments: hasItems(stored.treatments) ? stored.treatments : seed.treatments,
     // Once Blob content exists it is authoritative, including an intentionally empty gallery.
