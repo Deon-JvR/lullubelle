@@ -838,6 +838,10 @@ const renderDiscounts = () => {
         || (state.discountFilter === "archived" && item.archived));
   });
   const brandOptions = (selected = []) => sortedBrands().map((brand) => `<option value="${escapeHtml(brand.id)}" ${selected.includes(brand.id) ? "selected" : ""}>${escapeHtml(brand.name)}</option>`).join("");
+  const brandCheckboxes = (selected = []) => sortedBrands().map((brand) => {
+    const id = String(brand.id);
+    return `<label class="check-row"><input type="checkbox" data-discount-brand value="${escapeHtml(id)}" ${selected.includes(id) ? "checked" : ""}> ${escapeHtml(brand.name)}</label>`;
+  }).join("");
   const productOptions = (selected = []) => state.content.products.map((product) => `<option value="${escapeHtml(product.id)}" ${selected.includes(product.id) ? "selected" : ""}>${escapeHtml(`${product.brand} ${product.name}`)}</option>`).join("");
   $("[data-list='discounts']").innerHTML = visible.map((item) => `
     <article class="editor-card" data-id="${escapeHtml(item.id)}" data-record="discounts">
@@ -849,7 +853,7 @@ const renderDiscounts = () => {
         ${field("Start date and time", item.startsAt || "", "startsAt", "datetime-local")}${field("Expiry date and time", item.expiresAt || "", "expiresAt", "datetime-local")}${field("Minimum order amount", item.minimumOrderAmount || 0, "minimumOrderAmount", "number")}
         ${field("Maximum discount amount", item.maximumDiscountAmount ?? "", "maximumDiscountAmount", "number")}${field("Total usage limit", item.usageLimit ?? "", "usageLimit", "number")}${field("Usage limit per customer", item.usageLimitPerCustomer ?? "", "usageLimitPerCustomer", "number")}
         ${field("Customer email restriction", item.customerEmail || "", "customerEmail", "email")}${checkbox("First order only", item.firstOrderOnly, "firstOrderOnly")}${select("Applies to", item.scope || "order", "scope", [["order","Entire order"],["brands","Selected brands"],["products","Selected products"],["categories","Selected categories"]])}
-        <label>Selected brands<select multiple data-key="brandIds">${brandOptions(item.brandIds)}<\/select><\/label><label>Excluded brands<select multiple data-key="excludedBrandIds">${brandOptions(item.excludedBrandIds)}<\/select><\/label>
+        <fieldset class="discount-brand-selector" data-discount-brands><legend>Selected brands</legend>${brandCheckboxes(item.brandIds)}</fieldset><label>Excluded brands<select multiple data-key="excludedBrandIds">${brandOptions(item.excludedBrandIds)}<\/select><\/label>
         <label>Selected products<select multiple data-key="productIds">${productOptions(item.productIds)}<\/select><\/label><label>Excluded products<select multiple data-key="excludedProductIds">${productOptions(item.excludedProductIds)}<\/select><\/label>
         ${field("Selected categories (comma-separated)", (item.categories || []).join(", "), "categoriesText", "text", "wide")}${field("Description", item.description || "", "description", "textarea", "wide")}
       </div></article>`).join("") || "<p>No discounts match this view.</p>";
@@ -1290,6 +1294,12 @@ document.addEventListener("input", async (event) => {
 
 document.addEventListener("change", async (event) => {
   const input = event.target;
+  if (input.matches("[data-discount-brand]")) {
+    const card = input.closest("[data-record='discounts']");
+    const brandIds = $$("[data-discount-brand]:checked", card).map((checkbox) => checkbox.value);
+    updateRecord(card, "brandIds", brandIds);
+    return;
+  }
   if (input.matches("[data-record='discounts'] select[multiple][data-key]")) {
     const card = input.closest("[data-record='discounts']");
     updateRecord(card, input.dataset.key, Array.from(input.selectedOptions, (option) => option.value));
@@ -1642,13 +1652,37 @@ document.addEventListener("click", async (event) => {
   }
 
   if (target.matches("[data-save-discounts]")) {
+    const selectedBrands = new Map($$("[data-discount-brands]").map((fieldset) => [
+      fieldset.closest("[data-record='discounts']").dataset.id,
+      $$("[data-discount-brand]:checked", fieldset).map((checkbox) => checkbox.value),
+    ]));
+    const items = state.discounts.map((discount) => ({
+      ...discount,
+      brandIds: selectedBrands.get(String(discount.id)) ?? discount.brandIds ?? [],
+    }));
+    state.discounts = items;
+    target.disabled = true;
     try {
-      const result = await request("discounts", { method: "PUT", body: JSON.stringify({ items: state.discounts }) });
-      state.discounts = result.items;
+      await request("discounts", { method: "PUT", body: JSON.stringify({ items }) });
+      const persisted = await request("discounts");
+      const byId = new Map(persisted.map((discount) => [String(discount.id), discount]));
+      for (const { id, brandIds, code } of items) {
+        const savedBrands = byId.get(String(id))?.brandIds ?? [];
+        if (!byId.has(String(id)) || savedBrands.length !== brandIds.length
+            || !brandIds.every((brandId) => savedBrands.includes(brandId))) {
+          throw new Error(`Could not verify the saved brands for ${code}. Your selections are still shown. Please try again.`);
+        }
+      }
+      state.discounts = persisted;
       setDirty(false);
       renderDiscounts();
-      setStatus("Discounts saved.", "success");
-    } catch (error) { setStatus(error.message, "error"); }
+      setStatus("Discounts saved and verified.", "success");
+    } catch (error) {
+      setDirty();
+      setStatus(error.message, "error");
+    } finally {
+      target.disabled = false;
+    }
   }
 
   if (target.matches("[data-save-delivery]")) {

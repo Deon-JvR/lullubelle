@@ -177,10 +177,10 @@ export const writeContent = async (content) => {
   return next;
 };
 
-export const readList = async (key) => {
+export const readList = async (key, { strong = false } = {}) => {
   let stored = null;
   try {
-    stored = await contentStore().get(key, { type: "json" });
+    stored = await contentStore().get(key, metadataReadOptions({ strong }));
   } catch (error) {
     if (isNetlifyRuntime()) throw error;
     stored = localLists.get(key) || [];

@@ -341,6 +341,9 @@ textarea { min-height: 92px; resize: vertical; }
 }
 
 .discount-tools { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(160px, 240px); gap: 10px; margin-bottom: 14px; }
+.discount-brand-selector { min-width: 0; margin: 0; padding: .5rem .75rem; border: 1px solid var(--line); border-radius: 12px; }
+.discount-brand-selector legend { font-weight: 800; }
+.discount-brand-selector .check-row { display: flex; gap: 8px; padding: .2rem 0; }
 [data-record="discounts"] select[multiple] { min-height: 140px; }
 
 .editor-card {
