@@ -1284,12 +1284,18 @@ document.addEventListener("input", async (event) => {
   }
 
   const key = input.dataset.key;
-  if (!key) return;
-  updateRecord(card, key, input.multiple ? Array.from(input.selectedOptions, (option) => option.value) : input.type === "checkbox" ? input.checked : input.value);
+  if (!key || input.multiple) return;
+  updateRecord(card, key, input.type === "checkbox" ? input.checked : input.value);
 });
 
 document.addEventListener("change", async (event) => {
   const input = event.target;
+  if (input.matches("[data-record='discounts'] select[multiple][data-key]")) {
+    const card = input.closest("[data-record='discounts']");
+    updateRecord(card, input.dataset.key, Array.from(input.selectedOptions, (option) => option.value));
+    return;
+  }
+
   if (input.matches("[data-order-filter]")) {
     state.orderFilter = input.value;
     renderOrders();
