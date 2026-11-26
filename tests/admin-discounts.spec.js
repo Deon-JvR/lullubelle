@@ -7,13 +7,20 @@ test("discount brand selections survive saving and reloading", async ({ page }) 
     products: [], treatments: [], gallery: [], vouchers: [], deliverySettings: {},
   };
   let dropBrandSelections = false;
+  let staleDiscounts;
   let discounts = [{ id: "discount-1", code: "LULLU25", name: "Black Friday", scope: "brands", brandIds: [] }];
   await page.route("**/.netlify/functions/admin-api**", async (route) => {
     const action = new URL(route.request().url()).searchParams.get("action");
     if (action === "discounts" && route.request().method() === "PUT") {
-      const { items } = route.request().postDataJSON();
+      const items = route.request().postDataJSON().items.map((item) => ({ ...item, updatedAt: new Date().toISOString() }));
+      staleDiscounts = discounts;
       discounts = dropBrandSelections ? items.map((item) => ({ ...item, brandIds: [] })) : items;
       return route.fulfill({ json: { items } });
+    }
+    if (action === "discounts" && staleDiscounts) {
+      const previous = staleDiscounts;
+      staleDiscounts = undefined;
+      return route.fulfill({ json: previous });
     }
     const json = action === "me" ? { authenticated: true }
       : action === "content" ? content

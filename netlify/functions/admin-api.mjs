@@ -253,7 +253,7 @@ export const handler = async (event) => {
   }
 
   if (method === "GET" && action === "discounts") {
-    const discounts = await readList(DISCOUNTS_KEY, { strong: true });
+    const discounts = await readList(DISCOUNTS_KEY);
     const orders = await readList(ORDERS_KEY);
     return json(200, discounts.map((discount) => ({
       ...discount,

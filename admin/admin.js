@@ -1102,6 +1102,18 @@ const reloadPersistedContent = async (submitted, timeoutMs = 65000) => {
   throw new Error(`${lastError} Refresh and verify the catalogue before making further changes.`);
 };
 
+const reloadSavedDiscounts = async (saved) => {
+  const deadline = Date.now() + 65000;
+  while (Date.now() < deadline) {
+    const discounts = await request("discounts");
+    const revisions = new Map(discounts.map((item) => [item.id, item.updatedAt]));
+    if (discounts.length === saved.length && saved.every((item) =>
+      revisions.has(item.id) && revisions.get(item.id) === item.updatedAt)) return discounts;
+    await new Promise((resolve) => window.setTimeout(resolve, 1500));
+  }
+  throw new Error("The latest discount changes could not be verified yet. Your selections are still shown.");
+};
+
 const persistWebsiteContent = async (successMessage) => {
   if (state.saving) return;
   if (state.pendingUploads.size) {
@@ -1662,9 +1674,12 @@ document.addEventListener("click", async (event) => {
     }));
     state.discounts = items;
     target.disabled = true;
+    const panel = target.closest("[data-panel]");
+    panel.inert = true;
+    setStatus("Checking saved discounts…");
     try {
-      await request("discounts", { method: "PUT", body: JSON.stringify({ items }) });
-      const persisted = await request("discounts");
+      const result = await request("discounts", { method: "PUT", body: JSON.stringify({ items }) });
+      const persisted = await reloadSavedDiscounts(result.items);
       const byId = new Map(persisted.map((discount) => [String(discount.id), discount]));
       for (const { id, brandIds, code } of items) {
         const savedBrands = byId.get(String(id))?.brandIds ?? [];
@@ -1681,6 +1696,7 @@ document.addEventListener("click", async (event) => {
       setDirty();
       setStatus(error.message, "error");
     } finally {
+      panel.inert = false;
       target.disabled = false;
     }
   }
