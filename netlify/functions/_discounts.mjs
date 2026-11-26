@@ -77,6 +77,10 @@ export const validatePromo = async ({ code, email, products, subtotal, deliveryF
   if (discount.expiresAt && now >= new Date(discount.expiresAt)) throw new Error("This promo code has expired.");
   if (subtotal < Number(discount.minimumOrderAmount || 0)) throw new Error(`This promo code requires a minimum order of R${money(discount.minimumOrderAmount).toFixed(2)}.`);
   const customerEmail = String(email || "").trim().toLowerCase();
+  const needsCustomerEmail = discount.customerEmail || discount.firstOrderOnly || discount.usageLimitPerCustomer;
+  if (needsCustomerEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) {
+    throw new Error("Enter your email address to check this promo code.");
+  }
   if (discount.customerEmail && discount.customerEmail !== customerEmail) throw new Error("This promo code is restricted to another customer.");
   const orders = await readList("orders");
   const redeemed = orders.filter((order) => order.promoCode === discount.code && order.paymentStatus !== "Unpaid" && order.orderStatus !== "Cancelled");

@@ -800,14 +800,17 @@ export const handler = async (event) => {
     fee: deliveryOption === "pudo" ? deliverySettings.standardPudoFee : deliveryOption === DOOR_TO_DOOR_METHOD ? DOOR_TO_DOOR_FEE : 0,
   };
 
-  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer.email);
-  const phoneValid = customer.phone.replace(/\D/g, "").length >= 7;
-  if (!customer.name || !emailValid || !phoneValid) {
-    return json(400, { error: "A valid customer name, email address and mobile number are required." });
-  }
+  const isPromoQuote = event.queryStringParameters?.action === "validate-promo";
+  if (!isPromoQuote) {
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer.email);
+    const phoneValid = customer.phone.replace(/\D/g, "").length >= 7;
+    if (!customer.name || !emailValid || !phoneValid) {
+      return json(400, { error: "A valid customer name, email address and mobile number are required." });
+    }
 
-  if (delivery.option !== "collection" && (!address.streetAddress || !address.suburb || !address.city || !address.province || !address.postalCode)) {
-    return json(400, { error: `Street address, suburb, city, province and postal code are required for ${delivery.label}.` });
+    if (delivery.option !== "collection" && (!address.streetAddress || !address.suburb || !address.city || !address.province || !address.postalCode)) {
+      return json(400, { error: `Street address, suburb, city, province and postal code are required for ${delivery.label}.` });
+    }
   }
 
   try {
@@ -821,7 +824,7 @@ export const handler = async (event) => {
       discount = { discount: discount.discount, ...calculateDiscount({ discount: discountRules, products, subtotal, deliveryFee: deliveryCalculation.deliveryFee }) };
     }
     const originalDeliveryFee = deliveryCalculation.deliveryFee;
-    if (event.queryStringParameters?.action === "validate-promo") {
+    if (isPromoQuote) {
       return json(200, { ok: true, promoCode: discount?.discount.code || "", discountAmount: discount?.discountAmount || 0, productDiscount: discount?.productDiscount || 0, deliveryFee: discount?.deliveryFee ?? originalDeliveryFee, total: discount?.total ?? money(subtotal + originalDeliveryFee), freeDeliveryApplied: deliveryCalculation.freeDeliveryApplied, qualifyingSubtotal: deliveryCalculation.qualifyingSubtotal, deliverySettings, message: discount ? `${discount.discount.code} applied.` : "Enter a promo code." });
     }
     const missing = ["IKHOKHA_API_KEY", "IKHOKHA_API_SECRET"].filter((key) => !process.env[key]);

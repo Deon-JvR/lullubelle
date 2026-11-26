@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { ORDERS_KEY, readList } from "../netlify/functions/_admin-shared.mjs";
+import { ORDERS_KEY, readList, writeList } from "../netlify/functions/_admin-shared.mjs";
+import { DISCOUNTS_KEY, sanitiseDiscount } from "../netlify/functions/_discounts.mjs";
 import { handler } from "../netlify/functions/ikhokha-checkout.mjs";
 
 process.env.IKHOKHA_API_KEY = "test-app-id";
@@ -44,6 +45,24 @@ const event = (body) => ({
 });
 
 try {
+  const discount = sanitiseDiscount({ code: "BRANDS25", type: "percentage", value: 25, scope: "brands", brandIds: ["kalahari"] });
+  const emailDiscount = sanitiseDiscount({ ...discount, id: "email-offer", code: "FIRST25", firstOrderOnly: true });
+  await writeList(DISCOUNTS_KEY, [discount, emailDiscount]);
+  const quote = (body) => handler({ ...event(body), queryStringParameters: { action: "validate-promo" } });
+  const items = [{ id: "kalahari-skincare-journey-kit-in-travel-bag", quantity: 1 }];
+  for (const deliveryOption of ["collection", "pudo", "door_to_door_flat_rate"]) {
+    const preview = await quote({ items, deliveryOption, promoCode: discount.code });
+    assert.equal(preview.statusCode, 200, preview.body);
+    assert.equal(JSON.parse(preview.body).productDiscount, 154.25);
+  }
+  const anonymous = await quote({ items, promoCode: emailDiscount.code });
+  assert.equal(anonymous.statusCode, 400);
+  assert.match(JSON.parse(anonymous.body).error, /enter your email/i);
+  const identified = await quote({ email: "customer@example.invalid", items, promoCode: emailDiscount.code });
+  assert.equal(identified.statusCode, 200, identified.body);
+  assert.equal(providerPayload, undefined, "Promo quotes must finish before requesting payment.");
+  assert.equal((await readList(ORDERS_KEY)).length, 0);
+
   const response = await handler(event(baseBody));
   assert.equal(response.statusCode, 200);
   const result = JSON.parse(response.body);

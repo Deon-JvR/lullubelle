@@ -483,6 +483,7 @@ const DOOR_TO_DOOR_FEE = 80;
 const SUPPORTED_DELIVERY_METHODS = new Set(["collection", "pudo", DOOR_TO_DOOR_METHOD]);
 const DEFAULT_DELIVERY_SETTINGS = { freeDeliveryThreshold: 1000, standardPudoFee: 80, collectionEnabled: true };
 let deliverySettings = { ...DEFAULT_DELIVERY_SETTINGS, ...window.LULLUBELLE_INITIAL_CONTENT?.deliverySettings };
+let pendingPromoRequest = null;
 let appliedPromo = { code: localStorage.getItem(PROMO_KEY) || "", discountAmount: 0, productDiscount: 0, deliveryFee: null, total: null };
 const currencyFormatter = new Intl.NumberFormat("en-ZA", {
   style: "currency",
@@ -1147,6 +1148,7 @@ const saveCart = (items) => {
 };
 
 const clearCart = () => {
+  pendingPromoRequest = null;
   saveCart([]);
   appliedPromo = { code: "", discountAmount: 0, productDiscount: 0, deliveryFee: null, total: null };
   localStorage.removeItem(PROMO_KEY);
@@ -1222,25 +1224,41 @@ const validatePromoCode = async (code = document.querySelector("[data-promo-code
   if (!normalised) { if (status) status.textContent = "Enter a promo code."; return; }
   if (status) status.textContent = "Checking promo code…";
   const details = document.querySelector("[data-checkout-details]");
-  const email = new FormData(details || undefined).get("email")?.toString().trim() || "";
+  const email = details?.elements.namedItem("email")?.value.trim() || "";
   const items = getCart();
+  const pending = { code: normalised };
+  pendingPromoRequest = pending;
+  setCartCheckoutState(items);
   try {
-    const response = await fetch(`${IKHOKHA_CHECKOUT_ENDPOINT}?action=validate-promo`, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ customer: { name: "Cart customer", email: email || "pending@customer.invalid", phone: "pending" }, items, deliveryOption: getSelectedDeliveryOption(), promoCode: normalised }) });
+    const response = await fetch(`${IKHOKHA_CHECKOUT_ENDPOINT}?action=validate-promo`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ email, items, deliveryOption: getSelectedDeliveryOption(), promoCode: normalised }),
+    });
     const data = await readCheckoutResponse(response);
+    if (pendingPromoRequest !== pending) return;
     if (!response.ok) throw new Error(data.error || "This promo code is not valid.");
     if (data.deliverySettings) deliverySettings = { ...DEFAULT_DELIVERY_SETTINGS, ...data.deliverySettings };
     appliedPromo = { code: data.promoCode, discountAmount: data.discountAmount, productDiscount: data.productDiscount || 0, deliveryFee: data.deliveryFee, total: data.total };
     localStorage.setItem(PROMO_KEY, data.promoCode);
     if (status) status.textContent = data.message;
   } catch (error) {
+    if (pendingPromoRequest !== pending) return;
     appliedPromo = { code: "", discountAmount: 0, productDiscount: 0, deliveryFee: null, total: null };
     localStorage.removeItem(PROMO_KEY);
     if (status) status.textContent = error.message;
   }
+  pendingPromoRequest = null;
   renderCart();
 };
 
+const refreshPromoQuote = () => {
+  const code = pendingPromoRequest?.code || appliedPromo.code;
+  if (code) validatePromoCode(code);
+};
+
 const removePromoCode = () => {
+  pendingPromoRequest = null;
   appliedPromo = { code: "", discountAmount: 0, productDiscount: 0, deliveryFee: null, total: null };
   localStorage.removeItem(PROMO_KEY);
   const input = document.querySelector("[data-promo-code]");
@@ -1271,7 +1289,7 @@ const addToCart = (product) => {
   saveCart(items);
   updateCartCount();
   renderCart();
-  if (appliedPromo.code) validatePromoCode(appliedPromo.code);
+  refreshPromoQuote();
   trackCommerce("add_to_cart", [product]);
 };
 
@@ -1282,14 +1300,14 @@ const updateCartItem = (productId, quantity) => {
   saveCart(items);
   updateCartCount();
   renderCart();
-  if (appliedPromo.code) validatePromoCode(appliedPromo.code);
+  refreshPromoQuote();
 };
 
 const setCartCheckoutState = (items) => {
   const providerLinks = document.querySelectorAll("[data-cart-ikhokha-checkout]");
 
   providerLinks.forEach((link) => {
-    if (!items.length) {
+    if (!items.length || pendingPromoRequest) {
       link.setAttribute("aria-disabled", "true");
       link.disabled = true;
       return;
@@ -1636,7 +1654,7 @@ const renderCart = () => {
 
   setCartCheckoutState(items);
   const promoInput = document.querySelector("[data-promo-code]");
-  if (promoInput && document.activeElement !== promoInput) promoInput.value = appliedPromo.code;
+  if (promoInput && appliedPromo.code && document.activeElement !== promoInput) promoInput.value = appliedPromo.code;
   document.querySelector("[data-promo-remove]")?.toggleAttribute("hidden", !appliedPromo.code);
 };
 
@@ -1740,7 +1758,7 @@ document.addEventListener("change", (event) => {
     if (status) status.textContent = "";
     updateDeliveryUi();
     renderCart();
-    if (appliedPromo.code) validatePromoCode(appliedPromo.code);
+    refreshPromoQuote();
   }
 });
 
