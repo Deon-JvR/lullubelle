@@ -84,10 +84,10 @@
 
         <section class="panel" data-panel="delivery">
           <div class="panel-heading"><h2>Delivery Settings</h2><button class="button primary" type="button" data-save-delivery>Save delivery settings</button></div>
-          <p class="hint">Free delivery is calculated from the product subtotal after product discounts, before delivery charges.</p>
+          <p class="hint">Set the threshold to R0 to turn off automatic free PUDO delivery. A positive threshold applies to the product subtotal after discounts.</p>
           <div class="editor-card delivery-settings-card">
             <div class="form-grid">
-              <label>Free delivery threshold (R)<input type="number" min="0" step="1" data-delivery-setting="freeDeliveryThreshold"></label>
+              <label>Free PUDO delivery threshold (R)<input type="number" min="0" step="1" data-delivery-setting="freeDeliveryThreshold"></label>
               <label>Standard PUDO delivery fee (R)<input type="number" min="0" step="1" data-delivery-setting="standardPudoFee"></label>
               <label class="check-row"><input type="checkbox" data-delivery-setting="collectionEnabled"> Collection from Lullubelle (Centurion) available</label>
             </div>

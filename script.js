@@ -1196,7 +1196,7 @@ const renderConfirmationProcessingNotice = () => {
 };
 
 const qualifyingProductSubtotal = (subtotal) => Math.max(0, subtotal - (Number(appliedPromo.productDiscount) || 0));
-const qualifiesForFreeDelivery = (subtotal, deliveryOption = getSelectedDeliveryOption()) => deliveryOption === "pudo"
+const qualifiesForFreeDelivery = (subtotal, deliveryOption = getSelectedDeliveryOption()) => deliveryOption === "pudo" && deliverySettings.freeDeliveryThreshold > 0
   && qualifyingProductSubtotal(subtotal) >= deliverySettings.freeDeliveryThreshold;
 const getDeliveryFee = (deliveryOption = getSelectedDeliveryOption(), subtotal = getCartTotals().amount) => deliveryOption === "pudo" && !qualifiesForFreeDelivery(subtotal, deliveryOption)
   ? deliverySettings.standardPudoFee
@@ -1213,7 +1213,6 @@ const getOrderTotals = (items = getCart()) => {
     discountAmount: appliedPromo.discountAmount || 0,
     deliveryFee: appliedPromo.deliveryFee == null ? deliveryFee : appliedPromo.deliveryFee,
     freeDeliveryApplied: qualifiesForFreeDelivery(cartTotals.amount, deliveryOption),
-    qualifyingSubtotal: qualifyingProductSubtotal(cartTotals.amount),
     finalTotal: appliedPromo.total == null ? cartTotals.amount + deliveryFee : appliedPromo.total,
   };
 };
@@ -1644,12 +1643,18 @@ const renderCart = () => {
     summaryTotal.textContent = formatCurrency(totals.finalTotal);
   }
   const pudoFee = document.querySelector("[data-pudo-fee]");
-  if (pudoFee) pudoFee.textContent = totals.qualifyingSubtotal >= deliverySettings.freeDeliveryThreshold ? "FREE" : formatCurrency(deliverySettings.standardPudoFee);
+  const freePudo = qualifiesForFreeDelivery(totals.subtotal, "pudo");
+  if (pudoFee) pudoFee.textContent = freePudo ? "FREE" : formatCurrency(deliverySettings.standardPudoFee);
   if (freeDeliveryMessage) {
-    const remaining = Math.max(0, deliverySettings.freeDeliveryThreshold - totals.qualifyingSubtotal);
-    freeDeliveryMessage.textContent = totals.qualifyingSubtotal >= deliverySettings.freeDeliveryThreshold
-      ? "🎉 Your order qualifies for FREE PUDO delivery."
-      : `Spend ${formatCurrency(remaining)} more to qualify for FREE PUDO delivery.`;
+    freeDeliveryMessage.hidden = deliverySettings.freeDeliveryThreshold <= 0;
+    if (freeDeliveryMessage.hidden) {
+      freeDeliveryMessage.textContent = "";
+    } else if (freePudo) {
+      freeDeliveryMessage.textContent = "🎉 Your order qualifies for FREE PUDO delivery.";
+    } else {
+      const remaining = deliverySettings.freeDeliveryThreshold - qualifyingProductSubtotal(totals.subtotal);
+      freeDeliveryMessage.textContent = `Spend ${formatCurrency(remaining)} more to qualify for FREE PUDO delivery.`;
+    }
   }
 
   setCartCheckoutState(items);

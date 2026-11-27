@@ -26,7 +26,7 @@ export const calculateDelivery = ({ productSubtotal, productDiscount = 0, delive
   const method = normaliseDeliveryMethod(deliveryOption);
   const configured = sanitiseDeliverySettings(settings);
   const qualifyingSubtotal = money(productSubtotal - productDiscount);
-  const freeDeliveryApplied = method === "pudo" && qualifyingSubtotal >= configured.freeDeliveryThreshold;
+  const freeDeliveryApplied = method === "pudo" && configured.freeDeliveryThreshold > 0 && qualifyingSubtotal >= configured.freeDeliveryThreshold;
   const deliveryFee = method === DOOR_TO_DOOR_METHOD
     ? DOOR_TO_DOOR_FEE
     : method === "pudo" && !freeDeliveryApplied ? configured.standardPudoFee : 0;

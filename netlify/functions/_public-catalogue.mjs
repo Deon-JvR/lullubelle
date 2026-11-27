@@ -31,8 +31,11 @@ export const shippingDetails = () => ["pudo","door"].map(method=>({"@type":"Offe
 export const shippingServices = settings => {
   const s=sanitiseDeliverySettings(settings);
   const condition=(rate,range)=>({"@type":"ShippingConditions",shippingDestination:{"@type":"DefinedRegion",addressCountry:"ZA"},...(range?{orderValue:{"@type":"MonetaryAmount",currency:"ZAR",...range}}:{}),shippingRate:{"@type":"MonetaryAmount",value:rate,currency:"ZAR"}});
+  const pudoConditions = s.freeDeliveryThreshold > 0
+    ? [condition(s.standardPudoFee, { minValue: 0, maxValue: s.freeDeliveryThreshold - 0.01 }), condition(0, { minValue: s.freeDeliveryThreshold })]
+    : [condition(s.standardPudoFee)];
   return [
-    {"@type":"ShippingService","@id":`${SITE_URL}/shipping-policy#pudo`,name:"PUDO locker delivery",fulfillmentType:"https://schema.org/FulfillmentTypeCollectionPoint",shippingConditions:[...(s.freeDeliveryThreshold > 0 ? [condition(s.standardPudoFee,{minValue:0,maxValue:Math.max(0,s.freeDeliveryThreshold-0.01)})]:[]),condition(0,{minValue:s.freeDeliveryThreshold})]},
+    {"@type":"ShippingService","@id":`${SITE_URL}/shipping-policy#pudo`,name:"PUDO locker delivery",fulfillmentType:"https://schema.org/FulfillmentTypeCollectionPoint",shippingConditions:pudoConditions},
     {"@type":"ShippingService","@id":`${SITE_URL}/shipping-policy#door`,name:"Door-to-door delivery",fulfillmentType:"https://schema.org/FulfillmentTypeDelivery",shippingConditions:[condition(DOOR_TO_DOOR_FEE)]},
   ];
 };

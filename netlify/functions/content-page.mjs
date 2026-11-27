@@ -54,11 +54,14 @@ export const renderContentPage = (path, content) => {
     const business=JSON.parse(readFileSync("index.html","utf8").match(/<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/)[1]);
     const schema={...business,"@type":[...new Set([...(Array.isArray(business["@type"])?business["@type"]:[business["@type"]]),"Organization"])],hasShippingService:shippingServices(content.deliverySettings)};
     html=html.replace("</head>",`<script type="application/ld+json" data-merchant-shipping-policy>${safeJson(schema)}</script></head>`);
+    const settings = content.deliverySettings;
+    const offer = settings.freeDeliveryThreshold > 0
+      ? ` Free PUDO delivery applies from ${moneyLabel(settings.freeDeliveryThreshold)} after discounts.` : "";
+    html = html.replace("<h2>Shipping Costs</h2>", `<h2>Shipping Costs</h2><p>PUDO locker delivery: ${moneyLabel(settings.standardPudoFee)}.${offer} ${settings.collectionEnabled ? "Collection from Lullubelle is free." : "Collection is currently unavailable."}</p>`);
   }
-  if (file === "shipping-policy.html") html=html.replace("<h2>Shipping Costs</h2>", `<h2>Shipping Costs</h2><p>PUDO locker delivery: ${moneyLabel(content.deliverySettings.standardPudoFee)}. Free PUDO delivery applies when the qualifying order subtotal reaches ${moneyLabel(content.deliverySettings.freeDeliveryThreshold)}. ${content.deliverySettings.collectionEnabled ? "Collection from Lullubelle is free." : "Collection is currently unavailable."}</p>`);
-  if (file === "shipping-policy.html" || file === "cart.html") {
+  if (file === "cart.html") {
     const fee=content.deliverySettings?.standardPudoFee;
-    if (fee !== undefined) html=html.replace(/(PUDO[\s\S]{0,160}?)R80/g,`$1${moneyLabel(fee)}`);
+    if (fee !== undefined) html=html.replace(/(<strong data-pudo-fee>)[^<]*/, `$1${moneyLabel(fee)}`);
   }
   const initialData = bootstrap(content, {ids:homeFeaturedIds,mode:file === "index.html" ? "home" : file === "pricelist.html" ? "pricelist" : file === "before-after/index.html" ? "gallery" : file === "cart.html" ? "cart" : file === "shipping-policy.html" ? "policy" : "legacy"});
   // Deferred scripts execute after parsing, so the homepage data can follow its content.
