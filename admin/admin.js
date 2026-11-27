@@ -1,3 +1,5 @@
+import { discountFormTime, discountTimestamp } from "../public/discount-schedule.js";
+
 const API = "/.netlify/functions/admin-api";
 const SESSION_REFRESH_INTERVAL_MS = 4 * 60 * 1000;
 const SESSION_EXPIRED_MESSAGE = "Your admin session has expired. Please sign in again.";
@@ -830,7 +832,7 @@ const renderDiscounts = () => {
   const now = new Date();
   const query = state.discountSearch.toLowerCase();
   const visible = state.discounts.filter((item) => {
-    const expired = item.expiresAt && new Date(item.expiresAt) <= now;
+    const expired = item.expiresAt && discountTimestamp(item.expiresAt) <= now;
     return (!query || `${item.code} ${item.name}`.toLowerCase().includes(query))
       && (state.discountFilter === "all"
         || (state.discountFilter === "active" && item.active && !item.archived && !expired)
@@ -850,7 +852,7 @@ const renderDiscounts = () => {
       <div class="form-grid">
         ${field("Promo code", item.code || "", "code")}${field("Internal name", item.name || "", "name")}${select("Discount type", item.type || "percentage", "type", [["percentage", "Percentage"], ["fixed", "Fixed amount"]])}
         ${field("Discount value", item.value || 0, "value", "number")}${checkbox("Active", item.active, "active")}${checkbox("Free delivery", item.freeDelivery, "freeDelivery")}
-        ${field("Start date and time", item.startsAt || "", "startsAt", "datetime-local")}${field("Expiry date and time", item.expiresAt || "", "expiresAt", "datetime-local")}${field("Minimum order amount", item.minimumOrderAmount || 0, "minimumOrderAmount", "number")}
+        ${field("Start date and time (SAST)", discountFormTime(item.startsAt), "startsAt", "datetime-local")}${field("Expiry date and time (SAST)", discountFormTime(item.expiresAt), "expiresAt", "datetime-local")}${field("Minimum order amount", item.minimumOrderAmount || 0, "minimumOrderAmount", "number")}
         ${field("Maximum discount amount", item.maximumDiscountAmount ?? "", "maximumDiscountAmount", "number")}${field("Total usage limit", item.usageLimit ?? "", "usageLimit", "number")}${field("Usage limit per customer", item.usageLimitPerCustomer ?? "", "usageLimitPerCustomer", "number")}
         ${field("Customer email restriction", item.customerEmail || "", "customerEmail", "email")}${checkbox("First order only", item.firstOrderOnly, "firstOrderOnly")}${select("Applies to", item.scope || "order", "scope", [["order","Entire order"],["brands","Selected brands"],["products","Selected products"],["categories","Selected categories"]])}
         <fieldset class="discount-brand-selector" data-discount-brands><legend>Selected brands</legend>${brandCheckboxes(item.brandIds)}</fieldset><label>Excluded brands<select multiple data-key="excludedBrandIds">${brandOptions(item.excludedBrandIds)}<\/select><\/label>

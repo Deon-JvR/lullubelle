@@ -1,3 +1,4 @@
+import { discountTimestamp } from "../../public/discount-schedule.js";
 import { contentStore, newId, readList } from "./_admin-shared.mjs";
 
 export const DISCOUNTS_KEY = "discounts";
@@ -42,7 +43,7 @@ export const validateDiscountRecord = (discount, all = []) => {
   if (!discount.name) return "Internal name is required.";
   if (!(discount.value > 0) && !discount.freeDelivery) return "Enter a discount value or enable free delivery.";
   if (discount.type === "percentage" && discount.value > 100) return "Percentage discounts cannot exceed 100%.";
-  if (discount.expiresAt && discount.startsAt && new Date(discount.expiresAt) <= new Date(discount.startsAt)) return "Expiry must be after the start date.";
+  if (discount.expiresAt && discount.startsAt && discountTimestamp(discount.expiresAt) <= discountTimestamp(discount.startsAt)) return "Expiry must be after the start date.";
   if (all.some((item) => item.id !== discount.id && normalisePromoCode(item.code) === discount.code && !item.archived)) return "That promo code already exists.";
   return "";
 };
@@ -73,8 +74,8 @@ export const validatePromo = async ({ code, email, products, subtotal, deliveryF
   const discount = discounts.find((item) => normalisePromoCode(item.code) === normalisedCode && !item.archived);
   if (!discount) throw new Error("Invalid promo code.");
   if (!discount.active) throw new Error("This promo code is inactive.");
-  if (discount.startsAt && now < new Date(discount.startsAt)) throw new Error("This promo code has not started yet.");
-  if (discount.expiresAt && now >= new Date(discount.expiresAt)) throw new Error("This promo code has expired.");
+  if (discount.startsAt && now < discountTimestamp(discount.startsAt)) throw new Error("This promo code has not started yet.");
+  if (discount.expiresAt && now >= discountTimestamp(discount.expiresAt)) throw new Error("This promo code has expired.");
   if (subtotal < Number(discount.minimumOrderAmount || 0)) throw new Error(`This promo code requires a minimum order of R${money(discount.minimumOrderAmount).toFixed(2)}.`);
   const customerEmail = String(email || "").trim().toLowerCase();
   const needsCustomerEmail = discount.customerEmail || discount.firstOrderOnly || discount.usageLimitPerCustomer;
